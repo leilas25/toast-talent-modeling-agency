@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Models | Toast Talent</title>
+  <link rel="stylesheet" href="style.css"/>
+  <!-- Add Dancing Script font for fancy model names -->
+  <link href="https://fonts.googleapis.com/css?family=Dancing+Script:700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
+  <style>
+    /* Fancy style for model names */
+    .model-name {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 1.5em;
+      color: #6f0202;
+      font-weight: 700;
+      text-shadow: 1px 1px 6px #ffe0e6;
+      letter-spacing: 1px;
+      margin-top: 8px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .model-card img {
+      width: 100%;
+      max-width: 180px;
+      border-radius: 12px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .model-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+      padding: 16px;
+      margin: 14px;
+      display: inline-block;
+      vertical-align: top;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      width: 220px;
+      text-align: center;
+    }
+    .model-card:hover {
+      box-shadow: 0 6px 24px rgba(192,57,43,0.18);
+    }
+    .models-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-content">
+      <a href="index.html" class="nav-logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="models.html" class="active">Models</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="admin.html" class="admin-link">Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+  <main>
+    <section class="models-hero">
+      <h1 class="rainbow-models">Our Models</h1>
+      <p>Meet the faces of Toast Talent. Click any photo for more details.</p>
+    </section>
+    <section class="models-gallery">
+      <div class="models-grid" id="modelsGrid"></div>
+    </section>
+  </main>
+  <footer>
+    &copy; 2025 Toast Talent Modeling Agency
+  </footer>
+  <script>
+    // Fetch models from backend and display in grid
+    function loadModels() {
+      fetch('/api/models')
+        .then(res => res.json())
+        .then(models => {
+          document.getElementById('modelsGrid').innerHTML = models.map(model => {
+            // Use default image if images missing or empty
+            const imgSrc = model.images && model.images.length > 0 ? model.images[0] : 'images/default.jpg';
+            return `
+              <div class="model-card" onclick="window.location='profile.html?id=${model.id}'" style="cursor:pointer;">
+                <img src="${imgSrc}" alt="${model.name}">
+                <div class="model-name">${model.name}</div>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(err => {
+          document.getElementById('modelsGrid').innerHTML = "<p>Error loading models.</p>";
+          console.error('Error loading models:', err);
+        });
+    }
+    loadModels();
+  </script>
+</body>
+</html>

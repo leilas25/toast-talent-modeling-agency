@@ -1,0 +1,29 @@
+[
+  {
+    "id": "1755537337362",
+    "name": "Leila Sono",
+    "age": "20",
+    "shoe": "6",
+    "shirt": "S",
+    "pants": "M",
+    "height": "164",
+    "images": [
+      "/images/Screenshot (533)-1755537337287.png",
+      "/images/Screenshot (537)-1755537337313.png",
+      "/images/Screenshot (539)-1755537337325.png",
+      "/images/Screenshot (541)-1755537337339.png"
+    ]
+  },
+  {
+    "id": "1755537395118",
+    "name": "Elijah Sono",
+    "age": "13",
+    "shoe": "6",
+    "shirt": "S",
+    "pants": "S",
+    "height": "164",
+    "images": [
+      "/images/29ec1501-682b-4faa-9d5d-161685c7e076-1755537395108.jpeg"
+    ]
+  }
+]

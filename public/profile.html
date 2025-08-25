@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Model Profile | Toast Talent</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body, .model-name, .profile-label, .profile-gallery-img, .nav-links, .nav-logo, .footer {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .model-name {
+      font-size: 2em;
+      color: #141212;
+      font-weight: 700;
+      margin-bottom: 18px;
+      text-align: left;
+      display: block;
+    }
+    .profile-gallery-img {
+      height: 250px;
+      border-radius: 18px;
+      margin-right: 24px;
+      margin-bottom: 12px;
+    }
+    .profile-label {
+      font-weight:700;
+      margin-right: 6px;
+    }
+    @media (max-width: 768px) {
+      .profile-gallery-img {
+        height: 160px;
+        margin-right: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-content">
+      <a href="index.html" class="nav-logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+  <main>
+    <div id="profile-content"></div>
+  </main>
+  <footer>
+    &copy; 2025 Toast Talent Modeling Agency
+  </footer>
+  <script>
+    // Utility: Extract Model ID from URL Query String
+    function getModelIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    async function loadProfile() {
+      const id = getModelIdFromUrl();
+      if (!id) {
+        document.getElementById('profile-content').innerHTML = "<h2>Model not found</h2>";
+        return;
+      }
+
+      const res = await fetch('/api/models');
+      const models = await res.json();
+      const model = models.find(m => m.id === id);
+
+      if (!model) {
+        document.getElementById('profile-content').innerHTML = "<h2>Model not found</h2>";
+        return;
+      }
+
+      // Gallery Images
+      const galleryHtml = (model.images || []).map(img =>
+        `<img src="${img}" alt="Model Image" class="profile-gallery-img">`
+      ).join('');
+
+      // Profile details with bold labels
+      const detailsHtml = `
+        <div><span class="profile-label">Age:</span> ${model.age}</div>
+        <div><span class="profile-label">Shoe Size:</span> ${model.shoe}</div>
+        <div><span class="profile-label">Shirt Size:</span> ${model.shirt}</div>
+        <div><span class="profile-label">Pants Size:</span> ${model.pants}</div>
+        <div><span class="profile-label">Height:</span> ${model.height}</div>
+      `;
+
+      document.getElementById('profile-content').innerHTML = `
+        <span class="model-name">${model.name}</span>
+        <div style="display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap;">
+          ${galleryHtml}
+        </div>
+        <div style="margin-top: 36px; margin-bottom: 48px;">
+          ${detailsHtml}
+        </div>
+      `;
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>

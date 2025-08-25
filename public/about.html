@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us | Toast Talent Modeling Agency</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
+  <style>
+    .admin-link { display: none; }
+    #adminLoginModal {
+      display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
+      background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;
+    }
+    #adminLoginForm {
+      background:#fff; padding:30px 24px; border-radius:10px; box-shadow:0 2px 18px rgba(0,0,0,0.18);
+      display:flex; flex-direction:column; gap:16px; min-width:220px; align-items:center;
+    }
+  </style>
+</head>
+<body class="with-bg">
+  <nav class="navbar">
+    <div class="nav-content">
+      <a href="index.html" class="nav-logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="admin.html" class="admin-link">Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+  <main>
+    <section class="about-hero">
+      <h1 class="rainbow-models" style="text-align: center;">About Toast Talent</h1>
+      <p>
+        Toast Talent Modeling Agency is a premier modeling agency dedicated to discovering and nurturing the next generation of talent. 
+        We specialize in connecting aspiring models with top brands and fashion houses, providing them with the platform they need to shine in the competitive world of modeling.
+      </p>
+      <p>
+        Founded by industry veterans, Toast Talent is committed to excellence and professionalism. Our team works tirelessly to ensure that our models receive the best opportunities and support in their careers.
+      </p>
+      <p>
+        Whether you are an aspiring model or a brand looking for fresh talent, Toast Talent is here to help you achieve your goals.
+      </p>
+    </section>
+  </main>
+  <footer>
+    &copy; 2025 Toast Talent Modeling Agency
+  </footer>
+
+  <!-- Admin Login Modal -->
+  <div id="adminLoginModal">
+    <form id="adminLoginForm">
+      <label for="adminPassword">Enter Admin Password:</label>
+      <input type="password" id="adminPassword" required />
+      <button type="submit">Login</button>
+      <div id="adminLoginError" style="color:#c0392b; font-size:0.92em;"></div>
+    </form>
+  </div>
+  <script>
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'P' || e.key === 'p') {
+        document.getElementById('adminLoginModal').style.display = 'flex';
+        document.getElementById('adminPassword').focus();
+      }
+    });
+    document.getElementById('adminLoginModal').addEventListener('click', function(e) {
+      if (e.target === this) this.style.display = 'none';
+    });
+    document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const password = document.getElementById('adminPassword').value;
+      // Replace this password with your own secret
+      if (password === 'YumnaGugu1980') {
+        document.getElementById('adminLoginError').textContent = '';
+        window.location.href = 'admin.html';
+      } else {
+        document.getElementById('adminLoginError').textContent = 'Incorrect password. Try again.';
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminPassword').focus();
+      }
+    });
+  </script>
+</body>
+</html>
