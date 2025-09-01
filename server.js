@@ -10,26 +10,28 @@ const app = express();
 
 // --- CORS: Enable credentials and set frontend origin ---
 app.use(cors({
-  origin: 'https://toast-talent-modeling-agency.onrender.com', // your frontend domain (edit if needed)
+  origin: 'https://toast-talent-modeling-agency.onrender.com', // your frontend domain
   credentials: true
 }));
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+// --- TRUST PROXY IS REQUIRED FOR RENDER HTTPS ---
+app.set('trust proxy', 1);
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'supersecretkey', // Set SESSION_SECRET in Render for security!
+  secret: process.env.SESSION_SECRET || 'supersecretkey',
   resave: false,
   saveUninitialized: true,
   cookie: {
-    secure: true, // true for HTTPS (Render uses HTTPS), false for localhost
-    sameSite: 'none' // Required for cross-origin cookies
+    secure: true,      // true for HTTPS (Render uses HTTPS)
+    sameSite: 'none'   // Required for cross-origin cookies
   }
 }));
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Yumnagugu1980"; // Set ADMIN_PASSWORD in Render for security!
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Yumnagugu1980";
 
-// --- MongoDB Setup ---
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -37,7 +39,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('Connected to MongoDB Atlas'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// --- Model Schema ---
 const modelSchema = new mongoose.Schema({
   name: String,
   age: String,
@@ -49,7 +50,6 @@ const modelSchema = new mongoose.Schema({
 });
 const Model = mongoose.model('Model', modelSchema);
 
-// --- Multer: Image Upload ---
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, 'public/images/');
@@ -62,7 +62,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// --- Auth ---
 app.post('/api/login', (req, res) => {
   const { password } = req.body;
   if (password === ADMIN_PASSWORD) {
@@ -83,7 +82,6 @@ function requireAdmin(req, res, next) {
   res.status(401).json({ error: 'Unauthorized' });
 }
 
-// --- Get All Models ---
 app.get('/api/models', async (req, res) => {
   try {
     const models = await Model.find();
@@ -93,24 +91,14 @@ app.get('/api/models', async (req, res) => {
   }
 });
 
-// --- Add Model ---
 app.post('/api/models', requireAdmin, upload.array('images', 6), async (req, res) => {
   const { name, age, shoe, shirt, pants, height } = req.body;
   const images = req.files ? req.files.map(f => '/images/' + f.filename) : [];
   if (!name || images.length === 0) {
     return res.status(400).json({ error: 'Name and at least one image required' });
   }
-
   try {
-    const newModel = new Model({
-      name,
-      age,
-      shoe,
-      shirt,
-      pants,
-      height,
-      images
-    });
+    const newModel = new Model({ name, age, shoe, shirt, pants, height, images });
     await newModel.save();
     res.status(201).json(newModel);
   } catch (err) {
@@ -118,12 +106,10 @@ app.post('/api/models', requireAdmin, upload.array('images', 6), async (req, res
   }
 });
 
-// --- Delete Model ---
 app.delete('/api/models/:id', requireAdmin, async (req, res) => {
   try {
     const model = await Model.findById(req.params.id);
     if (!model) return res.status(404).json({ error: 'Model not found' });
-    // Optionally delete images from disk
     if (Array.isArray(model.images)) {
       const fs = require('fs');
       model.images.forEach(img => {
