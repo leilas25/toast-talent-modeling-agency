@@ -67,12 +67,13 @@
     &copy; 2025 Toast Talent Modeling Agency
   </footer>
   <script>
-    // Login with server-side session
+    // --- Updated: Always send credentials for cross-origin session cookies ---
     document.getElementById('admin-login-form').onsubmit = async function(e) {
       e.preventDefault();
       const pwd = document.getElementById('admin-password').value;
       const res = await fetch('/api/login', {
         method: 'POST',
+        credentials: 'include', // <--- important!
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ password: pwd })
       });
@@ -87,7 +88,7 @@
 
     // Logout
     document.getElementById('logout-btn').onclick = async function() {
-      await fetch('/api/logout', { method: 'POST' });
+      await fetch('/api/logout', { method: 'POST', credentials: 'include' }); // <--- important!
       document.getElementById('admin-section').style.display = 'none';
       document.getElementById('password-section').style.display = 'block';
       document.getElementById('admin-password').value = "";
@@ -100,6 +101,7 @@
       const formData = new FormData(this);
       const res = await fetch('/api/models', {
         method: 'POST',
+        credentials: 'include', // <--- important!
         body: formData
       });
       if (res.ok) {
@@ -116,7 +118,7 @@
 
     // Load models for admin and display with delete button
     async function loadModels() {
-      const res = await fetch('/api/models');
+      const res = await fetch('/api/models', { credentials: 'include' }); // <--- important!
       if (!res.ok) {
         alert('You are not authorized. Please log in again.');
         document.getElementById('admin-section').style.display = 'none';
@@ -128,7 +130,7 @@
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
           <img src="${model.images && model.images[0] ? model.images[0] : 'images/default.jpg'}" style="height:60px;" alt="${model.name}">
           <div class="model-name">${model.name}</div>
-          <button onclick="deleteModel('${model.id}')" style="margin-left:auto;background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;">Delete</button>
+          <button onclick="deleteModel('${model._id}')" style="margin-left:auto;background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;">Delete</button>
         </div>
       `).join('');
     }
@@ -136,7 +138,7 @@
     // Delete model
     window.deleteModel = function(id) {
       if(confirm('Are you sure you want to delete this model?')) {
-        fetch('/api/models/' + id, {method:'DELETE'})
+        fetch('/api/models/' + id, {method:'DELETE', credentials: 'include'}) // <--- important!
           .then(res => {
             if(res.ok) loadModels();
             else if(res.status === 401) {
@@ -149,6 +151,17 @@
           });
       }
     };
+
+    // Load models on page load if session exists
+    window.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/models', { credentials: 'include' }).then(res => {
+        if (res.ok) {
+          document.getElementById('password-section').style.display = 'none';
+          document.getElementById('admin-section').style.display = 'block';
+          loadModels();
+        }
+      });
+    });
   </script>
 </body>
 </html>
