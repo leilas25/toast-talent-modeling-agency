@@ -7,7 +7,13 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 
 const app = express();
-app.use(cors());
+
+// --- CORS: Enable credentials and set frontend origin ---
+app.use(cors({
+  origin: 'https://toast-talent-modeling-agency.onrender.com', // your frontend domain (edit if needed)
+  credentials: true
+}));
+
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
@@ -15,7 +21,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'supersecretkey', // Set SESSION_SECRET in Render for security!
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false }
+  cookie: {
+    secure: true, // true for HTTPS (Render uses HTTPS), false for localhost
+    sameSite: 'none' // Required for cross-origin cookies
+  }
 }));
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Yumnagugu1980"; // Set ADMIN_PASSWORD in Render for security!
