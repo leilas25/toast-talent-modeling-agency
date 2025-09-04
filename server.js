@@ -16,7 +16,9 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json());
-app.use(express.static('public'));
+
+// --- Ensure static files are served (MUST be before routes) ---
+app.use(express.static(path.join(__dirname, 'public')));
 
 // --- TRUST PROXY IS REQUIRED FOR RENDER HTTPS ---
 app.set('trust proxy', 1);
@@ -79,7 +81,8 @@ const storage = multer.diskStorage({
   filename: function(req, file, cb) {
     const ext = path.extname(file.originalname);
     const basename = path.basename(file.originalname, ext);
-    cb(null, basename + '-' + Date.now() + ext);
+    const finalName = basename + '-' + Date.now() + ext;
+    cb(null, finalName);
   }
 });
 const upload = multer({ storage: storage });
@@ -128,6 +131,8 @@ app.post('/api/models', requireAdmin, upload.array('images', 6), async (req, res
     if (!name || images.length === 0) {
       return res.status(400).json({ error: 'Name and at least one image required' });
     }
+    // Log actual image paths for debugging
+    console.log("Saved image URLs:", images);
     const newModel = new Model({ name, age, shoe, shirt, pants, height, images });
     await newModel.save();
     res.status(201).json(newModel);
