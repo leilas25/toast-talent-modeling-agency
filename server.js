@@ -121,6 +121,18 @@ app.get('/api/models', async (req, res) => {
   }
 });
 
+// --- GET SINGLE MODEL ---
+app.get('/api/models/:id', async (req, res) => {
+  try {
+    const model = await Model.findById(req.params.id);
+    if (!model) return res.status(404).json({ error: 'Model not found' });
+    res.json(model);
+  } catch (err) {
+    console.error("Error fetching model:", err);
+    res.status(500).json({ error: 'Unable to fetch model' });
+  }
+});
+
 // --- ADD MODEL ---
 app.post('/api/models', requireAdmin, upload.array('images', 6), async (req, res) => {
   try {
