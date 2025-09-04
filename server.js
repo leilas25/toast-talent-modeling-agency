@@ -124,4 +124,15 @@ app.delete('/api/models/:id', requireAdmin, async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+// --- Test cookie/session persistence ---
+app.get('/api/test-cookie', (req, res) => {
+  if (req.session.test) {
+    res.json({ success: true, msg: "Session persists!" });
+  } else {
+    req.session.test = true;
+    res.json({ success: false, msg: "Session set, reload again!" });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
