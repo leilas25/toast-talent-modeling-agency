@@ -21,7 +21,7 @@ app.use(express.static('public'));
 app.set('trust proxy', 1);
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'supersecretkey',
+  secret: process.env.SESSION_SECRET || 'LeilaSono123!',
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -34,7 +34,6 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Yumnagugu1980";
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true,
 })
 .then(() => console.log('Connected to MongoDB Atlas'))
 .catch(err => console.error('MongoDB connection error:', err));
