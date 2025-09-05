@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+   
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Our Models | Toast Talent</title>
-  <link rel="stylesheet" href="style.css"/>
-  <!-- Add Dancing Script font for fancy model names -->
+   
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Models | Toast Talent</title>
+   
+  <link rel="stylesheet" href="style.css" />
+     
   <link href="https://fonts.googleapis.com/css?family=Dancing+Script:700&display=swap" rel="stylesheet">
+   
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
-  <style>
+    <style>
     .model-name {
       font-family: Arial, Helvetica, sans-serif;
       font-size: 1.5em;
@@ -20,6 +25,7 @@
       margin-bottom: 10px;
       text-align: center;
     }
+
     .model-card img {
       width: 100%;
       max-width: 180px;
@@ -28,10 +34,11 @@
       margin-left: auto;
       margin-right: auto;
     }
+
     .model-card {
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.09);
       padding: 16px;
       margin: 14px;
       display: inline-block;
@@ -41,14 +48,17 @@
       width: 220px;
       text-align: center;
     }
+
     .model-card:hover {
-      box-shadow: 0 6px 24px rgba(192,57,43,0.18);
+      box-shadow: 0 6px 24px rgba(192, 57, 43, 0.18);
     }
+
     .models-grid {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
     }
+
     /* Modal Styles */
     #modelModal {
       display: none;
@@ -59,89 +69,116 @@
       width: 100vw;
       height: 100vh;
       overflow: auto;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       align-items: center;
       justify-content: center;
     }
+
     #modelModalContent {
       background: #fff;
       margin: auto;
-      padding: 30px 20px;
-      border-radius: 18px;
-      box-shadow: 0 2px 24px rgba(0,0,0,0.13);
-      max-width: 370px;
-      width: 94vw;
+      padding: 40px 28px;
+      border-radius: 24px;
+      box-shadow: 0 2px 32px rgba(0, 0, 0, 0.18);
+      max-width: 650px;
+      min-width: 340px;
+      width: 96vw;
       position: relative;
       text-align: left;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+
     #closeModalBtn {
       position: absolute;
-      right: 16px;
-      top: 13px;
-      font-size: 1.7em;
+      right: 18px;
+      top: 18px;
+      font-size: 2em;
       color: #e74c3c;
       background: none;
       border: none;
       cursor: pointer;
       z-index: 10;
     }
+
     .model-detail-label {
-      font-weight: 600;
+      font-weight: 700;
       color: #2493e1;
       margin-right: 6px;
+      font-size: 1.07em;
     }
+
     .modal-model-images {
       display: flex;
       flex-wrap: wrap;
-      gap: 7px;
-      margin-bottom: 12px;
+      gap: 18px;
+      margin-bottom: 22px;
+      justify-content: center;
     }
+
     .modal-model-images img {
-      width: 65px;
-      height: 65px;
+      width: 140px;
+      height: 140px;
       object-fit: cover;
-      border-radius: 7px;
-      border: 1px solid #ececec;
+      border-radius: 16px;
+      border: 2px solid #ececec;
       background: #fafafa;
+      box-shadow: 0 1px 9px #eee;
+    }
+
+    @media (max-width: 700px) {
+      #modelModalContent {
+        max-width: 98vw;
+        min-width: 0;
+        padding: 18px 7px;
+      }
+
+      .modal-model-images img {
+        width: 90px;
+        height: 90px;
+      }
     }
   </style>
 </head>
+
 <body>
-  <nav class="navbar">
-    <div class="nav-content">
-      <a href="index.html" class="nav-logo">
-        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
-      </a>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="models.html" class="active">Models</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="admin.html" class="admin-link">Admin</a></li>
-      </ul>
-    </div>
-  </nav>
-  <main>
-    <section class="models-hero">
-      <h1 class="rainbow-models">Our Models</h1>
-      <p>Meet the faces of Toast Talent. Click any photo for more details.</p>
-    </section>
-    <section class="models-gallery">
-      <div class="models-grid" id="modelsGrid"></div>
-    </section>
-  </main>
-  <footer>
-    &copy; 2025 Toast Talent Modeling Agency
-  </footer>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="index.html" class="nav-logo">
+                <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+              </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="models.html" class="active">Models</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="admin.html" class="admin-link">Admin</a></li>
+              </ul>
+          </div>
+      </nav>
+    <main>
+        <section class="models-hero">
+            <h1 class="rainbow-models">Our Models</h1>
+            <p>Meet the faces of Toast Talent. Click any photo for more details.</p>
+          </section>
+        <section class="models-gallery">
+            <div class="models-grid" id="modelsGrid"></div>
+          </section>
+      </main>
+    <footer>
+        &copy; 2025 Toast Talent Modeling Agency
+      </footer>
 
-  <!-- Model Modal -->
-  <div id="modelModal">
-    <div id="modelModalContent">
-      <button id="closeModalBtn" title="Close">&times;</button>
-      <div id="modalModelInfo"></div>
-    </div>
-  </div>
+      <div id="modelModal">
+        <div id="modelModalContent">
+            <button id="closeModalBtn" title="Close">&times;</button>
+            <div id="modalModelInfo"></div>
+          </div>
+      </div>
 
+   
   <script>
     // Fetch models from backend and display in grid
     function loadModels() {
@@ -149,18 +186,18 @@
         .then(res => res.json())
         .then(models => {
           document.getElementById('modelsGrid').innerHTML = models.map(model => {
-            // Only show first image and name on card
-            const imgSrc = model.images && model.images.length > 0 ? model.images[0] : 'images/default.jpg';
+            // Use the new profilePicture field
+            const imgSrc = model.profilePicture || 'images/default.jpg';
             return `
-              <div class="model-card" data-model-id="${model._id}">
-                <img src="${imgSrc}" alt="${model.name}">
-                <div class="model-name">${model.name}</div>
-              </div>
-            `;
+              <div class="model-card" data-model-id="${model._id}">
+                <img src="${imgSrc}" alt="${model.name}">
+                <div class="model-name">${model.name}</div>
+              </div>
+            `;
           }).join('');
           // Attach click event to each card
           document.querySelectorAll('.model-card').forEach(card => {
-            card.onclick = function() {
+            card.onclick = function () {
               const modelId = card.getAttribute('data-model-id');
               loadModelDetails(modelId);
             };
@@ -178,22 +215,25 @@
         .then(res => res.json())
         .then(model => {
           let imagesHtml = '';
-          if (model.images && model.images.length > 0) {
+          // The model.galleryImages field is now the array of images
+          if (model.galleryImages && model.galleryImages.length > 0) {
             imagesHtml = '<div class="modal-model-images">' +
-              model.images.map(img =>
+              model.galleryImages.map(img =>
                 `<img src="${img}" alt="${model.name}">`
               ).join('') +
               '</div>';
           }
           document.getElementById('modalModelInfo').innerHTML = `
-            ${imagesHtml}
-            <h2 style="margin-bottom:10px;">${model.name}</h2>
-            <div><span class="model-detail-label">Age:</span> ${model.age || '-'}</div>
-            <div><span class="model-detail-label">Shoe Size:</span> ${model.shoe || '-'}</div>
-            <div><span class="model-detail-label">Shirt Size:</span> ${model.shirt || '-'}</div>
-            <div><span class="model-detail-label">Pants Size:</span> ${model.pants || '-'}</div>
-            <div><span class="model-detail-label">Height:</span> ${model.height || '-'}</div>
-          `;
+           ${imagesHtml}
+           <h2 style="margin-bottom:14px; text-align:center; font-size:2em;">${model.name}</h2>
+           <div style="font-size:1.1em; margin-bottom:8px;">
+           <div><span class="model-detail-label">Age:</span> ${model.age || '-'}</div>
+           <div><span class="model-detail-label">Shoe Size:</span> ${model.shoe || '-'}</div>
+           <div><span class="model-detail-label">Shirt Size:</span> ${model.shirt || '-'}</div>
+           <div><span class="model-detail-label">Pants Size:</span> ${model.pants || '-'}</div>
+           <div><span class="model-detail-label">Height:</span> ${model.height || '-'}</div>
+           </div>
+            `;
           // Show modal
           document.getElementById('modelModal').style.display = 'flex';
         })
@@ -205,11 +245,11 @@
     }
 
     // Close modal on button click or outside click
-    document.getElementById('closeModalBtn').onclick = function() {
+    document.getElementById('closeModalBtn').onclick = function () {
       document.getElementById('modelModal').style.display = 'none';
       document.getElementById('modalModelInfo').innerHTML = '';
     };
-    document.getElementById('modelModal').onclick = function(e) {
+    document.getElementById('modelModal').onclick = function (e) {
       if (e.target === this) {
         document.getElementById('modelModal').style.display = 'none';
         document.getElementById('modalModelInfo').innerHTML = '';
@@ -220,4 +260,5 @@
     loadModels();
   </script>
 </body>
+
 </html>

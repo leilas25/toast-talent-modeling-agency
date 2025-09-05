@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+   
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Portal | Toast Talent</title>
-  <link rel="stylesheet" href="style.css"/>
-  <style>
-    body, .model-name {
+   
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Portal | Toast Talent</title>
+   
+  <link rel="stylesheet" href="style.css" />
+    <style>
+    body,
+    .model-name {
       font-family: Arial, Helvetica, sans-serif;
     }
+
     .model-name {
       font-size: 1.15em;
       font-weight: 700;
@@ -16,65 +22,76 @@
       color: #141212;
       margin-right: 16px;
     }
-    #admin-section { display: none; }
-    #password-section { max-width: 350px; margin: 60px auto; }
+
+    #admin-section {
+      display: none;
+    }
+
+    #password-section {
+      max-width: 350px;
+      margin: 60px auto;
+    }
   </style>
 </head>
+
 <body>
-  <nav class="navbar">
-    <div class="nav-content">
-      <a href="index.html" class="nav-logo">
-        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
-      </a>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="models.html">Models</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="admin.html" class="active">Admin</a></li>
-      </ul>
-    </div>
-  </nav>
-  <main>
-    <!-- Password/Login Section -->
-    <div id="password-section">
-      <h2>Admin Login</h2>
-      <form id="admin-login-form">
-        <label>Password: <input type="password" id="admin-password" required/></label>
-        <button type="submit">Login</button>
-      </form>
-      <div id="login-message" style="color:red;margin-top:10px;"></div>
-    </div>
-    <!-- Admin Section (hidden until login) -->
-    <section id="admin-section" class="admin-hero" style="max-width:700px;">
-      <h2 style="text-align:center;">Admin Portal</h2>
-      <form id="add-model-form" enctype="multipart/form-data" class="contact-form">
-        <label>Name: <input type="text" name="name" required/></label>
-        <label>Age: <input type="number" name="age" required/></label>
-        <label>Shoe Size: <input type="text" name="shoe" required/></label>
-        <label>Shirt Size: <input type="text" name="shirt" required/></label>
-        <label>Pants Size: <input type="text" name="pants" required/></label>
-        <label>Height: <input type="text" name="height" required/></label>
-        <label>Images: <input type="file" name="images" accept="image/*" multiple required/></label>
-        <button type="submit">Add Model</button>
-      </form>
-      <button id="logout-btn" style="margin:16px auto 0;display:block;background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;">Logout</button>
-      <h3 style="text-align:center;">Existing Models</h3>
-      <div id="model-list"></div>
-    </section>
-  </main>
-  <footer>
-    &copy; 2025 Toast Talent Modeling Agency
-  </footer>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="index.html" class="nav-logo">
+                <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+              </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="models.html">Models</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="admin.html" class="active">Admin</a></li>
+              </ul>
+          </div>
+      </nav>
+    <main>
+            <div id="password-section">
+            <h2>Admin Login</h2>
+            <form id="admin-login-form">
+                <label>Password: <input type="password" id="admin-password" required /></label>
+                <button type="submit">Login</button>
+              </form>
+            <div id="login-message" style="color:red;margin-top:10px;"></div>
+          </div>
+            <section id="admin-section" class="admin-hero" style="max-width:700px;">
+            <h2 style="text-align:center;">Admin Portal</h2>
+            <form id="add-model-form" enctype="multipart/form-data" class="contact-form">
+                <label>Name: <input type="text" name="name" required /></label>
+                <label>Age: <input type="number" name="age" required /></label>
+                <label>Shoe Size: <input type="text" name="shoe" required /></label>
+                <label>Shirt Size: <input type="text" name="shirt" required /></label>
+                <label>Pants Size: <input type="text" name="pants" required /></label>
+                <label>Height: <input type="text" name="height" required /></label>
+                        <label>Profile Picture (displays on models page): <input type="file" name="profilePicture"
+            accept="image/*" required /></label>
+                        <label>Gallery Images (for model's profile page): <input type="file" name="galleryImages"
+            accept="image/*" multiple required /></label>
+                <button type="submit">Add Model</button>
+              </form>
+            <button id="logout-btn"
+        style="margin:16px auto 0;display:block;background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;">Logout</button>
+            <h3 style="text-align:center;">Existing Models</h3>
+            <div id="model-list"></div>
+          </section>
+      </main>
+    <footer>
+        &copy; 2025 Toast Talent Modeling Agency
+      </footer>
+   
   <script>
     // --- Updated: Always send credentials for cross-origin session cookies ---
-    document.getElementById('admin-login-form').onsubmit = async function(e) {
+    document.getElementById('admin-login-form').onsubmit = async function (e) {
       e.preventDefault();
       const pwd = document.getElementById('admin-password').value;
       const res = await fetch('/api/login', {
         method: 'POST',
         credentials: 'include', // <--- important!
-        headers: {'Content-Type':'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: pwd })
       });
       if (res.ok) {
@@ -87,7 +104,7 @@
     };
 
     // Logout
-    document.getElementById('logout-btn').onclick = async function() {
+    document.getElementById('logout-btn').onclick = async function () {
       await fetch('/api/logout', { method: 'POST', credentials: 'include' }); // <--- important!
       document.getElementById('admin-section').style.display = 'none';
       document.getElementById('password-section').style.display = 'block';
@@ -96,7 +113,7 @@
     };
 
     // Add model
-    document.getElementById('add-model-form').onsubmit = async function(e) {
+    document.getElementById('add-model-form').onsubmit = async function (e) {
       e.preventDefault();
       const formData = new FormData(this);
       const res = await fetch('/api/models', {
@@ -127,21 +144,21 @@
       }
       const models = await res.json();
       document.getElementById('model-list').innerHTML = models.map(model => `
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-          <img src="${model.images && model.images[0] ? model.images[0] : 'images/default.jpg'}" style="height:60px;" alt="${model.name}">
-          <div class="model-name">${model.name}</div>
-          <button onclick="deleteModel('${model._id}')" style="margin-left:auto;background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;">Delete</button>
-        </div>
-      `).join('');
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <img src="${model.profilePicture || 'images/default.jpg'}" style="height:60px;" alt="${model.name}">
+          <div class="model-name">${model.name}</div>
+          <button onclick="deleteModel('${model._id}')" style="margin-left:auto;background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;">Delete</button>
+        </div>
+      `).join('');
     }
 
     // Delete model
-    window.deleteModel = function(id) {
-      if(confirm('Are you sure you want to delete this model?')) {
-        fetch('/api/models/' + id, {method:'DELETE', credentials: 'include'}) // <--- important!
+    window.deleteModel = function (id) {
+      if (confirm('Are you sure you want to delete this model?')) {
+        fetch('/api/models/' + id, { method: 'DELETE', credentials: 'include' }) // <--- important!
           .then(res => {
-            if(res.ok) loadModels();
-            else if(res.status === 401) {
+            if (res.ok) loadModels();
+            else if (res.status === 401) {
               alert('You are not authorized. Please log in again.');
               document.getElementById('admin-section').style.display = 'none';
               document.getElementById('password-section').style.display = 'block';
@@ -164,4 +181,5 @@
     });
   </script>
 </body>
+
 </html>
