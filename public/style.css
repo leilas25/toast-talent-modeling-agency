@@ -87,46 +87,10 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-.rainbow-title {
-  background: linear-gradient(90deg, #ee3045, #f9c846, #7cc65a, #2493e1, #a259c6, #f76e2a);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-
-.rainbow-word {
-  background: linear-gradient(90deg, #ee3045, #f9c846, #7cc65a, #2493e1, #a259c6, #f76e2a);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-
-.rainbow-contact {
-  background: linear-gradient(90deg, #ee3045, #f9c846, #7cc65a, #2493e1, #a259c6, #f76e2a);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-
-.rainbow-models {
-  background: linear-gradient(90deg, #ee3045, #f9c846, #7cc65a, #2493e1, #a259c6, #f76e2a);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-
+.rainbow-title,
+.rainbow-word,
+.rainbow-contact,
+.rainbow-models,
 .rainbow-about {
   background: linear-gradient(90deg, #ee3045, #f9c846, #7cc65a, #2493e1, #a259c6, #f76e2a);
   -webkit-background-clip: text;
@@ -288,7 +252,7 @@ body {
 .model-card img {
   width: 100%;
   height: 350px;
-  object-fit: contain; /* Corrected: Use contain for main model cards */
+  object-fit: contain; /* Ensure full image visible */
   display: block;
 }
 
@@ -297,6 +261,26 @@ body {
   font-weight: 600;
   font-size: 1.1rem;
   color: var(--accent);
+}
+
+/* Profile Page Gallery */
+.profile-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center; /* Center the images */
+  margin-bottom: 24px;
+}
+
+.profile-gallery-img {
+  max-width: 280px;
+  height: auto;
+  object-fit: contain; /* Prevent cropping */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 5px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 /* About Page */
@@ -350,13 +334,11 @@ body {
   gap: 14px;
   margin-bottom: 32px;
   align-items: stretch;
-  /* Specific styling for the contact form */
   width: 100%;
-  max-width: 400px; /* Makes form not too wide */
-  margin: 0 auto;  /* Centers form horizontally */
+  max-width: 400px;
+  margin: 0 auto;
 }
 
-/* This rule will keep the admin form's original look */
 #adminLoginForm {
   display:flex;
   flex-direction:column;
@@ -460,135 +442,13 @@ footer {
     padding: 18px 8px;
     margin: 38px 7px;
   }
-}
 
-.with-bg::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: url('images/Talent collage.jpg');
-  background-size: 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.3;
-  /* Adjust this value for more or less transparency */
-  z-index: -1;
-  pointer-events: none;
-}
-
-/* --- MODAL SPECIFIC STYLES --- */
-.model-details-modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1000; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
-  display: flex; /* Use flexbox to center content */
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: auto;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 80%; /* Adjusted max-width for better display */
-  max-height: 90%; /* Adjusted max-height */
-  overflow-y: auto; /* Enable vertical scroll for content */
-  position: relative;
-  animation: modal-fadein 0.3s ease-out;
-}
-
-@keyframes modal-fadein {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.close-btn {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  cursor: pointer;
-}
-
-.close-btn:hover,
-.close-btn:focus {
-  color: #000;
-  text-decoration: none;
-}
-
-/* Specific styling for images inside the modal gallery with rectangular frame */
-#modalModelInfo .profile-gallery-img {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  padding: 5px;
-  background-color: #f9f9f9;
-}
-
-/* Responsive adjustments for modal images */
-@media (max-width: 768px) {
-  #modalModelInfo .profile-gallery-img {
-    max-height: 120px; /* Smaller height on smaller screens */
-    margin-right: 10px;
-    margin-bottom: 10px;
-    padding: 3px;
+  .profile-gallery {
+    justify-content: center; /* Keep centered on small screens */
   }
-}
 
-.profile-label {
-  font-weight: 700;
-  margin-right: 6px;
-}
-
-/* Original model-name rule was duplicated and possibly overriding, simplified to one main definition */
-.model-name { /* Main definition for model names on models.html */
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 1.5em;
-  color: #0d0c0c;
-  font-weight: 700;
-  text-shadow: 1px 1px 6px #ffe0e6;
-  letter-spacing: 1px;
-  margin-top: 8px;
-  margin-bottom: 10px;
-  text-align: center; /* Center for model cards on models.html */
-}
-
-/* This targets the model name inside the modal specifically */
-.modal-content .model-name {
-  text-align: center; /* Center the model name in the modal too */
-  margin-bottom: 20px; /* Add some space below the modal's model name */
-}
-
-.admin-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* This centers children horizontally */
-  justify-content: center; /* This centers children vertically (if you set a height) */
-  margin: 0 auto;
-  padding: 24px;
-  box-sizing: border-box;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.09);
-}
-
-.admin-link {
-  display: none;
+  .profile-gallery-img {
+    max-width: 100%;
+    height: auto;
+  }
 }
