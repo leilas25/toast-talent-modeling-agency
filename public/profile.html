@@ -1,14 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+   
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Model Profile | Toast Talent</title>
-  <link rel="stylesheet" href="style.css"/>
-  <style>
-    body, .model-name, .profile-label, .profile-gallery-img, .nav-links, .nav-logo, .footer {
+   
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Model Profile | Toast Talent</title>
+   
+  <link rel="stylesheet" href="style.css" />
+    <style>
+    body,
+    .model-name,
+    .profile-label,
+    .profile-gallery-img,
+    .nav-links,
+    .nav-logo,
+    .footer {
       font-family: Arial, Helvetica, sans-serif;
     }
+
     .model-name {
       font-size: 2em;
       color: #141212;
@@ -17,49 +28,47 @@
       text-align: left;
       display: block;
     }
+
     .profile-gallery-img {
-        max-width: 250px;
-        max-height: 250px;
-        object-fit: contain;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        margin-right: 15px;
-        margin-bottom: 15px;
-        padding: 5px;
-        background-color: #f9f9f9;
-      }
-    .profile-label {
-      font-weight:700;
-      margin-right: 6px;
+      max-width: 250px;
+      max-height: 250px;
+      object-fit: contain;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-right: 15px;
+      margin-bottom: 15px;
+      padding: 5px;
+      background-color: #f9f9f9;
     }
-    @media (max-width: 768px) {
-      .profile-gallery-img {
-        height: 160px;
-        margin-right: 12px;
-      }
+
+    .profile-label {
+      font-weight: 700;
+      margin-right: 6px;
     }
   </style>
 </head>
+
 <body>
-  <nav class="navbar">
-    <div class="nav-content">
-      <a href="index.html" class="nav-logo">
-        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
-      </a>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="models.html">Models</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </div>
-  </nav>
-  <main>
-    <div id="profile-content"></div>
-  </main>
-  <footer>
-    &copy; 2025 Toast Talent Modeling Agency
-  </footer>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="index.html" class="nav-logo">
+                <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+              </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="models.html">Models</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+              </ul>
+          </div>
+      </nav>
+    <main>
+        <div id="profile-content"></div>
+      </main>
+    <footer>
+        &copy; 2025 Toast Talent Modeling Agency
+      </footer>
+   
   <script>
     // Utility: Extract Model ID from URL Query String
     function getModelIdFromUrl() {
@@ -90,25 +99,26 @@
 
       // Profile details with bold labels
       const detailsHtml = `
-        <div><span class="profile-label">Age:</span> ${model.age}</div>
-        <div><span class="profile-label">Shoe Size:</span> ${model.shoe}</div>
-        <div><span class="profile-label">Shirt Size:</span> ${model.shirt}</div>
-        <div><span class="profile-label">Pants Size:</span> ${model.pants}</div>
-        <div><span class="profile-label">Height:</span> ${model.height}</div>
-      `;
+        <div><span class="profile-label">Age:</span> ${model.age}</div>
+        <div><span class="profile-label">Shoe Size:</span> ${model.shoe}</div>
+        <div><span class="profile-label">Shirt Size:</span> ${model.shirt}</div>
+        <div><span class="profile-label">Pants Size:</span> ${model.pants}</div>
+        <div><span class="profile-label">Height:</span> ${model.height}</div>
+      `;
 
       document.getElementById('profile-content').innerHTML = `
-        <span class="model-name">${model.name}</span>
-        <div style="display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap;">
-          ${galleryHtml}
-        </div>
-        <div style="margin-top: 36px; margin-bottom: 48px;">
-          ${detailsHtml}
-        </div>
-      `;
+        <span class="model-name">${model.name}</span>
+        <div style="display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap;">
+          ${galleryHtml}
+        </div>
+        <div style="margin-top: 36px; margin-bottom: 48px;">
+          ${detailsHtml}
+        </div>
+      `;
     }
 
     loadProfile();
   </script>
 </body>
+
 </html>
