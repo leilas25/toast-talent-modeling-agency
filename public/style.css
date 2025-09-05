@@ -531,25 +531,23 @@ footer {
 
 /* Specific styling for images inside the modal gallery with rectangular frame */
 #modalModelInfo .profile-gallery-img {
-  max-height: 200px; /* Adjust height as needed to fit multiple images */
-  width: auto; /* Allow width to adjust proportionally */
-  object-fit: contain; /* Crucial: Ensures entire image is visible without cropping */
+  width: 180px; /* Fixed width for consistent rectangular shape */
+  height: 120px; /* Fixed height for consistent rectangular shape */
+  object-fit: contain; /* Ensures entire image is visible without cropping */
   border: 1px solid #ddd; /* Subtle border for the frame */
   border-radius: 8px; /* Rounded corners for the frame */
-  margin-right: 15px; /* Spacing between images */
-  margin-bottom: 15px; /* Spacing for wrapping images */
+  margin: 10px; /* Adjusted margin for better spacing around each image */
   box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
   padding: 5px; /* Add some padding inside the frame */
-  background-color: #f9f9f9; /* Light background behind the image if it doesn't fill the frame */
+  background-color: #f0f0f0; /* Light background behind the image if it doesn't fill the frame */
 }
-
 
 /* Responsive adjustments for modal images */
 @media (max-width: 768px) {
   #modalModelInfo .profile-gallery-img {
-    max-height: 120px; /* Smaller height on smaller screens */
-    margin-right: 10px;
-    margin-bottom: 10px;
+    width: 100px; /* Smaller width on smaller screens */
+    height: 70px; /* Smaller height on smaller screens */
+    margin: 5px; /* Reduced margin for tighter packing on small screens */
     padding: 3px;
   }
 }
@@ -584,13 +582,5 @@ footer {
   align-items: center; /* This centers children horizontally */
   justify-content: center; /* This centers children vertically (if you set a height) */
   margin: 0 auto;
-  padding: 24px;
-  box-sizing: border-box;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.09);
-}
-
-.admin-link {
-  display: none;
+  padding: 24px; /* Added 'px' and a semicolon */
 }
