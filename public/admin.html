@@ -2,14 +2,14 @@
 <html lang="en">
 
 <head>
-   
+
   <meta charset="UTF-8" />
-   
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Portal | Toast Talent</title>
-   
+  <title>Admin Portal | Toast Talent</title>
+
   <link rel="stylesheet" href="style.css" />
-    <style>
+  <style>
     body,
     .model-name {
       font-family: Arial, Helvetica, sans-serif;
@@ -35,55 +35,68 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <a href="index.html" class="nav-logo">
-                <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
-              </a>
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="models.html">Models</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li><a href="admin.html" class="active">Admin</a></li>
-              </ul>
-          </div>
-      </nav>
-    <main>
-            <div id="password-section">
-            <h2>Admin Login</h2>
-            <form id="admin-login-form">
-                <label>Password: <input type="password" id="admin-password" required /></label>
-                <button type="submit">Login</button>
-              </form>
-            <div id="login-message" style="color:red;margin-top:10px;"></div>
-          </div>
-            <section id="admin-section" class="admin-hero" style="max-width:700px;">
-            <h2 style="text-align:center;">Admin Portal</h2>
-            <form id="add-model-form" enctype="multipart/form-data" class="contact-form">
-                <label>Name: <input type="text" name="name" required /></label>
-                <label>Age: <input type="number" name="age" required /></label>
-                <label>Shoe Size: <input type="text" name="shoe" required /></label>
-                <label>Shirt Size: <input type="text" name="shirt" required /></label>
-                <label>Pants Size: <input type="text" name="pants" required /></label>
-                <label>Height: <input type="text" name="height" required /></label>
-                        <label>Profile Picture (displays on models page): <input type="file" name="profilePicture"
-            accept="image/*" required /></label>
-                        <label>Gallery Images (for model's profile page): <input type="file" name="galleryImages"
-            accept="image/*" multiple required /></label>
-                <button type="submit">Add Model</button>
-              </form>
-            <button id="logout-btn"
+  <nav class="navbar">
+    <div class="nav-content">
+      <a href="index.html" class="nav-logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="admin.html" class="active">Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+  <main>
+    <div id="password-section">
+      <h2>Admin Login</h2>
+      <form id="admin-login-form">
+        <label>Password: <input type="password" id="admin-password" required /></label>
+        <button type="submit">Login</button>
+      </form>
+      <div id="login-message" style="color:red;margin-top:10px;"></div>
+    </div>
+    <section id="admin-section" class="admin-hero" style="max-width:700px;">
+      <h2 style="text-align:center;">Admin Portal</h2>
+      <form id="add-model-form" enctype="multipart/form-data" class="contact-form">
+        <label>Name: <input type="text" name="name" required /></label>
+        <label>Age: <input type="number" name="age" required /></label>
+        <label>Shoe Size: <input type="text" name="shoe" required /></label>
+        <label>Shirt Size: <input type="text" name="shirt" required /></label>
+        <label>Pants Size: <input type="text" name="pants" required /></label>
+        <label>Height: <input type="text" name="height" required /></label>
+        <label>Profile Picture (displays on models page): <input type="file" name="profilePicture" accept="image/*"
+            required /></label>
+        <label>Gallery Images (for model's profile page): <input type="file" name="galleryImages" accept="image/*"
+            multiple required /></label>
+        <button type="submit">Add Model</button>
+      </form>
+      <button id="logout-btn"
         style="margin:16px auto 0;display:block;background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;">Logout</button>
-            <h3 style="text-align:center;">Existing Models</h3>
-            <div id="model-list"></div>
-          </section>
-      </main>
-    <footer>
-        &copy; 2025 Toast Talent Modeling Agency
-      </footer>
-   
+      <h3 style="text-align:center;">Existing Models</h3>
+      <div id="model-list"></div>
+    </section>
+  </main>
+  <footer>
+    &copy; 2025 Toast Talent Modeling Agency
+  </footer>
+
   <script>
+    // Check auth status on page load
+    async function checkAuth() {
+        const res = await fetch('/api/check-auth', { credentials: 'include' });
+        if (res.ok) {
+            document.getElementById('password-section').style.display = 'none';
+            document.getElementById('admin-section').style.display = 'block';
+            loadModels();
+        } else {
+            document.getElementById('password-section').style.display = 'block';
+            document.getElementById('admin-section').style.display = 'none';
+        }
+    }
+
     // --- Updated: Always send credentials for cross-origin session cookies ---
     document.getElementById('admin-login-form').onsubmit = async function (e) {
       e.preventDefault();
@@ -91,8 +104,12 @@
       const res = await fetch('/api/login', {
         method: 'POST',
         credentials: 'include', // <--- important!
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: pwd })
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          password: pwd
+        })
       });
       if (res.ok) {
         document.getElementById('password-section').style.display = 'none';
@@ -105,7 +122,10 @@
 
     // Logout
     document.getElementById('logout-btn').onclick = async function () {
-      await fetch('/api/logout', { method: 'POST', credentials: 'include' }); // <--- important!
+      await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'include'
+      }); // <--- important!
       document.getElementById('admin-section').style.display = 'none';
       document.getElementById('password-section').style.display = 'block';
       document.getElementById('admin-password').value = "";
@@ -126,8 +146,7 @@
         this.reset();
       } else if (res.status === 401) {
         alert('You are not authorized. Please log in again.');
-        document.getElementById('admin-section').style.display = 'none';
-        document.getElementById('password-section').style.display = 'block';
+        checkAuth(); // Redirect to login if auth fails
       } else {
         alert('Failed to add model');
       }
@@ -135,33 +154,35 @@
 
     // Load models for admin and display with delete button
     async function loadModels() {
-      const res = await fetch('/api/models', { credentials: 'include' }); // <--- important!
+      const res = await fetch('/api/models', {
+        credentials: 'include'
+      }); // <--- important!
       if (!res.ok) {
-        alert('You are not authorized. Please log in again.');
-        document.getElementById('admin-section').style.display = 'none';
-        document.getElementById('password-section').style.display = 'block';
+        checkAuth(); // Redirect to login if auth fails
         return;
       }
       const models = await res.json();
       document.getElementById('model-list').innerHTML = models.map(model => `
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-          <img src="${model.profilePicture || 'images/default.jpg'}" style="height:60px;" alt="${model.name}">
-          <div class="model-name">${model.name}</div>
-          <button onclick="deleteModel('${model._id}')" style="margin-left:auto;background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;">Delete</button>
-        </div>
-      `).join('');
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <img src="${model.profilePicture || 'images/default.jpg'}" style="height:60px;" alt="${model.name}">
+          <div class="model-name">${model.name}</div>
+          <button onclick="deleteModel('${model._id}')" style="margin-left:auto;background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;">Delete</button>
+        </div>
+      `).join('');
     }
 
     // Delete model
     window.deleteModel = function (id) {
       if (confirm('Are you sure you want to delete this model?')) {
-        fetch('/api/models/' + id, { method: 'DELETE', credentials: 'include' }) // <--- important!
+        fetch('/api/models/' + id, {
+            method: 'DELETE',
+            credentials: 'include'
+          }) // <--- important!
           .then(res => {
             if (res.ok) loadModels();
             else if (res.status === 401) {
               alert('You are not authorized. Please log in again.');
-              document.getElementById('admin-section').style.display = 'none';
-              document.getElementById('password-section').style.display = 'block';
+              checkAuth(); // Redirect to login if auth fails
             } else {
               alert('Failed to delete model');
             }
@@ -169,16 +190,8 @@
       }
     };
 
-    // Load models on page load if session exists
-    window.addEventListener('DOMContentLoaded', () => {
-      fetch('/api/models', { credentials: 'include' }).then(res => {
-        if (res.ok) {
-          document.getElementById('password-section').style.display = 'none';
-          document.getElementById('admin-section').style.display = 'block';
-          loadModels();
-        }
-      });
-    });
+    // Initial load
+    checkAuth();
   </script>
 </body>
 
