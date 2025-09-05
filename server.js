@@ -140,10 +140,10 @@ app.get('/api/models/:id', async (req, res) => {
   }
 });
 
-// --- UPDATED ADD MODEL ROUTE ---
+// --- UPDATED ADD MODEL ROUTE (limit changed to 20) ---
 app.post('/api/models', requireAdmin, upload.fields([
   { name: 'profilePicture', maxCount: 1 },
-  { name: 'galleryImages', maxCount: 6 }
+  { name: 'galleryImages', maxCount: 20 } // <--- UPDATED FROM 6 TO 20
 ]), async (req, res) => {
   try {
     console.log("REQ BODY:", req.body);
