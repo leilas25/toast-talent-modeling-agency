@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Model Profile</title>
+  <title>Model Profile | Toast Talent</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -27,23 +27,28 @@
     </div>
   </main>
 
+  <!-- Lightbox modal -->
+  <div id="lightbox" class="lightbox">
+    <span class="close-lightbox">&times;</span>
+    <img class="lightbox-img" src="">
+  </div>
+
   <footer>
     <p>&copy; 2025 Toast Talent. All rights reserved.</p>
   </footer>
 
   <script>
-    // Grab model ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const modelId = urlParams.get("id");
 
-    // Fetch models.json and display the selected model
+    // Load model data
     fetch("models.json")
       .then(res => res.json())
       .then(data => {
         const model = data.models.find(m => m.id == modelId);
         if (model) {
           const galleryHtml = model.images
-            .map(img => `<img src="${img}" alt="${model.name}" class="profile-gallery-img">`)
+            .map((img, i) => `<img src="${img}" alt="${model.name}" class="profile-gallery-img" data-index="${i}">`)
             .join("");
 
           document.getElementById("profileContent").innerHTML = `
@@ -52,10 +57,32 @@
             <p><span class="profile-label">Height:</span> ${model.height}</p>
             <p><span class="profile-label">Location:</span> ${model.location}</p>
             <h2>Gallery</h2>
+            <p class="gallery-note">Click any picture to view full size</p>
             <div class="profile-gallery">
               ${galleryHtml}
             </div>
           `;
+
+          // Lightbox functionality
+          const lightbox = document.getElementById("lightbox");
+          const lightboxImg = document.querySelector(".lightbox-img");
+          const galleryImages = document.querySelectorAll(".profile-gallery-img");
+          const closeBtn = document.querySelector(".close-lightbox");
+
+          galleryImages.forEach(img => {
+            img.addEventListener("click", () => {
+              lightbox.style.display = "flex";
+              lightboxImg.src = img.src;
+            });
+          });
+
+          closeBtn.addEventListener("click", () => {
+            lightbox.style.display = "none";
+          });
+
+          lightbox.addEventListener("click", e => {
+            if (e.target === lightbox) lightbox.style.display = "none";
+          });
         } else {
           document.getElementById("profileContent").innerHTML = "<p>Model not found.</p>";
         }
