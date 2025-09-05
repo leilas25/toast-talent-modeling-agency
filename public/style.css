@@ -288,7 +288,7 @@ body {
 .model-card img {
   width: 100%;
   height: 350px;
-  object-fit: contain;
+  object-fit: contain; /* Corrected: Use contain for main model cards */
   display: block;
 }
 
@@ -479,23 +479,78 @@ footer {
   pointer-events: none;
 }
 
-/* Specific styling for images inside the modal gallery */
-#modalModelInfo .profile-gallery-img {
-  max-height: 250px;
-  width: auto;
-  object-fit: contain;
-  border-radius: 8px;
-  margin-right: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* --- MODAL SPECIFIC STYLES --- */
+.model-details-modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+  display: flex; /* Use flexbox to center content */
+  justify-content: center;
+  align-items: center;
 }
+
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 80%; /* Adjusted max-width for better display */
+  max-height: 90%; /* Adjusted max-height */
+  overflow-y: auto; /* Enable vertical scroll for content */
+  position: relative;
+  animation: modal-fadein 0.3s ease-out;
+}
+
+@keyframes modal-fadein {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.close-btn {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+  color: #000;
+  text-decoration: none;
+}
+
+/* Specific styling for images inside the modal gallery with rectangular frame */
+#modalModelInfo .profile-gallery-img {
+  max-height: 200px; /* Adjust height as needed to fit multiple images */
+  width: auto; /* Allow width to adjust proportionally */
+  object-fit: contain; /* Crucial: Ensures entire image is visible without cropping */
+  border: 1px solid #ddd; /* Subtle border for the frame */
+  border-radius: 8px; /* Rounded corners for the frame */
+  margin-right: 15px; /* Spacing between images */
+  margin-bottom: 15px; /* Spacing for wrapping images */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+  padding: 5px; /* Add some padding inside the frame */
+  background-color: #f9f9f9; /* Light background behind the image if it doesn't fill the frame */
+}
+
 
 /* Responsive adjustments for modal images */
 @media (max-width: 768px) {
   #modalModelInfo .profile-gallery-img {
-    max-height: 150px;
+    max-height: 120px; /* Smaller height on smaller screens */
     margin-right: 10px;
     margin-bottom: 10px;
+    padding: 3px;
   }
 }
 
@@ -504,8 +559,9 @@ footer {
   margin-right: 6px;
 }
 
-.model-name {
-  font-family: Arial, Helvetica, sans-serif !important;
+/* Original model-name rule was duplicated and possibly overriding, simplified to one main definition */
+.model-name { /* Main definition for model names on models.html */
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 1.5em;
   color: #0d0c0c;
   font-weight: 700;
@@ -513,19 +569,20 @@ footer {
   letter-spacing: 1px;
   margin-top: 8px;
   margin-bottom: 10px;
+  text-align: center; /* Center for model cards on models.html */
 }
 
 /* This targets the model name inside the modal specifically */
 .modal-content .model-name {
-  text-align: center;
-  margin-bottom: 20px;
+  text-align: center; /* Center the model name in the modal too */
+  margin-bottom: 20px; /* Add some space below the modal's model name */
 }
 
 .admin-hero {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: center; /* This centers children horizontally */
+  justify-content: center; /* This centers children vertically (if you set a height) */
   margin: 0 auto;
   padding: 24px;
   box-sizing: border-box;
