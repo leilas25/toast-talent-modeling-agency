@@ -250,10 +250,12 @@ body {
   box-shadow: 0 6px 30px #ddd;
 }
 
+/* FIXED → Portrait orientation for model cards */
 .model-card img {
   width: 100%;
-  height: 280px;
-  object-fit: cover;
+  height: 350px;
+  object-fit: cover; /* portrait look */
+  object-position: top;
   display: block;
   border-radius: 12px;
   background: #fff;
@@ -278,7 +280,7 @@ body {
 .profile-gallery-img {
   max-width: 280px;
   height: auto;
-  object-fit: cover;
+  object-fit: contain;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 5px;
@@ -292,7 +294,7 @@ body {
   transform: scale(1.05);
 }
 
-/* Modal specific styles (model details modal) */
+/* Modal specific styles */
 .model-details-modal {
   display: none;
   position: fixed;
@@ -332,7 +334,7 @@ body {
   cursor: pointer;
 }
 
-/* Modal thumbnails (these are the images you showed in the second screenshot) */
+/* Modal thumbnails */
 .modal-model-images {
   display: flex;
   flex-wrap: wrap;
@@ -343,13 +345,14 @@ body {
 
 .modal-model-images img {
   width: 140px;
-  height: 140px;
-  object-fit: contain; /* IMPORTANT: show full image (no cropping) */
+  height: 180px; /* portrait thumbnails */
+  object-fit: cover;
+  object-position: top;
   border-radius: 16px;
   border: 2px solid #ececec;
   background: #fff;
   box-shadow: 0 1px 9px #eee;
-  cursor: pointer; /* clickable */
+  cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
@@ -358,15 +361,7 @@ body {
   box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 
-/* small note inside modal */
-.gallery-note-modal {
-  font-size: 0.95rem;
-  color: #666;
-  margin-bottom: 12px;
-  text-align: center;
-}
-
-/* Lightbox for expanded images (used by modal thumbnails) */
+/* Lightbox */
 .lightbox {
   display: none;
   position: fixed;
@@ -409,29 +404,7 @@ body {
   to { opacity: 1; }
 }
 
-/* About Page */
-.about-hero {
-  max-width: 700px;
-  margin: 70px auto 50px auto;
-  background: var(--white);
-  border-radius: 14px;
-  box-shadow: 0 2px 14px #ececec;
-  padding: 38px 24px;
-}
-
-.about-hero h1 {
-  color: var(--danger);
-  font-size: 2.2rem;
-  margin-bottom: 18px;
-}
-
-.about-hero p {
-  color: #444;
-  font-size: 1.1rem;
-  margin: 18px 0;
-}
-
-/* Contact Page */
+/* Contact Page + Admin Form (restored original styling) */
 .contact-hero {
   max-width: 600px;
   margin: 70px auto 50px auto;
@@ -440,6 +413,66 @@ body {
   box-shadow: 0 2px 14px #ececec;
   padding: 38px 24px;
   text-align: center;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 32px;
+  align-items: stretch;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+#adminLoginForm {
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  min-width:220px;
+  align-items:center;
+}
+
+.contact-form label {
+  text-align: left;
+  font-weight: 500;
+  color: #222;
+}
+
+.contact-form input, .contact-form textarea {
+  width: 100%;
+  padding: 9px 13px;
+  border-radius: 7px;
+  border: 1.2px solid var(--border);
+  background: #f4f4f4;
+  font-size: 1rem;
+  font-family: 'Montserrat', Arial, sans-serif;
+  resize: vertical;
+  margin-top: 4px;
+  margin-bottom: 2px;
+  transition: border 0.2s;
+}
+
+.contact-form input:focus, .contact-form textarea:focus {
+  border: 1.2px solid var(--accent);
+  outline: none;
+}
+
+.contact-form button {
+  background: linear-gradient(90deg, var(--danger), var(--accent));
+  color: var(--white);
+  padding: 13px 0;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.contact-form button:hover {
+  filter: brightness(0.93);
 }
 
 /* Responsive tweaks */
@@ -451,10 +484,10 @@ body {
 
   .modal-model-images img {
     width: 90px;
-    height: 90px;
+    height: 120px;
   }
 
   .model-card img {
-    height: 200px;
+    height: 280px;
   }
 }
