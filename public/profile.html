@@ -5,6 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Model Profile | Toast Talent</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body, .model-name, .profile-label, .gallery-note, .profile-gallery-img {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .profile-container {
+      padding: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .model-name {
+      font-size: 2em;
+      color: #141212;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .profile-label {
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    .gallery-note {
+      font-size: 0.9em;
+      font-style: italic;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .profile-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .profile-gallery-img {
+      max-width: 200px;
+      max-height: 200px;
+      object-fit: cover;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 4px;
+      background: #fafafa;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .profile-gallery-img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Lightbox styles */
+    .lightbox {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    }
+
+    .close-lightbox {
+      position: absolute;
+      top: 20px;
+      right: 40px;
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -57,7 +141,7 @@
             <p><span class="profile-label">Height:</span> ${model.height}</p>
             <p><span class="profile-label">Location:</span> ${model.location}</p>
             <h2>Gallery</h2>
-            <p class="gallery-note">Click any picture to view full size</p>
+            <p class="gallery-note">💡 Click any picture to view it full size</p>
             <div class="profile-gallery">
               ${galleryHtml}
             </div>

@@ -2,18 +2,15 @@
 <html lang="en">
 
 <head>
-   
   <meta charset="UTF-8" />
-   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Our Models | Toast Talent</title>
-   
+  <title>Our Models | Toast Talent</title>
+
   <link rel="stylesheet" href="style.css" />
-     
   <link href="https://fonts.googleapis.com/css?family=Dancing+Script:700&display=swap" rel="stylesheet">
-   
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
-    <style>
+
+  <style>
     .model-name {
       font-family: Arial, Helvetica, sans-serif;
       font-size: 1.5em;
@@ -140,62 +137,69 @@
         height: 90px;
       }
     }
+
+    /* 🔹 Info note */
+    .info-note {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 6px;
+      font-style: italic;
+      text-align: center;
+    }
   </style>
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <a href="index.html" class="nav-logo">
-                <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
-              </a>
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="models.html" class="active">Models</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li><a href="admin.html" class="admin-link">Admin</a></li>
-              </ul>
-          </div>
-      </nav>
-    <main>
-        <section class="models-hero">
-            <h1 class="rainbow-models">Our Models</h1>
-            <p>Meet the faces of Toast Talent. Click any photo for more details.</p>
-          </section>
-        <section class="models-gallery">
-            <div class="models-grid" id="modelsGrid"></div>
-          </section>
-      </main>
-    <footer>
-        &copy; 2025 Toast Talent Modeling Agency
-      </footer>
+  <nav class="navbar">
+    <div class="nav-content">
+      <a href="index.html" class="nav-logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="models.html" class="active">Models</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="admin.html" class="admin-link">Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+  <main>
+    <section class="models-hero">
+      <h1 class="rainbow-models">Our Models</h1>
+      <p>Meet the faces of Toast Talent. Click any photo for more details.</p>
+      <p class="info-note">💡 On a model’s profile, hover or click on gallery images to view the full picture.</p>
+    </section>
+    <section class="models-gallery">
+      <div class="models-grid" id="modelsGrid"></div>
+    </section>
+  </main>
+  <footer>
+    &copy; 2025 Toast Talent Modeling Agency
+  </footer>
 
-      <div id="modelModal">
-        <div id="modelModalContent">
-            <button id="closeModalBtn" title="Close">&times;</button>
-            <div id="modalModelInfo"></div>
-          </div>
-      </div>
+  <div id="modelModal">
+    <div id="modelModalContent">
+      <button id="closeModalBtn" title="Close">&times;</button>
+      <div id="modalModelInfo"></div>
+    </div>
+  </div>
 
-   
   <script>
-    // Fetch models from backend and display in grid
     function loadModels() {
       fetch('/api/models')
         .then(res => res.json())
         .then(models => {
           document.getElementById('modelsGrid').innerHTML = models.map(model => {
-            // Use the new profilePicture field
             const imgSrc = model.profilePicture || 'images/default.jpg';
             return `
-              <div class="model-card" data-model-id="${model._id}">
-                <img src="${imgSrc}" alt="${model.name}">
-                <div class="model-name">${model.name}</div>
-              </div>
-            `;
+              <div class="model-card" data-model-id="${model._id}">
+                <img src="${imgSrc}" alt="${model.name}">
+                <div class="model-name">${model.name}</div>
+              </div>
+            `;
           }).join('');
-          // Attach click event to each card
+
           document.querySelectorAll('.model-card').forEach(card => {
             card.onclick = function () {
               const modelId = card.getAttribute('data-model-id');
@@ -209,13 +213,11 @@
         });
     }
 
-    // Fetch and show model details in modal
     function loadModelDetails(modelId) {
       fetch(`/api/models/${modelId}`)
         .then(res => res.json())
         .then(model => {
           let imagesHtml = '';
-          // The model.galleryImages field is now the array of images
           if (model.galleryImages && model.galleryImages.length > 0) {
             imagesHtml = '<div class="modal-model-images">' +
               model.galleryImages.map(img =>
@@ -234,7 +236,6 @@
            <div><span class="model-detail-label">Height:</span> ${model.height || '-'}</div>
            </div>
             `;
-          // Show modal
           document.getElementById('modelModal').style.display = 'flex';
         })
         .catch(err => {
@@ -244,7 +245,6 @@
         });
     }
 
-    // Close modal on button click or outside click
     document.getElementById('closeModalBtn').onclick = function () {
       document.getElementById('modelModal').style.display = 'none';
       document.getElementById('modalModelInfo').innerHTML = '';
@@ -256,7 +256,6 @@
       }
     };
 
-    // Initial load
     loadModels();
   </script>
 </body>

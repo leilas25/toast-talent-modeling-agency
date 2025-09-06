@@ -268,19 +268,25 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 24px;
-  justify-content: center; /* Center the images */
+  justify-content: center;
   margin-bottom: 24px;
 }
 
 .profile-gallery-img {
   max-width: 280px;
   height: auto;
-  object-fit: contain; /* Prevent cropping */
+  object-fit: contain;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 5px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer; /* Indicate clickable */
+  transition: transform 0.2s;
+}
+
+.profile-gallery-img:hover {
+  transform: scale(1.05);
 }
 
 /* About Page */
@@ -444,7 +450,7 @@ footer {
   }
 
   .profile-gallery {
-    justify-content: center; /* Keep centered on small screens */
+    justify-content: center;
   }
 
   .profile-gallery-img {
@@ -465,12 +471,17 @@ footer {
 .lightbox {
   display: none;
   position: fixed;
-  z-index: 1000;
+  z-index: 2000;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.85);
   justify-content: center;
   align-items: center;
+}
+
+.lightbox.show {
+  display: flex;
+  animation: fadeIn 0.3s ease;
 }
 
 .lightbox-img {
@@ -492,4 +503,9 @@ footer {
 
 .close-lightbox:hover {
   color: #ddd;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
