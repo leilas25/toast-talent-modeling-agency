@@ -242,6 +242,7 @@ body {
   overflow: hidden;
   text-align: center;
   transition: transform 0.18s;
+  padding: 18px;
 }
 
 .model-card:hover {
@@ -251,13 +252,15 @@ body {
 
 .model-card img {
   width: 100%;
-  height: 350px;
-  object-fit: contain; /* Ensure full image visible */
+  height: 280px;
+  object-fit: cover;
   display: block;
+  border-radius: 12px;
+  background: #fff;
 }
 
 .model-name {
-  padding: 16px 0;
+  padding: 16px 0 0 0;
   font-weight: 600;
   font-size: 1.1rem;
   color: var(--accent);
@@ -275,18 +278,135 @@ body {
 .profile-gallery-img {
   max-width: 280px;
   height: auto;
-  object-fit: contain;
+  object-fit: cover;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 5px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  cursor: pointer; /* Indicate clickable */
+  cursor: pointer;
   transition: transform 0.2s;
 }
 
 .profile-gallery-img:hover {
   transform: scale(1.05);
+}
+
+/* Modal specific styles (model details modal) */
+.model-details-modal {
+  display: none;
+  position: fixed;
+  z-index: 1500;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modal-fadein 0.25s ease-out;
+}
+
+.close-btn {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  cursor: pointer;
+}
+
+/* Modal thumbnails (these are the images you showed in the second screenshot) */
+.modal-model-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 12px;
+  justify-content: center;
+}
+
+.modal-model-images img {
+  width: 140px;
+  height: 140px;
+  object-fit: contain; /* IMPORTANT: show full image (no cropping) */
+  border-radius: 16px;
+  border: 2px solid #ececec;
+  background: #fff;
+  box-shadow: 0 1px 9px #eee;
+  cursor: pointer; /* clickable */
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.modal-model-images img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* small note inside modal */
+.gallery-note-modal {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* Lightbox for expanded images (used by modal thumbnails) */
+.lightbox {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
+  justify-content: center;
+  align-items: center;
+}
+
+.lightbox.show {
+  display: flex;
+  animation: fadeIn 0.25s ease;
+}
+
+.lightbox-img {
+  max-width: 92%;
+  max-height: 92%;
+  border-radius: 10px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.6);
+}
+
+.close-lightbox {
+  position: absolute;
+  top: 20px; right: 30px;
+  font-size: 36px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+.close-lightbox:hover {
+  color: #ddd;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* About Page */
@@ -322,190 +442,19 @@ body {
   text-align: center;
 }
 
-.contact-hero h1 {
-  color: var(--danger);
-  font-size: 2.1rem;
-  margin-bottom: 18px;
-}
-
-.contact-hero p {
-  color: #444;
-  margin-bottom: 24px;
-  font-size: 1.08rem;
-}
-
-.contact-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-bottom: 32px;
-  align-items: stretch;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-#adminLoginForm {
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-  min-width:220px;
-  align-items:center;
-}
-
-.contact-form label {
-  text-align: left;
-  font-weight: 500;
-  color: #222;
-}
-
-.contact-form input,
-.contact-form textarea {
-  width: 100%;
-  padding: 9px 13px;
-  border-radius: 7px;
-  border: 1.2px solid var(--border);
-  background: #f4f4f4;
-  font-size: 1rem;
-  font-family: 'Montserrat', Arial, sans-serif;
-  resize: vertical;
-  margin-top: 4px;
-  margin-bottom: 2px;
-  transition: border 0.2s;
-}
-
-.contact-form input:focus,
-.contact-form textarea:focus {
-  border: 1.2px solid var(--accent);
-  outline: none;
-}
-
-.contact-form button {
-  background: linear-gradient(90deg, var(--danger), var(--accent));
-  color: var(--white);
-  padding: 13px 0;
-  border: none;
-  border-radius: 25px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 8px;
-}
-
-.contact-form button:hover {
-  filter: brightness(0.93);
-}
-
-.contact-details {
-  text-align: center;
-  margin-top: 20px;
-  color: #222;
-}
-
-.contact-details b {
-  color: var(--accent);
-  font-weight: 600;
-}
-
-/* Footer */
-footer {
-  background: var(--white);
-  color: #888;
-  text-align: center;
-  padding: 24px 0;
-  font-size: 1rem;
-  border-top: 1px solid var(--border);
-  margin-top: 60px;
-}
-
-/* Responsive Design */
+/* Responsive tweaks */
 @media (max-width: 700px) {
-  .nav-content {
-    flex-direction: column;
-    height: auto;
-    padding: 0 10px;
-  }
-
-  .nav-links {
-    gap: 16px;
-  }
-
-  .hero-content h1,
-  .about-hero h1,
-  .models-hero h1,
-  .contact-hero h1 {
-    font-size: 1.4rem;
-  }
-
   .models-grid {
     grid-template-columns: 1fr;
     gap: 22px;
   }
 
-  .about-hero,
-  .contact-hero,
-  .home-feature {
-    padding: 18px 8px;
-    margin: 38px 7px;
+  .modal-model-images img {
+    width: 90px;
+    height: 90px;
   }
 
-  .profile-gallery {
-    justify-content: center;
+  .model-card img {
+    height: 200px;
   }
-
-  .profile-gallery-img {
-    max-width: 100%;
-    height: auto;
-  }
-}
-
-/* Gallery note */
-.gallery-note {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 12px;
-  text-align: center;
-}
-
-/* Lightbox */
-.lightbox {
-  display: none;
-  position: fixed;
-  z-index: 2000;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85);
-  justify-content: center;
-  align-items: center;
-}
-
-.lightbox.show {
-  display: flex;
-  animation: fadeIn 0.3s ease;
-}
-
-.lightbox-img {
-  max-width: 90%;
-  max-height: 90%;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-
-.close-lightbox {
-  position: absolute;
-  top: 20px; right: 30px;
-  font-size: 36px;
-  color: #fff;
-  cursor: pointer;
-  font-weight: bold;
-  transition: color 0.2s;
-}
-
-.close-lightbox:hover {
-  color: #ddd;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
