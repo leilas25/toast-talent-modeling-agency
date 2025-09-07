@@ -9,6 +9,13 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css?family=Dancing+Script:700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
+
+  <style>
+    /* extra styling update for card height */
+    .model-card {
+      min-height: 300px; /* keeps all cards aligned */
+    }
+  </style>
 </head>
 
 <body>
@@ -83,7 +90,8 @@
         })
         .catch(err => {
           console.error('Error loading models:', err);
-          document.getElementById('modelsGrid').innerHTML = "<p>Error loading models.</p>";
+          document.getElementById('modelsGrid').innerHTML =
+            "<p style='color:red; text-align:center;'>Sorry, we couldn’t load the models. Please try again later.</p>";
         });
     }
 
@@ -139,45 +147,40 @@
 
       document.querySelectorAll('#modelModalContent .modal-model-images img').forEach(img => {
         img.style.cursor = 'pointer';
-        img.addEventListener('click', (e) => {
-          // open lightbox and set image
+        img.addEventListener('click', () => {
           lightboxImg.src = img.src;
           lightbox.classList.add('show');
           lightbox.setAttribute('aria-hidden', 'false');
         });
       });
 
-      // close lightbox on click X
       closeLightboxBtn.onclick = () => {
         lightbox.classList.remove('show');
         lightbox.setAttribute('aria-hidden', 'true');
-        lightbox.querySelector('.lightbox-img').src = '';
+        lightboxImg.src = '';
       };
 
-      // close lightbox on outside click
       lightbox.onclick = (e) => {
         if (e.target === lightbox) {
           lightbox.classList.remove('show');
           lightbox.setAttribute('aria-hidden', 'true');
-          lightbox.querySelector('.lightbox-img').src = '';
+          lightboxImg.src = '';
         }
       };
 
-      // close on ESC
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           lightbox.classList.remove('show');
           lightbox.setAttribute('aria-hidden', 'true');
-          lightbox.querySelector('.lightbox-img').src = '';
+          lightboxImg.src = '';
         }
       });
     }
 
-    // Modal close handlers (close button & outside click)
+    // Modal close handlers
     document.getElementById('closeModalBtn').addEventListener('click', () => {
       document.getElementById('modelModal').style.display = 'none';
       document.getElementById('modalModelInfo').innerHTML = '';
-      // also ensure lightbox closed
       const lb = document.getElementById('modalLightbox');
       if (lb) { lb.classList.remove('show'); lb.querySelector('.lightbox-img').src = ''; }
     });
