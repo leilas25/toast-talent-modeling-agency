@@ -1,28 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Our Models | Toast Talent</title>
-
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css?family=Dancing+Script:700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
-
-  <style>
-    /* extra styling update for card height */
-    .model-card {
-      min-height: 300px; /* keeps all cards aligned */
-    }
-  </style>
 </head>
-
 <body>
   <nav class="navbar">
     <div class="nav-content">
       <a href="index.html" class="nav-logo">
-        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+        <!-- logo uses fallback if missing -->
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" onerror="this.onerror=null; this.src='images/default.jpg';">
       </a>
       <ul class="nav-links">
         <li><a href="index.html">Home</a></li>
@@ -46,157 +35,152 @@
     </section>
   </main>
 
-  <footer>
-    &copy; 2025 Toast Talent Modeling Agency
-  </footer>
+  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
 
-  <!-- Modal for model details -->
-  <div id="modelModal" class="model-details-modal">
+  <!-- model modal -->
+  <div id="modelModal" class="model-details-modal" style="display:none;">
     <div id="modelModalContent" class="modal-content">
       <button id="closeModalBtn" class="close-btn" title="Close">&times;</button>
       <div id="modalModelInfo"></div>
     </div>
   </div>
 
-  <!-- Lightbox for expanded modal images -->
+  <!-- lightbox -->
   <div id="modalLightbox" class="lightbox" aria-hidden="true">
     <span class="close-lightbox" title="Close">&times;</span>
     <img class="lightbox-img" src="" alt="Expanded image">
   </div>
 
-  <script>
-    // Load model cards
-    function loadModels() {
-      fetch('/api/models')
-        .then(res => res.json())
-        .then(models => {
-          const grid = document.getElementById('modelsGrid');
-          grid.innerHTML = models.map(model => {
-            const imgSrc = model.profilePicture || 'images/default.jpg';
-            return `
-              <div class="model-card" data-model-id="${model._id}">
-                <img src="${imgSrc}" alt="${model.name}" onerror="this.style.display='none';">
-                <div class="model-name">${model.name}</div>
-              </div>
-            `;
-          }).join('');
+<script>
+/* ===== loadModels with onerror fallback ===== */
+function loadModels() {
+  fetch('/api/models')
+    .then(res => res.json())
+    .then(models => {
+      const grid = document.getElementById('modelsGrid');
+      grid.innerHTML = models.map(model => {
+        const imgSrc = model.profilePicture || 'images/default.jpg';
+        // ensure each image uses fallback onerror
+        return `
+          <div class="model-card" data-model-id="${model._id}">
+            <img src="${imgSrc}" alt="${model.name}" onerror="this.onerror=null; this.src='images/default.jpg';">
+            <div class="model-name">${model.name}</div>
+          </div>
+        `;
+      }).join('');
 
-          document.querySelectorAll('.model-card').forEach(card => {
-            card.addEventListener('click', () => {
-              const modelId = card.getAttribute('data-model-id');
-              loadModelDetails(modelId);
-            });
-          });
-        })
-        .catch(err => {
-          console.error('Error loading models:', err);
-          document.getElementById('modelsGrid').innerHTML =
-            "<p style='color:red; text-align:center;'>Sorry, we couldn’t load the models. Please try again later.</p>";
-        });
-    }
-
-    // Fetch model details and open modal
-    function loadModelDetails(modelId) {
-      fetch(`/api/models/${modelId}`)
-        .then(res => res.json())
-        .then(model => {
-          let imagesHtml = '';
-          if (model.galleryImages && model.galleryImages.length > 0) {
-            imagesHtml = '<div class="modal-model-images">' +
-              model.galleryImages.map(img =>
-                `<img src="${img}" alt="${model.name}" loading="lazy" onerror="this.style.display='none';">`
-              ).join('') +
-              '</div>';
-          }
-
-          // Add a small note under the thumbnails
-          const noteHtml = '<p class="gallery-note-modal">Click any image to view it larger</p>';
-
-          document.getElementById('modalModelInfo').innerHTML = `
-            ${imagesHtml}
-            ${noteHtml}
-            <h2 style="margin-bottom:14px; text-align:center; font-size:2em;">${model.name}</h2>
-            <div style="font-size:1.1em; margin-bottom:8px;">
-              <div><span class="model-detail-label">Age:</span> ${model.age || '-'}</div>
-              <div><span class="model-detail-label">Shoe Size:</span> ${model.shoe || '-'}</div>
-              <div><span class="model-detail-label">Shirt Size:</span> ${model.shirt || '-'}</div>
-              <div><span class="model-detail-label">Pants Size:</span> ${model.pants || '-'}</div>
-              <div><span class="model-detail-label">Height:</span> ${model.height || '-'}</div>
-            </div>
-          `;
-
-          // Show modal
-          const modal = document.getElementById('modelModal');
-          modal.style.display = 'flex';
-
-          // Now attach click handlers to the newly-inserted thumbnail images
-          attachModalImageHandlers();
-        })
-        .catch(err => {
-          console.error('Error loading model details:', err);
-          document.getElementById('modalModelInfo').innerHTML = "<p>Error loading model details.</p>";
-          document.getElementById('modelModal').style.display = 'flex';
-        });
-    }
-
-    // Attach click handlers to modal thumbnails to open the lightbox
-    function attachModalImageHandlers() {
-      const lightbox = document.getElementById('modalLightbox');
-      const lightboxImg = lightbox.querySelector('.lightbox-img');
-      const closeLightboxBtn = lightbox.querySelector('.close-lightbox');
-
-      document.querySelectorAll('#modelModalContent .modal-model-images img').forEach(img => {
-        img.style.cursor = 'pointer';
-        img.addEventListener('click', () => {
-          lightboxImg.src = img.src;
-          lightbox.classList.add('show');
-          lightbox.setAttribute('aria-hidden', 'false');
+      document.querySelectorAll('.model-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const modelId = card.getAttribute('data-model-id');
+          loadModelDetails(modelId);
         });
       });
-
-      closeLightboxBtn.onclick = () => {
-        lightbox.classList.remove('show');
-        lightbox.setAttribute('aria-hidden', 'true');
-        lightboxImg.src = '';
-      };
-
-      lightbox.onclick = (e) => {
-        if (e.target === lightbox) {
-          lightbox.classList.remove('show');
-          lightbox.setAttribute('aria-hidden', 'true');
-          lightboxImg.src = '';
-        }
-      };
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          lightbox.classList.remove('show');
-          lightbox.setAttribute('aria-hidden', 'true');
-          lightboxImg.src = '';
-        }
-      });
-    }
-
-    // Modal close handlers
-    document.getElementById('closeModalBtn').addEventListener('click', () => {
-      document.getElementById('modelModal').style.display = 'none';
-      document.getElementById('modalModelInfo').innerHTML = '';
-      const lb = document.getElementById('modalLightbox');
-      if (lb) { lb.classList.remove('show'); lb.querySelector('.lightbox-img').src = ''; }
+    })
+    .catch(err => {
+      console.error('Error loading models:', err);
+      document.getElementById('modelsGrid').innerHTML =
+        "<p style='color:red; text-align:center;'>Sorry, we couldn’t load the models. Please try again later.</p>";
     });
+}
 
-    document.getElementById('modelModal').addEventListener('click', function (e) {
-      if (e.target === this) {
-        this.style.display = 'none';
-        document.getElementById('modalModelInfo').innerHTML = '';
-        const lb = document.getElementById('modalLightbox');
-        if (lb) { lb.classList.remove('show'); lb.querySelector('.lightbox-img').src = ''; }
+/* ===== loadModelDetails with thumbnail fallback ===== */
+function loadModelDetails(modelId) {
+  fetch(`/api/models/${modelId}`)
+    .then(res => res.json())
+    .then(model => {
+      let imagesHtml = '';
+      if (model.galleryImages && model.galleryImages.length > 0) {
+        imagesHtml = '<div class="modal-model-images">' +
+          model.galleryImages.map(img =>
+            `<img src="${img}" alt="${model.name}" loading="lazy" onerror="this.onerror=null; this.src='images/default.jpg';">`
+          ).join('') +
+          '</div>';
       }
+
+      const noteHtml = '<p class="gallery-note-modal">Click any image to view it larger</p>';
+
+      document.getElementById('modalModelInfo').innerHTML = `
+        ${imagesHtml}
+        ${noteHtml}
+        <h2 style="margin-bottom:14px; text-align:center; font-size:2em;">${model.name}</h2>
+        <div style="font-size:1.1em; margin-bottom:8px;">
+          <div><span class="model-detail-label">Age:</span> ${model.age || '-'}</div>
+          <div><span class="model-detail-label">Shoe Size:</span> ${model.shoe || '-'}</div>
+          <div><span class="model-detail-label">Shirt Size:</span> ${model.shirt || '-'}</div>
+          <div><span class="model-detail-label">Pants Size:</span> ${model.pants || '-'}</div>
+          <div><span class="model-detail-label">Height:</span> ${model.height || '-'}</div>
+        </div>
+      `;
+
+      document.getElementById('modelModal').style.display = 'flex';
+      attachModalImageHandlers();
+    })
+    .catch(err => {
+      console.error('Error loading model details:', err);
+      document.getElementById('modalModelInfo').innerHTML = "<p>Error loading model details.</p>";
+      document.getElementById('modelModal').style.display = 'flex';
     });
+}
 
-    // Initialize
-    loadModels();
-  </script>
+/* ===== attach lightbox handlers ===== */
+function attachModalImageHandlers() {
+  const lightbox = document.getElementById('modalLightbox');
+  const lightboxImg = lightbox.querySelector('.lightbox-img');
+  const closeLightboxBtn = lightbox.querySelector('.close-lightbox');
+
+  document.querySelectorAll('#modelModalContent .modal-model-images img').forEach(img => {
+    img.style.cursor = 'pointer';
+    img.addEventListener('click', () => {
+      lightboxImg.src = img.src;
+      lightbox.classList.add('show');
+      lightbox.setAttribute('aria-hidden', 'false');
+    });
+  });
+
+  closeLightboxBtn.onclick = () => {
+    lightbox.classList.remove('show');
+    lightbox.setAttribute('aria-hidden', 'true');
+    lightbox.querySelector('.lightbox-img').src = '';
+  };
+
+  lightbox.onclick = (e) => {
+    if (e.target === lightbox) {
+      lightbox.classList.remove('show');
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightbox.querySelector('.lightbox-img').src = '';
+    }
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      lightbox.classList.remove('show');
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightbox.querySelector('.lightbox-img').src = '';
+    }
+  });
+}
+
+/* modal close handlers */
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'closeModalBtn') {
+    document.getElementById('modelModal').style.display = 'none';
+    document.getElementById('modalModelInfo').innerHTML = '';
+    const lb = document.getElementById('modalLightbox');
+    if (lb) { lb.classList.remove('show'); lb.querySelector('.lightbox-img').src = ''; }
+  }
+});
+
+document.getElementById('modelModal').addEventListener('click', function (e) {
+  if (e.target === this) {
+    this.style.display = 'none';
+    document.getElementById('modalModelInfo').innerHTML = '';
+    const lb = document.getElementById('modalLightbox');
+    if (lb) { lb.classList.remove('show'); lb.querySelector('.lightbox-img').src = ''; }
+  }
+});
+
+/* start */
+loadModels();
+</script>
 </body>
-
 </html>

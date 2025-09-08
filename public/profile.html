@@ -1,101 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Model Profile | Toast Talent</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    body, .model-name, .profile-label, .gallery-note, .profile-gallery-img {
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    .profile-container {
-      padding: 20px;
-      max-width: 1000px;
-      margin: auto;
-    }
-
-    .model-name {
-      font-size: 2em;
-      color: #141212;
-      font-weight: 700;
-      margin-bottom: 18px;
-    }
-
-    .profile-label {
-      font-weight: 700;
-      margin-right: 6px;
-    }
-
-    .gallery-note {
-      font-size: 0.9em;
-      font-style: italic;
-      color: #555;
-      margin-bottom: 10px;
-    }
-
-    .profile-gallery {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-top: 10px;
-    }
-
-    .profile-gallery-img {
-      max-width: 200px;
-      max-height: 200px;
-      object-fit: cover;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 4px;
-      background: #fafafa;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-
-    .profile-gallery-img:hover {
-      transform: scale(1.05);
-    }
-
-    /* Lightbox styles */
-    .lightbox {
-      display: none;
-      position: fixed;
-      z-index: 10000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.85);
-      align-items: center;
-      justify-content: center;
-    }
-
-    .lightbox-img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 10px;
-      box-shadow: 0 0 25px rgba(0,0,0,0.6);
-    }
-
-    .close-lightbox {
-      position: absolute;
-      top: 20px;
-      right: 40px;
-      font-size: 2.5em;
-      font-weight: bold;
-      color: #fff;
-      cursor: pointer;
-    }
-  </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="nav-content">
-      <div class="nav-logo">
-        <a href="index.html"><img src="images/logo.png" alt="Logo" /></a>
-      </div>
+      <a href="index.html" class="nav-logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" onerror="this.onerror=null;this.src='images/default.jpg';">
+      </a>
       <ul class="nav-links">
         <li><a href="index.html">Home</a></li>
         <li><a href="models.html" class="active">Models</a></li>
@@ -106,14 +22,71 @@
   </nav>
 
   <main class="profile-container">
-    <div id="profileContent"></div> <!-- Empty so no random box shows -->
+    <div id="profileContent"></div>
   </main>
 
-  <!-- Lightbox modal -->
-  <div id="lightbox" class="lightbox">
+  <div id="lightbox" class="lightbox" aria-hidden="true">
     <span class="close-lightbox">&times;</span>
-    <img class="lightbox-img" src="">
+    <img class="lightbox-img" src="" alt="">
   </div>
 
-  <footer>
-    <p>&copy; 202
+  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const modelId = urlParams.get("id");
+
+fetch("models.json")
+  .then(res => res.json())
+  .then(data => {
+    // data is an array in your file, so use data.find(...)
+    const model = data.find(m => m.id == modelId);
+    if (!model) {
+      document.getElementById("profileContent").innerHTML = "<p>Model not found.</p>";
+      return;
+    }
+
+    const galleryHtml = model.images && model.images.length > 0
+      ? model.images.map((img,i) => `<img src="${img}" alt="${model.name} gallery image ${i+1}" class="profile-gallery-img" onerror="this.onerror=null;this.src='images/default.jpg';">`).join('')
+      : "<p>No gallery images available.</p>";
+
+    document.getElementById("profileContent").innerHTML = `
+      <h1 class="model-name">${model.name}</h1>
+      <p><span class="profile-label">Age:</span> ${model.age}</p>
+      <p><span class="profile-label">Height:</span> ${model.height}</p>
+      <h2>Gallery</h2>
+      <p class="gallery-note">💡 Click any picture to view it full size</p>
+      <div class="profile-gallery">${galleryHtml}</div>
+    `;
+
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.querySelector(".lightbox-img");
+    const closeBtn = document.querySelector(".close-lightbox");
+
+    document.querySelectorAll(".profile-gallery-img").forEach(img => {
+      img.addEventListener('click', () => {
+        lightbox.style.display = 'flex';
+        lightboxImg.src = img.src;
+        lightbox.setAttribute('aria-hidden','false');
+      });
+    });
+
+    closeBtn.addEventListener('click', ()=> {
+      lightbox.style.display = 'none';
+      lightbox.setAttribute('aria-hidden','true');
+    });
+
+    lightbox.addEventListener('click', e => {
+      if (e.target === lightbox) {
+        lightbox.style.display = 'none';
+        lightbox.setAttribute('aria-hidden','true');
+      }
+    });
+  })
+  .catch(err => {
+    console.error('Error loading models.json', err);
+    document.getElementById("profileContent").innerHTML = "<p style='color:red;text-align:center;'>Error loading profile. Please try again later.</p>";
+  });
+</script>
+</body>
+</html>
