@@ -75,7 +75,7 @@
             const imgSrc = model.profilePicture || 'images/default.jpg';
             return `
               <div class="model-card" data-model-id="${model._id}">
-                <img src="${imgSrc}" alt="${model.name}">
+                <img src="${imgSrc}" alt="${model.name}" onerror="this.style.display='none';">
                 <div class="model-name">${model.name}</div>
               </div>
             `;
@@ -104,7 +104,7 @@
           if (model.galleryImages && model.galleryImages.length > 0) {
             imagesHtml = '<div class="modal-model-images">' +
               model.galleryImages.map(img =>
-                `<img src="${img}" alt="${model.name}" loading="lazy">`
+                `<img src="${img}" alt="${model.name}" loading="lazy" onerror="this.style.display='none';">`
               ).join('') +
               '</div>';
           }
