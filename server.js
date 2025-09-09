@@ -5,7 +5,8 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
-const fs = require('fs');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const app = express();
 
@@ -17,29 +18,26 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-// --- Ensure static files are served (MUST be before routes) ---
+// --- Serve static frontend ---
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- TRUST PROXY IS REQUIRED FOR RENDER HTTPS ---
+// --- TRUST PROXY FOR RENDER HTTPS ---
 app.set('trust proxy', 1);
 
-// --- SESSION STORE SETUP ---
+// --- SESSION SETUP ---
 let sessionStore;
 if (process.env.NODE_ENV === 'production') {
-  // In production, you should use a robust session store (e.g., MongoStore, Redis)
-  // For now, fallback to MemoryStore with warning (don't use for real production!)
   console.warn("⚠️ Using MemoryStore for session in production! Consider using MongoStore or Redis.");
 }
-
 app.use(session({
   secret: process.env.SESSION_SECRET || 'LeilaSono123!',
   resave: false,
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    secure: true,      // true for HTTPS (Render uses HTTPS)
-    sameSite: 'none',  // Required for cross-origin cookies
-    maxAge: 1000 * 60 * 60 * 2 // 2 hours
+    secure: true,
+    sameSite: 'none',
+    maxAge: 1000 * 60 * 60 * 2
   }
 }));
 
@@ -52,7 +50,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('Connected to MongoDB Atlas'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// --- UPDATED MODEL SCHEMA ---
+// --- MODEL SCHEMA ---
 const modelSchema = new mongoose.Schema({
   name: String,
   age: String,
@@ -60,32 +58,30 @@ const modelSchema = new mongoose.Schema({
   shirt: String,
   pants: String,
   height: String,
-  profilePicture: String,    // Path to the single profile picture
-  galleryImages: [String]  // Array of paths for gallery images
+  profilePicture: String,   // Cloudinary URL
+  galleryImages: [String]   // Array of Cloudinary URLs
 });
 const Model = mongoose.model('Model', modelSchema);
 
-// --- Ensure "public/images" exists ---
-const imageDir = path.join(__dirname, 'public', 'images');
-if (!fs.existsSync(imageDir)) {
-  fs.mkdirSync(imageDir, { recursive: true });
-}
+// --- CLOUDINARY CONFIG ---
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "dk1df1qmi",
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-// --- MULTER STORAGE ---
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, imageDir);
-  },
-  filename: function(req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const basename = path.basename(file.originalname, ext);
-    const finalName = basename + '-' + Date.now() + ext;
-    cb(null, finalName);
-  }
+// --- MULTER STORAGE USING CLOUDINARY ---
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => ({
+    folder: "models",
+    resource_type: "image",
+    public_id: file.fieldname + "-" + Date.now(),
+  }),
 });
 const upload = multer({ storage: storage });
 
-// --- NEW AUTH CHECK ROUTE ---
+// --- AUTH CHECK ---
 app.get('/api/check-auth', (req, res) => {
   if (req.session && req.session.isAdmin) {
     res.json({ authenticated: true });
@@ -94,7 +90,7 @@ app.get('/api/check-auth', (req, res) => {
   }
 });
 
-// --- LOGIN ROUTE ---
+// --- LOGIN ---
 app.post('/api/login', (req, res) => {
   const { password } = req.body;
   if (password === ADMIN_PASSWORD) {
@@ -104,20 +100,18 @@ app.post('/api/login', (req, res) => {
   res.status(401).json({ success: false, error: 'Incorrect password' });
 });
 
-// --- LOGOUT ROUTE ---
+// --- LOGOUT ---
 app.post('/api/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.json({ success: true });
-  });
+  req.session.destroy(() => res.json({ success: true }));
 });
 
-// --- REQUIRE ADMIN MIDDLEWARE ---
+// --- REQUIRE ADMIN ---
 function requireAdmin(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
   res.status(401).json({ error: 'Unauthorized' });
 }
 
-// --- GET MODELS ---
+// --- GET ALL MODELS ---
 app.get('/api/models', async (req, res) => {
   try {
     const models = await Model.find();
@@ -140,36 +134,37 @@ app.get('/api/models/:id', async (req, res) => {
   }
 });
 
-// --- UPDATED ADD MODEL ROUTE (limit changed to 20) ---
+// --- ADD MODEL ---
 app.post('/api/models', requireAdmin, upload.fields([
   { name: 'profilePicture', maxCount: 1 },
-  { name: 'galleryImages', maxCount: 20 } // <--- UPDATED FROM 6 TO 20
+  { name: 'galleryImages', maxCount: 20 }
 ]), async (req, res) => {
   try {
-    console.log("REQ BODY:", req.body);
-    console.log("REQ FILES:", req.files);
-
     const { name, age, shoe, shirt, pants, height } = req.body;
-    const profilePicturePath = req.files['profilePicture'] ? '/images/' + req.files['profilePicture'][0].filename : null;
-    const galleryImagesPaths = req.files['galleryImages'] ? req.files['galleryImages'].map(f => '/images/' + f.filename) : [];
 
-    if (!name || !profilePicturePath) {
+    const profilePictureUrl = req.files['profilePicture']
+      ? req.files['profilePicture'][0].path
+      : null;
+
+    const galleryImageUrls = req.files['galleryImages']
+      ? req.files['galleryImages'].map(f => f.path)
+      : [];
+
+    if (!name || !profilePictureUrl) {
       return res.status(400).json({ error: 'Name and a profile picture are required' });
     }
-    
-    console.log("Saved profile picture URL:", profilePicturePath);
-    console.log("Saved gallery image URLs:", galleryImagesPaths);
 
-    const newModel = new Model({ 
-      name, 
-      age, 
-      shoe, 
-      shirt, 
-      pants, 
-      height, 
-      profilePicture: profilePicturePath,
-      galleryImages: galleryImagesPaths
+    const newModel = new Model({
+      name,
+      age,
+      shoe,
+      shirt,
+      pants,
+      height,
+      profilePicture: profilePictureUrl,
+      galleryImages: galleryImageUrls
     });
+
     await newModel.save();
     res.status(201).json(newModel);
   } catch (err) {
@@ -178,24 +173,32 @@ app.post('/api/models', requireAdmin, upload.fields([
   }
 });
 
-// --- UPDATED DELETE MODEL ROUTE ---
+// --- DELETE MODEL (DB + CLOUDINARY) ---
 app.delete('/api/models/:id', requireAdmin, async (req, res) => {
   try {
     const model = await Model.findById(req.params.id);
     if (!model) return res.status(404).json({ error: 'Model not found' });
 
-    // Delete profile picture file
+    // Delete profile picture from Cloudinary
     if (model.profilePicture) {
-      const profileImgPath = path.join(imageDir, path.basename(model.profilePicture));
-      fs.unlink(profileImgPath, () => {});
+      try {
+        const publicId = model.profilePicture.split('/').slice(-1)[0].split('.')[0];
+        await cloudinary.uploader.destroy("models/" + publicId);
+      } catch (err) {
+        console.warn("Could not delete profile picture from Cloudinary:", err.message);
+      }
     }
 
-    // Delete gallery image files
+    // Delete gallery images from Cloudinary
     if (Array.isArray(model.galleryImages)) {
-      model.galleryImages.forEach(img => {
-        const imgPath = path.join(imageDir, path.basename(img));
-        fs.unlink(imgPath, () => {});
-      });
+      for (const url of model.galleryImages) {
+        try {
+          const publicId = url.split('/').slice(-1)[0].split('.')[0];
+          await cloudinary.uploader.destroy("models/" + publicId);
+        } catch (err) {
+          console.warn("Could not delete gallery image:", err.message);
+        }
+      }
     }
 
     await Model.deleteOne({ _id: req.params.id });
@@ -206,7 +209,7 @@ app.delete('/api/models/:id', requireAdmin, async (req, res) => {
   }
 });
 
-// --- TEST SESSION PERSISTENCE ---
+// --- TEST SESSION ---
 app.get('/api/test-cookie', (req, res) => {
   if (req.session.test) {
     res.json({ success: true, msg: "Session persists!" });
@@ -216,6 +219,6 @@ app.get('/api/test-cookie', (req, res) => {
   }
 });
 
-// --- PORT BINDING FOR RENDER ---
+// --- PORT ---
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
