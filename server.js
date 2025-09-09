@@ -35,8 +35,8 @@ app.use(session({
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    secure: true,
-    sameSite: 'none',
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 1000 * 60 * 60 * 2
   }
 }));
@@ -44,11 +44,17 @@ app.use(session({
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Yumnagugu1980";
 
 // --- MONGOOSE CONNECTION ---
+if (!process.env.MONGODB_URI) {
+  console.error("❌ MONGODB_URI is not set. Please check your Render environment variables.");
+  process.exit(1);
+}
+
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
+  useUnifiedTopology: true,
 })
-.then(() => console.log('Connected to MongoDB Atlas'))
-.catch(err => console.error('MongoDB connection error:', err));
+.then(() => console.log('✅ Connected to MongoDB Atlas'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
 // --- MODEL SCHEMA ---
 const modelSchema = new mongoose.Schema({
@@ -221,4 +227,4 @@ app.get('/api/test-cookie', (req, res) => {
 
 // --- PORT ---
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
