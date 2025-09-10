@@ -282,10 +282,12 @@
       statusDiv.textContent = "Uploading images, please wait...";
 
       try {
+        // Upload profile picture
         const profileFile = formData.get("profilePicture");
         const profileRes = await uploadToCloudinary(profileFile);
         const profileUrl = profileRes.secure_url;
 
+        // Upload gallery images
         const galleryFiles = formData.getAll("galleryImages");
         const galleryUrls = [];
         for (const file of galleryFiles) {
@@ -293,6 +295,7 @@
           galleryUrls.push(uploadRes.secure_url);
         }
 
+        // Send model data (JSON with URLs)
         const modelData = {
           name: formData.get("name"),
           age: formData.get("age"),
@@ -301,7 +304,7 @@
           pants: formData.get("pants"),
           height: formData.get("height"),
           profilePicture: profileUrl,
-          images: galleryUrls
+          galleryImages: galleryUrls
         };
 
         const res = await fetch('/api/models', {

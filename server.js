@@ -6,30 +6,32 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const { v2: cloudinary } = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const app = express();
 
-// --- CORS: Enable credentials and set frontend origin ---
+// --- CORS ---
 app.use(cors({
-  origin: 'https://toast-talent-modeling-agency.onrender.com', // your frontend domain
+  origin: [
+    'http://localhost:5000', 
+    'http://localhost:3000', 
+    'https://toast-talent-modeling-agency.onrender.com'
+  ],
   credentials: true
 }));
 
 app.use(bodyParser.json());
-
-// --- Serve static frontend ---
 app.use(express.static(path.join(__dirname, 'public')));
-
-// --- TRUST PROXY FOR RENDER HTTPS ---
 app.set('trust proxy', 1);
 
 // --- SESSION SETUP ---
-let sessionStore;
-if (process.env.NODE_ENV === 'production') {
-  console.warn("⚠️ Using MemoryStore for session in production! Consider using MongoStore or Redis.");
-}
+const sessionStore = MongoStore.create({
+  mongoUrl: process.env.MONGODB_URI,
+  collectionName: 'sessions'
+});
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'LeilaSono123!',
   resave: false,
@@ -38,7 +40,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 1000 * 60 * 60 * 2
+    maxAge: 1000 * 60 * 60 * 2 // 2 hours
   }
 }));
 
@@ -65,8 +67,8 @@ const modelSchema = new mongoose.Schema({
   shirt: String,
   pants: String,
   height: String,
-  profilePicture: String,   // Cloudinary URL
-  galleryImages: [String]   // Array of Cloudinary URLs
+  profilePicture: String,
+  galleryImages: [String]
 });
 const Model = mongoose.model('Model', modelSchema);
 
@@ -77,7 +79,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// --- MULTER STORAGE USING CLOUDINARY ---
+// --- MULTER STORAGE ---
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => ({
@@ -180,13 +182,12 @@ app.post('/api/models', requireAdmin, upload.fields([
   }
 });
 
-// --- DELETE MODEL (DB + CLOUDINARY) ---
+// --- DELETE MODEL ---
 app.delete('/api/models/:id', requireAdmin, async (req, res) => {
   try {
     const model = await Model.findById(req.params.id);
     if (!model) return res.status(404).json({ error: 'Model not found' });
 
-    // Delete profile picture from Cloudinary
     if (model.profilePicture) {
       try {
         const publicId = model.profilePicture.split('/').slice(-1)[0].split('.')[0];
@@ -196,7 +197,6 @@ app.delete('/api/models/:id', requireAdmin, async (req, res) => {
       }
     }
 
-    // Delete gallery images from Cloudinary
     if (Array.isArray(model.galleryImages)) {
       for (const url of model.galleryImages) {
         try {
