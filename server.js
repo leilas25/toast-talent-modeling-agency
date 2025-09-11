@@ -1,22 +1,19 @@
 require('dotenv').config();
 const express = require('express');
-const multer = require('multer');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const { v2: cloudinary } = require('cloudinary');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const app = express();
 
 // --- CORS ---
 app.use(cors({
   origin: [
-    'http://localhost:5000', 
-    'http://localhost:3000', 
+    'http://localhost:5000',
+    'http://localhost:3000',
     'https://toast-talent-modeling-agency.onrender.com'
   ],
   credentials: true
@@ -67,28 +64,10 @@ const modelSchema = new mongoose.Schema({
   shirt: String,
   pants: String,
   height: String,
-  profilePicture: String,
-  galleryImages: [String]
+  profilePicture: String,   // Cloudinary URL
+  galleryImages: [String]   // Array of Cloudinary URLs
 });
 const Model = mongoose.model('Model', modelSchema);
-
-// --- CLOUDINARY CONFIG ---
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "dk1df1qmi",
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-// --- MULTER STORAGE ---
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => ({
-    folder: "models",
-    resource_type: "image",
-    public_id: file.fieldname + "-" + Date.now(),
-  }),
-});
-const upload = multer({ storage: storage });
 
 // --- AUTH CHECK ---
 app.get('/api/check-auth', (req, res) => {
@@ -143,24 +122,13 @@ app.get('/api/models/:id', async (req, res) => {
   }
 });
 
-// --- ADD MODEL ---
-app.post('/api/models', requireAdmin, upload.fields([
-  { name: 'profilePicture', maxCount: 1 },
-  { name: 'galleryImages', maxCount: 20 }
-]), async (req, res) => {
+// --- ADD MODEL (frontend already uploads to Cloudinary) ---
+app.post('/api/models', requireAdmin, async (req, res) => {
   try {
-    const { name, age, shoe, shirt, pants, height } = req.body;
+    const { name, age, shoe, shirt, pants, height, profilePicture, galleryImages } = req.body;
 
-    const profilePictureUrl = req.files['profilePicture']
-      ? req.files['profilePicture'][0].path
-      : null;
-
-    const galleryImageUrls = req.files['galleryImages']
-      ? req.files['galleryImages'].map(f => f.path)
-      : [];
-
-    if (!name || !profilePictureUrl) {
-      return res.status(400).json({ error: 'Name and a profile picture are required' });
+    if (!name || !profilePicture) {
+      return res.status(400).json({ error: 'Name and profile picture are required' });
     }
 
     const newModel = new Model({
@@ -170,8 +138,8 @@ app.post('/api/models', requireAdmin, upload.fields([
       shirt,
       pants,
       height,
-      profilePicture: profilePictureUrl,
-      galleryImages: galleryImageUrls
+      profilePicture,  // Cloudinary URL from frontend
+      galleryImages: galleryImages || []
     });
 
     await newModel.save();
@@ -187,26 +155,6 @@ app.delete('/api/models/:id', requireAdmin, async (req, res) => {
   try {
     const model = await Model.findById(req.params.id);
     if (!model) return res.status(404).json({ error: 'Model not found' });
-
-    if (model.profilePicture) {
-      try {
-        const publicId = model.profilePicture.split('/').slice(-1)[0].split('.')[0];
-        await cloudinary.uploader.destroy("models/" + publicId);
-      } catch (err) {
-        console.warn("Could not delete profile picture from Cloudinary:", err.message);
-      }
-    }
-
-    if (Array.isArray(model.galleryImages)) {
-      for (const url of model.galleryImages) {
-        try {
-          const publicId = url.split('/').slice(-1)[0].split('.')[0];
-          await cloudinary.uploader.destroy("models/" + publicId);
-        } catch (err) {
-          console.warn("Could not delete gallery image:", err.message);
-        }
-      }
-    }
 
     await Model.deleteOne({ _id: req.params.id });
     res.json({ success: true });
