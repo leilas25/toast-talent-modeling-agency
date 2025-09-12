@@ -6,7 +6,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const sgMail = require('@sendgrid/mail'); // ✅ Use SendGrid instead of Nodemailer
+const sgMail = require('@sendgrid/mail'); // ✅ SendGrid
 
 const app = express();
 
@@ -178,8 +178,8 @@ app.post('/api/contact', async (req, res) => {
   }
 
   const msg = {
-    to: process.env.SMTP_USER,
-    from: process.env.SMTP_USER,
+    to: process.env.SMTP_USER || "toastalent@gmail.com",
+    from: process.env.SMTP_USER || "toastalent@gmail.com",
     subject: `New Contact Form Message from ${name}`,
     text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
   };
