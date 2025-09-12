@@ -6,7 +6,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail'); // ✅ Use SendGrid instead of Nodemailer
 
 const app = express();
 
@@ -167,7 +167,9 @@ app.delete('/api/models/:id', requireAdmin, async (req, res) => {
   }
 });
 
-// --- CONTACT FORM WITH NODEMAILER (GMAIL) ---
+// --- CONTACT FORM WITH SENDGRID ---
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 app.post('/api/contact', async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -175,23 +177,16 @@ app.post('/api/contact', async (req, res) => {
     return res.status(400).json({ error: "All fields are required" });
   }
 
+  const msg = {
+    to: process.env.SMTP_USER,
+    from: process.env.SMTP_USER,
+    subject: `New Contact Form Message from ${name}`,
+    text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+  };
+
   try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    });
-
-    const mailOptions = {
-      from: `"${name}" <${email}>`,
-      to: process.env.SMTP_USER,
-      subject: `New Contact Form Message from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
-    };
-
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
+    console.log("✅ Email sent successfully");
     res.status(200).json({ success: true, message: "Email sent successfully!" });
   } catch (error) {
     console.error("❌ Email send error:", error);
