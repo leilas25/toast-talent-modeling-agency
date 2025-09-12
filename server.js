@@ -6,8 +6,12 @@ const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const sgMail = require('@sendgrid/mail'); // <-- SendGrid
 
 const app = express();
+
+// --- SET SENDGRID API KEY ---
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // --- CORS ---
 app.use(cors({
@@ -30,7 +34,7 @@ const sessionStore = MongoStore.create({
 });
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'LeilaSono123!',
+  secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
   saveUninitialized: false,
   store: sessionStore,
@@ -41,7 +45,12 @@ app.use(session({
   }
 }));
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Yumnagugu1980";
+// --- ADMIN PASSWORD ---
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+if (!ADMIN_PASSWORD) {
+  console.error("❌ ADMIN_PASSWORD is not set. Please configure it in your environment variables.");
+  process.exit(1);
+}
 
 // --- MONGOOSE CONNECTION ---
 if (!process.env.MONGODB_URI) {
@@ -64,8 +73,8 @@ const modelSchema = new mongoose.Schema({
   shirt: String,
   pants: String,
   height: String,
-  profilePicture: String,   // Cloudinary URL
-  galleryImages: [String]   // Array of Cloudinary URLs
+  profilePicture: String,
+  galleryImages: [String]
 });
 const Model = mongoose.model('Model', modelSchema);
 
@@ -122,7 +131,7 @@ app.get('/api/models/:id', async (req, res) => {
   }
 });
 
-// --- ADD MODEL (frontend already uploads to Cloudinary) ---
+// --- ADD MODEL ---
 app.post('/api/models', requireAdmin, async (req, res) => {
   try {
     const { name, age, shoe, shirt, pants, height, profilePicture, galleryImages } = req.body;
@@ -138,7 +147,7 @@ app.post('/api/models', requireAdmin, async (req, res) => {
       shirt,
       pants,
       height,
-      profilePicture,  // Cloudinary URL from frontend
+      profilePicture,
       galleryImages: galleryImages || []
     });
 
@@ -171,6 +180,30 @@ app.get('/api/test-cookie', (req, res) => {
   } else {
     req.session.test = true;
     res.json({ success: false, msg: "Session set, reload again!" });
+  }
+});
+
+// --- CONTACT FORM (SendGrid) ---
+app.post('/api/contact', async (req, res) => {
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  const msg = {
+    to: process.env.TO_EMAIL,
+    from: process.env.TO_EMAIL, // Verified sender email in SendGrid
+    subject: `New Contact Form Message from ${name}`,
+    text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+  };
+
+  try {
+    await sgMail.send(msg);
+    res.status(200).json({ success: true, message: "Email sent successfully!" });
+  } catch (error) {
+    console.error("❌ Email send error:", error);
+    res.status(500).json({ error: "Failed to send email" });
   }
 });
 
