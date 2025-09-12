@@ -6,7 +6,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const sgMail = require('@sendgrid/mail'); // <-- Using SendGrid now
+const nodemailer = require('nodemailer');
 
 const app = express();
 
@@ -167,19 +167,7 @@ app.delete('/api/models/:id', requireAdmin, async (req, res) => {
   }
 });
 
-// --- TEST SESSION ---
-app.get('/api/test-cookie', (req, res) => {
-  if (req.session.test) {
-    res.json({ success: true, msg: "Session persists!" });
-  } else {
-    req.session.test = true;
-    res.json({ success: false, msg: "Session set, reload again!" });
-  }
-});
-
-// --- CONTACT FORM WITH SENDGRID ---
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
+// --- CONTACT FORM WITH NODEMAILER (GMAIL) ---
 app.post('/api/contact', async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -187,20 +175,27 @@ app.post('/api/contact', async (req, res) => {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  const msg = {
-    to: process.env.TO_EMAIL,
-    from: process.env.TO_EMAIL, // Must be verified in SendGrid
-    subject: `New Contact Form Message from ${name}`,
-    text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
-  };
-
   try {
-    const response = await sgMail.send(msg);
-    console.log("✅ Email sent successfully:", response);
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+
+    const mailOptions = {
+      from: `"${name}" <${email}>`,
+      to: process.env.SMTP_USER,
+      subject: `New Contact Form Message from ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+    };
+
+    await transporter.sendMail(mailOptions);
     res.status(200).json({ success: true, message: "Email sent successfully!" });
   } catch (error) {
-    console.error("❌ SendGrid Error:", error.response?.body || error.message);
-    res.status(500).json({ error: "Failed to send email", details: error.response?.body || error.message });
+    console.error("❌ Email send error:", error);
+    res.status(500).json({ error: "Failed to send email" });
   }
 });
 
