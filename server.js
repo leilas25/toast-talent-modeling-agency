@@ -6,12 +6,9 @@ const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const sgMail = require('@sendgrid/mail'); // <-- SendGrid
+const sgMail = require('@sendgrid/mail'); // <-- Using SendGrid now
 
 const app = express();
-
-// --- SET SENDGRID API KEY ---
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // --- CORS ---
 app.use(cors({
@@ -58,12 +55,9 @@ if (!process.env.MONGODB_URI) {
   process.exit(1);
 }
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ Connected to MongoDB Atlas'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // --- MODEL SCHEMA ---
 const modelSchema = new mongoose.Schema({
@@ -183,7 +177,9 @@ app.get('/api/test-cookie', (req, res) => {
   }
 });
 
-// --- CONTACT FORM (SendGrid) ---
+// --- CONTACT FORM WITH SENDGRID ---
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 app.post('/api/contact', async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -193,17 +189,18 @@ app.post('/api/contact', async (req, res) => {
 
   const msg = {
     to: process.env.TO_EMAIL,
-    from: process.env.TO_EMAIL, // Verified sender email in SendGrid
+    from: process.env.TO_EMAIL, // Must be verified in SendGrid
     subject: `New Contact Form Message from ${name}`,
     text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
   };
 
   try {
-    await sgMail.send(msg);
+    const response = await sgMail.send(msg);
+    console.log("✅ Email sent successfully:", response);
     res.status(200).json({ success: true, message: "Email sent successfully!" });
   } catch (error) {
-    console.error("❌ Email send error:", error);
-    res.status(500).json({ error: "Failed to send email" });
+    console.error("❌ SendGrid Error:", error.response?.body || error.message);
+    res.status(500).json({ error: "Failed to send email", details: error.response?.body || error.message });
   }
 });
 
