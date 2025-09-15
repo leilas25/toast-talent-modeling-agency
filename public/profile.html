@@ -5,6 +5,27 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Model Profile | Toast Talent</title>
   <link rel="stylesheet" href="style.css" />
+  
+  <!-- Google Sign-In Script -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    function handleCredentialResponse(response) {
+      console.log("Encoded JWT ID token: " + response.credential);
+      // Here you can send the token to your backend for verification
+    } 
+
+    window.onload = function () {
+      google.accounts.id.initialize({
+        client_id: "YOUR_GOOGLE_CLIENT_ID", // Replace with your Google Client ID
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.renderButton(
+        document.getElementById("g_id_signin"),
+        { theme: "outline", size: "large" } // Customize button style if needed
+      );
+      google.accounts.id.prompt(); // Show One Tap prompt automatically
+    }
+  </script>
 </head>
 <body>
   <nav class="navbar">
@@ -23,6 +44,8 @@
 
   <main class="profile-container">
     <div id="profileContent"></div>
+    <!-- Google Sign-In Button -->
+    <div id="g_id_signin" style="margin-top:20px; text-align:center;"></div>
   </main>
 
   <div id="lightbox" class="lightbox" aria-hidden="true">

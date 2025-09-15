@@ -4,6 +4,36 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Toast Talent Modeling Agency</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Toast Talent Modeling Agency connects fresh faces with top opportunities in the modeling industry. Bookings, collaborations, and inquiries welcome." />
+  <meta name="keywords" content="Toast Talent, modeling agency, models, fashion, bookings, collaborations" />
+  <meta name="author" content="Toast Talent Modeling Agency" />
+
+  <!-- Open Graph for Social Media -->
+  <meta property="og:title" content="Toast Talent Modeling Agency" />
+  <meta property="og:description" content="Elevating new faces. Connecting talent with opportunity." />
+  <meta property="og:image" content="https://toasttalent.co.za/images/og-image.jpg" />
+  <meta property="og:url" content="https://toasttalent.co.za/index.html" />
+  <meta property="og:type" content="website" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+
+  <!-- Sitemap & Robots.txt -->
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="https://toasttalent.co.za/sitemap.xml">
+  <meta name="robots" content="index, follow">
+
+  <!-- Google Analytics (replace with your GA ID) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <!-- Styles & Fonts -->
   <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
   <!-- Font Awesome for icons -->
@@ -77,7 +107,6 @@
     </form>
   </div>
   <script>
-    // Remove old admin shortcut for consistency!
     // Listen for P/p key for admin modal prompt
     document.addEventListener('keydown', function(e) {
       if (e.key === 'P' || e.key === 'p') {

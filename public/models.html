@@ -4,6 +4,36 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Our Models | Toast Talent</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Meet the faces of Toast Talent. Browse our models and click to learn more about them." />
+  <meta name="keywords" content="Toast Talent, models, modeling agency, fashion, talent showcase" />
+  <meta name="author" content="Toast Talent Modeling Agency" />
+
+  <!-- Open Graph for Social Media -->
+  <meta property="og:title" content="Our Models | Toast Talent" />
+  <meta property="og:description" content="Meet the faces of Toast Talent. Click any photo for more details." />
+  <meta property="og:image" content="https://toasttalent.co.za/images/og-image.jpg" />
+  <meta property="og:url" content="https://toasttalent.co.za/models.html" />
+  <meta property="og:type" content="website" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+
+  <!-- Sitemap & Robots.txt -->
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="https://toasttalent.co.za/sitemap.xml">
+  <meta name="robots" content="index, follow">
+
+  <!-- Google Analytics (replace with your GA ID) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -59,7 +89,6 @@ function loadModels() {
       const grid = document.getElementById('modelsGrid');
       grid.innerHTML = models.map(model => {
         const imgSrc = model.profilePicture || 'images/default.jpg';
-        // ensure each image uses fallback onerror
         return `
           <div class="model-card" data-model-id="${model._id}">
             <img src="${imgSrc}" alt="${model.name}" onerror="this.onerror=null; this.src='images/default.jpg';">
