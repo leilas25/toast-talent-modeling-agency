@@ -15,10 +15,21 @@ app.use(cors({
   origin: [
     'http://localhost:5000',
     'http://localhost:3000',
+    'https://toasttalent.co.za',
+    'https://www.toasttalent.co.za',
     'https://toast-talent-modeling-agency.onrender.com'
   ],
+  methods: ['GET', 'POST', 'DELETE'],
   credentials: true
 }));
+
+// Explicit headers to prevent CORS issues
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://toasttalent.co.za');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
