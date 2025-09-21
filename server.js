@@ -189,8 +189,8 @@ app.post('/api/contact', async (req, res) => {
   }
 
   const msg = {
-    to: process.env.SMTP_USER || "toastalent@gmail.com",
-    from: process.env.SMTP_USER || "toastalent@gmail.com",
+    to: process.env.SMTP_USER || "leila@toasttalent.co.za",
+    from: process.env.SMTP_USER || "leila@toasttalent.co.za",
     subject: `New Contact Form Message from ${name}`,
     text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
   };
