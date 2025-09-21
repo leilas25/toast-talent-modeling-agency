@@ -6,7 +6,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const sgMail = require('@sendgrid/mail'); // ✅ SendGrid
+const sgMail = require('@sendgrid/mail');
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(cors({
   credentials: true
 }));
 
-// Explicit headers to prevent CORS issues
+// Explicit headers for CORS
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://toasttalent.co.za');
   res.header('Access-Control-Allow-Methods', 'GET,POST,DELETE');
@@ -189,8 +189,9 @@ app.post('/api/contact', async (req, res) => {
   }
 
   const msg = {
-    to: process.env.SMTP_USER || "leila@toasttalent.co.za",
-    from: process.env.SMTP_USER || "leila@toasttalent.co.za",
+    to: "leila@toasttalent.co.za",  // where you want to receive messages
+    from: "leila@toasttalent.co.za", // must be verified in SendGrid
+    replyTo: email,  // so you can reply to the user's email directly
     subject: `New Contact Form Message from ${name}`,
     text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
   };
@@ -200,7 +201,7 @@ app.post('/api/contact', async (req, res) => {
     console.log("✅ Email sent successfully");
     res.status(200).json({ success: true, message: "Email sent successfully!" });
   } catch (error) {
-    console.error("❌ Email send error:", error);
+    console.error("❌ Email send error:", error.response?.body || error.message);
     res.status(500).json({ error: "Failed to send email" });
   }
 });
