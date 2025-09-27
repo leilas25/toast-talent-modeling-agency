@@ -2,78 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Toast Talent Admin</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
-      color: #333;
-    }
-    h2 {
-      margin-top: 0;
-    }
-    form {
-      margin-bottom: 20px;
-    }
-    input, button {
-      display: block;
-      margin: 8px 0;
-      padding: 8px;
-      width: 100%;
-      max-width: 300px;
-    }
-    #login-message {
-      color: red;
-      font-weight: bold;
-    }
-    #model-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    .model-item {
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 8px;
-      width: 180px;
-      background: #fff;
-      text-align: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .model-item img {
-      width: 100%;
-      height: auto;
-      border-radius: 6px;
-    }
-    .delete-btn {
-      background: red;
-      color: white;
-      border: none;
-      padding: 6px;
-      cursor: pointer;
-      border-radius: 4px;
-      margin-top: 5px;
-    }
-    .delete-btn:hover {
-      background: darkred;
-    }
-    #logout-btn {
-      background: #333;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-bottom: 20px;
-    }
-  </style>
+  <title>Admin Page</title>
 </head>
 <body>
-  <!-- Password Section -->
+  <!-- Login Section -->
   <div id="password-section">
-    <h2>Admin Login</h2>
     <form id="admin-login-form">
       <input type="password" id="admin-password" placeholder="Enter Admin Password" required />
       <button type="submit">Login</button>
@@ -84,193 +17,178 @@
   <!-- Admin Section -->
   <div id="admin-section" style="display:none;">
     <button id="logout-btn">Logout</button>
-
-    <h2>Add New Model</h2>
     <form id="add-model-form">
       <input type="text" name="name" placeholder="Name" required />
       <input type="text" name="age" placeholder="Age" />
-      <input type="text" name="shoe" placeholder="Shoe Size" />
-      <input type="text" name="shirt" placeholder="Shirt Size" />
-      <input type="text" name="pants" placeholder="Pants Size" />
-      <input type="text" name="height" placeholder="Height" />
       <input type="file" name="profilePicture" accept="image/*" required />
       <input type="file" name="galleryImages" accept="image/*" multiple />
       <button type="submit">Add Model</button>
     </form>
     <div id="upload-status"></div>
-
-    <h2>Models</h2>
     <div id="model-list"></div>
   </div>
 
-  <!-- Your Admin Script -->
   <script>
-    // Use your custom domain if DNS is set correctly
-    const BASE_URL = "https://api.toasttalent.co.za"; 
-    const cloudName = "dk1df1qmi";
-    const uploadPreset = "models_upload";
+    window.onload = function () {
+      const BASE_URL = "https://api.toasttalent.co.za"; 
+      const cloudName = "dk1df1qmi";
+      const uploadPreset = "models_upload";
 
-    async function uploadToCloudinary(file) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", uploadPreset);
+      async function uploadToCloudinary(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", uploadPreset);
 
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-        method: "POST",
-        body: formData
-      });
-
-      if (!res.ok) throw new Error("Cloudinary upload failed");
-      return res.json();
-    }
-
-    async function checkAuth() {
-      try {
-        const res = await fetch(`${BASE_URL}/api/check-auth`, { credentials: 'include' });
-        if (res.ok) {
-          document.getElementById('password-section').style.display = 'none';
-          document.getElementById('admin-section').style.display = 'block';
-          loadModels();
-        } else {
-          document.getElementById('password-section').style.display = 'block';
-          document.getElementById('admin-section').style.display = 'none';
-        }
-      } catch (err) {
-        console.error("Auth check failed:", err);
-      }
-    }
-
-    document.getElementById('admin-login-form').onsubmit = async function (e) {
-      e.preventDefault();
-      const pwd = document.getElementById('admin-password').value;
-      try {
-        const res = await fetch(`${BASE_URL}/api/login`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pwd })
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: "POST",
+          body: formData
         });
 
-        if (res.ok) {
-          document.getElementById('password-section').style.display = 'none';
-          document.getElementById('admin-section').style.display = 'block';
-          document.getElementById('login-message').textContent = "";
-          loadModels();
-        } else if (res.status === 401) {
-          document.getElementById('login-message').textContent = "Incorrect password!";
-        } else {
-          document.getElementById('login-message').textContent = "Server error, please try again.";
-        }
-      } catch (err) {
-        document.getElementById('login-message').textContent = "Connection failed!";
-        console.error("Login error:", err);
+        if (!res.ok) throw new Error("Cloudinary upload failed");
+        return res.json();
       }
-    };
 
-    document.getElementById('logout-btn').onclick = async function () {
-      await fetch(`${BASE_URL}/api/logout`, { method: 'POST', credentials: 'include' });
-      document.getElementById('admin-section').style.display = 'none';
-      document.getElementById('password-section').style.display = 'block';
-      document.getElementById('admin-password').value = "";
-      document.getElementById('login-message').textContent = "";
-    };
-
-    document.getElementById('add-model-form').onsubmit = async function (e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-      const statusDiv = document.getElementById("upload-status");
-      statusDiv.textContent = "Uploading images, please wait...";
-
-      try {
-        // Upload profile picture
-        const profileFile = formData.get("profilePicture");
-        const profileRes = await uploadToCloudinary(profileFile);
-        const profileUrl = profileRes.secure_url;
-
-        // Upload gallery images
-        const galleryFiles = formData.getAll("galleryImages");
-        const galleryUrls = [];
-        for (const file of galleryFiles) {
-          const uploadRes = await uploadToCloudinary(file);
-          galleryUrls.push(uploadRes.secure_url);
+      async function checkAuth() {
+        try {
+          const res = await fetch(`${BASE_URL}/api/check-auth`, { credentials: 'include' });
+          if (res.ok) {
+            document.getElementById('password-section').style.display = 'none';
+            document.getElementById('admin-section').style.display = 'block';
+            loadModels();
+          } else {
+            document.getElementById('password-section').style.display = 'block';
+            document.getElementById('admin-section').style.display = 'none';
+          }
+        } catch (err) {
+          console.error("Auth check failed:", err);
         }
-
-        // Send model data
-        const modelData = {
-          name: formData.get("name"),
-          age: formData.get("age"),
-          shoe: formData.get("shoe"),
-          shirt: formData.get("shirt"),
-          pants: formData.get("pants"),
-          height: formData.get("height"),
-          profilePicture: profileUrl,
-          galleryImages: galleryUrls
-        };
-
-        const res = await fetch(`${BASE_URL}/api/models`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(modelData)
-        });
-
-        if (res.ok) {
-          loadModels();
-          this.reset();
-          statusDiv.textContent = "Model added successfully!";
-          setTimeout(() => statusDiv.textContent = "", 2000);
-        } else if (res.status === 401) {
-          alert('You are not authorized. Please log in again.');
-          checkAuth();
-        } else {
-          alert('Failed to add model');
-          statusDiv.textContent = "";
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Image upload failed. Please try again.");
-        statusDiv.textContent = "";
       }
-    };
 
-    async function loadModels() {
-      try {
-        const res = await fetch(`${BASE_URL}/api/models`, { credentials: 'include' });
-        if (!res.ok) {
-          checkAuth();
-          return;
+      document.getElementById('admin-login-form').onsubmit = async function (e) {
+        e.preventDefault();
+        const pwd = document.getElementById('admin-password').value;
+        try {
+          const res = await fetch(`${BASE_URL}/api/login`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pwd })
+          });
+
+          if (res.ok) {
+            document.getElementById('password-section').style.display = 'none';
+            document.getElementById('admin-section').style.display = 'block';
+            document.getElementById('login-message').textContent = "";
+            loadModels();
+          } else if (res.status === 401) {
+            document.getElementById('login-message').textContent = "Incorrect password!";
+          } else {
+            document.getElementById('login-message').textContent = "Server error, please try again.";
+          }
+        } catch (err) {
+          document.getElementById('login-message').textContent = "Connection failed!";
+          console.error("Login error:", err);
         }
-        const models = await res.json();
-        document.getElementById('model-list').innerHTML = models.map(model => `
-          <div class="model-item">
-            <img src="${model.profilePicture || 'images/default.jpg'}" alt="${model.name}">
-            <div class="model-name">${model.name}</div>
-            <button onclick="deleteModel('${model._id}')" class="delete-btn">Delete</button>
-          </div>
-        `).join('');
-      } catch (err) {
-        console.error("Error loading models:", err);
-      }
-    }
+      };
 
-    window.deleteModel = function (id) {
-      if (confirm('Are you sure you want to delete this model?')) {
-        fetch(`${BASE_URL}/api/models/` + id, {
-          method: 'DELETE',
-          credentials: 'include'
-        }).then(res => {
-          if (res.ok) loadModels();
-          else if (res.status === 401) {
+      document.getElementById('logout-btn').onclick = async function () {
+        await fetch(`${BASE_URL}/api/logout`, { method: 'POST', credentials: 'include' });
+        document.getElementById('admin-section').style.display = 'none';
+        document.getElementById('password-section').style.display = 'block';
+        document.getElementById('admin-password').value = "";
+        document.getElementById('login-message').textContent = "";
+      };
+
+      document.getElementById('add-model-form').onsubmit = async function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const statusDiv = document.getElementById("upload-status");
+        statusDiv.textContent = "Uploading images, please wait...";
+
+        try {
+          const profileFile = formData.get("profilePicture");
+          const profileRes = await uploadToCloudinary(profileFile);
+          const profileUrl = profileRes.secure_url;
+
+          const galleryFiles = formData.getAll("galleryImages");
+          const galleryUrls = [];
+          for (const file of galleryFiles) {
+            const uploadRes = await uploadToCloudinary(file);
+            galleryUrls.push(uploadRes.secure_url);
+          }
+
+          const modelData = {
+            name: formData.get("name"),
+            age: formData.get("age"),
+            profilePicture: profileUrl,
+            galleryImages: galleryUrls
+          };
+
+          const res = await fetch(`${BASE_URL}/api/models`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(modelData)
+          });
+
+          if (res.ok) {
+            loadModels();
+            this.reset();
+            statusDiv.textContent = "Model added successfully!";
+            setTimeout(() => statusDiv.textContent = "", 2000);
+          } else if (res.status === 401) {
             alert('You are not authorized. Please log in again.');
             checkAuth();
           } else {
-            alert('Failed to delete model');
+            alert('Failed to add model');
+            statusDiv.textContent = "";
           }
-        });
-      }
-    };
+        } catch (err) {
+          console.error(err);
+          alert("Image upload failed. Please try again.");
+          statusDiv.textContent = "";
+        }
+      };
 
-    checkAuth();
+      async function loadModels() {
+        try {
+          const res = await fetch(`${BASE_URL}/api/models`, { credentials: 'include' });
+          if (!res.ok) {
+            checkAuth();
+            return;
+          }
+          const models = await res.json();
+          document.getElementById('model-list').innerHTML = models.map(model => `
+            <div class="model-item">
+              <img src="${model.profilePicture || 'images/default.jpg'}" alt="${model.name}">
+              <div class="model-name">${model.name}</div>
+              <button onclick="deleteModel('${model._id}')" class="delete-btn">Delete</button>
+            </div>
+          `).join('');
+        } catch (err) {
+          console.error("Error loading models:", err);
+        }
+      }
+
+      window.deleteModel = function (id) {
+        if (confirm('Are you sure you want to delete this model?')) {
+          fetch(`${BASE_URL}/api/models/` + id, {
+            method: 'DELETE',
+            credentials: 'include'
+          }).then(res => {
+            if (res.ok) loadModels();
+            else if (res.status === 401) {
+              alert('You are not authorized. Please log in again.');
+              checkAuth();
+            } else {
+              alert('Failed to delete model');
+            }
+          });
+        }
+      };
+
+      checkAuth();
+    }
   </script>
 </body>
 </html>
