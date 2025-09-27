@@ -16,8 +16,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://toasttalent.co.za',
   'https://www.toasttalent.co.za',
-  'https://api.toasttalent.co.za',
-  'https://toast-talent-modeling-agency.onrender.com'
+  'https://api.toasttalent.co.za'
 ];
 
 app.use(cors({
@@ -32,12 +31,10 @@ app.use(cors({
   credentials: true
 }));
 
-// No duplicate manual headers needed since cors() handles it
-
 // ---------------- Middleware ----------------
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.set('trust proxy', 1);
+app.set('trust proxy', 1); // needed for Render + secure cookies
 
 // ---------------- Session Setup ----------------
 const sessionStore = MongoStore.create({
@@ -51,8 +48,8 @@ app.use(session({
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: process.env.NODE_ENV === 'production',  // true in production for HTTPS
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
     maxAge: 1000 * 60 * 60 * 2 // 2 hours
   }
 }));
@@ -90,24 +87,31 @@ const Model = mongoose.model('Model', modelSchema);
 
 // ---------------- Auth Routes ----------------
 app.get('/api/check-auth', (req, res) => {
-  res.json({ authenticated: !!(req.session && req.session.isAdmin) });
+  if (req.session?.isAdmin) {
+    res.json({ authenticated: true });
+  } else {
+    res.status(401).json({ authenticated: false });
+  }
 });
 
 app.post('/api/login', (req, res) => {
   const { password } = req.body;
   if (password === process.env.ADMIN_PASSWORD) {
     req.session.isAdmin = true;
-    return res.json({ success: true });
+    return res.json({ success: true, message: "Login successful" });
   }
   res.status(401).json({ success: false, error: 'Incorrect password' });
 });
 
 app.post('/api/logout', (req, res) => {
-  req.session.destroy(() => res.json({ success: true }));
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.json({ success: true, message: "Logged out" });
+  });
 });
 
 function requireAdmin(req, res, next) {
-  if (req.session && req.session.isAdmin) return next();
+  if (req.session?.isAdmin) return next();
   res.status(401).json({ error: 'Unauthorized' });
 }
 
