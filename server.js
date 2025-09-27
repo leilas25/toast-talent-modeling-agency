@@ -10,7 +10,7 @@ const sgMail = require('@sendgrid/mail');
 
 const app = express();
 
-// --- CORS ---
+// ---------------- CORS ----------------
 const allowedOrigins = [
   'http://localhost:5000',
   'http://localhost:3000',
@@ -22,25 +22,24 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('CORS not allowed from this origin: ' + origin));
+      callback(new Error('CORS not allowed for origin: ' + origin));
     }
   },
   methods: ['GET', 'POST', 'DELETE'],
   credentials: true
 }));
 
-// --- REMOVE MANUAL CORS HEADERS ---
-// No need for extra res.header() calls since cors() handles it
+// No duplicate manual headers needed since cors() handles it
 
+// ---------------- Middleware ----------------
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('trust proxy', 1);
 
-// --- SESSION SETUP ---
+// ---------------- Session Setup ----------------
 const sessionStore = MongoStore.create({
   mongoUrl: process.env.MONGODB_URI,
   collectionName: 'sessions'
@@ -58,24 +57,25 @@ app.use(session({
   }
 }));
 
-// --- ADMIN PASSWORD ---
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-if (!ADMIN_PASSWORD) {
-  console.error("❌ ADMIN_PASSWORD is not set. Please configure it in your environment variables.");
+// ---------------- Env Vars Check ----------------
+if (!process.env.ADMIN_PASSWORD) {
+  console.error("❌ ADMIN_PASSWORD is not set.");
   process.exit(1);
 }
-
-// --- MONGOOSE CONNECTION ---
 if (!process.env.MONGODB_URI) {
-  console.error("❌ MONGODB_URI is not set. Please check your Render environment variables.");
+  console.error("❌ MONGODB_URI is not set.");
   process.exit(1);
 }
+if (!process.env.SENDGRID_API_KEY) {
+  console.error("⚠️  SENDGRID_API_KEY is missing. Emails will not send.");
+}
 
+// ---------------- MongoDB Connection ----------------
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ Connected to MongoDB Atlas'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// --- MODEL SCHEMA ---
+// ---------------- Models ----------------
 const modelSchema = new mongoose.Schema({
   name: String,
   age: String,
@@ -88,37 +88,30 @@ const modelSchema = new mongoose.Schema({
 });
 const Model = mongoose.model('Model', modelSchema);
 
-// --- AUTH CHECK ---
+// ---------------- Auth Routes ----------------
 app.get('/api/check-auth', (req, res) => {
-  if (req.session && req.session.isAdmin) {
-    res.json({ authenticated: true });
-  } else {
-    res.status(401).json({ authenticated: false });
-  }
+  res.json({ authenticated: !!(req.session && req.session.isAdmin) });
 });
 
-// --- LOGIN ---
 app.post('/api/login', (req, res) => {
   const { password } = req.body;
-  if (password === ADMIN_PASSWORD) {
+  if (password === process.env.ADMIN_PASSWORD) {
     req.session.isAdmin = true;
     return res.json({ success: true });
   }
   res.status(401).json({ success: false, error: 'Incorrect password' });
 });
 
-// --- LOGOUT ---
 app.post('/api/logout', (req, res) => {
   req.session.destroy(() => res.json({ success: true }));
 });
 
-// --- REQUIRE ADMIN ---
 function requireAdmin(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
   res.status(401).json({ error: 'Unauthorized' });
 }
 
-// --- GET ALL MODELS ---
+// ---------------- Models API ----------------
 app.get('/api/models', async (req, res) => {
   try {
     const models = await Model.find();
@@ -129,7 +122,6 @@ app.get('/api/models', async (req, res) => {
   }
 });
 
-// --- GET SINGLE MODEL ---
 app.get('/api/models/:id', async (req, res) => {
   try {
     const model = await Model.findById(req.params.id);
@@ -141,26 +133,13 @@ app.get('/api/models/:id', async (req, res) => {
   }
 });
 
-// --- ADD MODEL ---
 app.post('/api/models', requireAdmin, async (req, res) => {
   try {
     const { name, age, shoe, shirt, pants, height, profilePicture, galleryImages } = req.body;
-
     if (!name || !profilePicture) {
       return res.status(400).json({ error: 'Name and profile picture are required' });
     }
-
-    const newModel = new Model({
-      name,
-      age,
-      shoe,
-      shirt,
-      pants,
-      height,
-      profilePicture,
-      galleryImages: galleryImages || []
-    });
-
+    const newModel = new Model({ name, age, shoe, shirt, pants, height, profilePicture, galleryImages: galleryImages || [] });
     await newModel.save();
     res.status(201).json(newModel);
   } catch (err) {
@@ -169,12 +148,10 @@ app.post('/api/models', requireAdmin, async (req, res) => {
   }
 });
 
-// --- DELETE MODEL ---
 app.delete('/api/models/:id', requireAdmin, async (req, res) => {
   try {
     const model = await Model.findById(req.params.id);
     if (!model) return res.status(404).json({ error: 'Model not found' });
-
     await Model.deleteOne({ _id: req.params.id });
     res.json({ success: true });
   } catch (err) {
@@ -183,19 +160,18 @@ app.delete('/api/models/:id', requireAdmin, async (req, res) => {
   }
 });
 
-// --- CONTACT FORM WITH SENDGRID ---
+// ---------------- Contact Form ----------------
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.post('/api/contact', async (req, res) => {
   const { name, email, message } = req.body;
-
   if (!name || !email || !message) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
   const msg = {
     to: "leila@toasttalent.co.za",
-    from: "leila@toasttalent.co.za",
+    from: "leila@toasttalent.co.za", // Must be verified in SendGrid
     replyTo: email,
     subject: `New Contact Form Message from ${name}`,
     text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
@@ -211,6 +187,6 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// --- PORT ---
+// ---------------- Start Server ----------------
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
