@@ -84,9 +84,11 @@
   <script>
     const contactForm = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
+
+    // ✅ Use API subdomain for production, localhost for testing
     const apiBaseUrl = window.location.hostname.includes('localhost')
       ? 'http://localhost:10000'
-      : 'https://toast-talent-modeling-agency.onrender.com';
+      : 'https://api.toasttalent.co.za';
 
     contactForm.addEventListener('submit', async function(e) {
       e.preventDefault();

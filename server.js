@@ -11,25 +11,30 @@ const sgMail = require('@sendgrid/mail');
 const app = express();
 
 // --- CORS ---
+const allowedOrigins = [
+  'http://localhost:5000',
+  'http://localhost:3000',
+  'https://toasttalent.co.za',
+  'https://www.toasttalent.co.za',
+  'https://api.toasttalent.co.za',
+  'https://toast-talent-modeling-agency.onrender.com'
+];
+
 app.use(cors({
-  origin: [
-    'http://localhost:5000',
-    'http://localhost:3000',
-    'https://toasttalent.co.za',
-    'https://www.toasttalent.co.za',
-    'https://toast-talent-modeling-agency.onrender.com'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed from this origin: ' + origin));
+    }
+  },
   methods: ['GET', 'POST', 'DELETE'],
   credentials: true
 }));
 
-// Explicit headers for CORS
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://toasttalent.co.za');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+// --- REMOVE MANUAL CORS HEADERS ---
+// No need for extra res.header() calls since cors() handles it
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -189,9 +194,9 @@ app.post('/api/contact', async (req, res) => {
   }
 
   const msg = {
-    to: "leila@toasttalent.co.za",  // where you want to receive messages
-    from: "leila@toasttalent.co.za", // must be verified in SendGrid
-    replyTo: email,  // so you can reply to the user's email directly
+    to: "leila@toasttalent.co.za",
+    from: "leila@toasttalent.co.za",
+    replyTo: email,
     subject: `New Contact Form Message from ${name}`,
     text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
   };
