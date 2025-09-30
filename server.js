@@ -21,7 +21,7 @@ const allowedOrigins = [
   'https://toasttalent.co.za',
   'https://www.toasttalent.co.za',
   'https://api.toasttalent.co.za',
-  'https://toast-talent-modeling-agency.onrender.com' // Render frontend
+  'https://toast-talent-modeling-agency.onrender.com'
 ];
 
 app.use(cors({
@@ -40,7 +40,7 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.set('trust proxy', 1);
+app.set('trust proxy', 1); // Important for HTTPS cookies behind proxies
 
 /**
  * ---------------- Environment checks ----------------
@@ -66,12 +66,16 @@ mongoose.connect(process.env.MONGODB_URI)
 
 /**
  * ---------------- Session Setup ----------------
+ * Secure cookies only in production
+ * No maxAge → Session cookie (ends when browser closes)
  */
 const sessionStore = MongoStore.create({
   mongoUrl: process.env.MONGODB_URI,
   collectionName: 'sessions',
-  ttl: 60 * 60 * 2 // 2 hours
+  ttl: 60 * 60 * 2 // 2 hours cleanup in DB
 });
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 app.use(session({
   name: 'connect.sid',
@@ -80,10 +84,10 @@ app.use(session({
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 2
+    secure: isProduction, // HTTPS only in production
+    sameSite: isProduction ? 'None' : 'Lax' // Allow cross-site cookies when needed
+    // no maxAge → session cookie
   }
 }));
 
@@ -140,8 +144,8 @@ app.post('/api/logout', (req, res) => {
   req.session.destroy(err => {
     res.clearCookie('connect.sid', {
       path: '/',
-      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-      secure: process.env.NODE_ENV === 'production'
+      sameSite: isProduction ? 'None' : 'Lax',
+      secure: isProduction
     });
     if (err) return res.status(500).json({ success: false, error: 'Failed to logout' });
     return res.json({ success: true, message: 'Logged out' });
