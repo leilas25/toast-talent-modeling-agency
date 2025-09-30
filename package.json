@@ -1,21 +1,14 @@
 {
   "name": "toast-talent-agency",
   "version": "1.0.0",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "dev": "vercel dev",
+    "build": "echo 'Nothing to build'",
+    "start": "vercel dev"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.5",
-    "body-parser": "^2.2.0",
-    "cloudinary": "^1.41.3",
-    "connect-mongo": "^5.1.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
-    "express": "^5.1.0",
-    "express-session": "^1.18.2",
-    "mongoose": "^8.18.0",
-    "multer": "^2.0.2",
-    "multer-storage-cloudinary": "^4.0.0"
+    "iron-session": "^8.0.0",
+    "mongoose": "^8.18.0"
   }
 }
