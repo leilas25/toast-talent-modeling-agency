@@ -54,7 +54,7 @@
   <main>
     <section class="contact-hero">
       <h1 class="rainbow-contact">Contact Us</h1>
-      <p>We'd love to hear from you. For booking inquiries, collaboration, or more info, use the form below or email us at <a href="mailto:leila@toasttalent.co.za">toastalent@gmail.com</a>.</p>
+      <p>We'd love to hear from you. For booking inquiries, collaboration, or more info, use the form below or email us at <a href="mailto:toastalent@gmail.com">toastalent@gmail.com</a>.</p>
       <form class="contact-form" id="contactForm" autocomplete="off">
         <label>
           Name
@@ -85,10 +85,8 @@
     const contactForm = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
 
-    // ✅ Use API subdomain for production, localhost for testing
-    const apiBaseUrl = window.location.hostname.includes('localhost')
-      ? 'http://localhost:10000'
-      : 'https://api.toasttalent.co.za';
+    // ✅ Always point to Vercel deployment
+    const apiBaseUrl = "https://toast-talent-modeling-agency-ltbd-i6iz4yj5e.vercel.app";
 
     contactForm.addEventListener('submit', async function(e) {
       e.preventDefault();
