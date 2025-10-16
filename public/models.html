@@ -1,101 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Our Models | Toast Talent</title>
-
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="Meet the faces of Toast Talent. Browse our models and click to learn more about them." />
-  <meta name="keywords" content="Toast Talent, models, modeling agency, fashion, talent showcase" />
-  <meta name="author" content="Toast Talent Modeling Agency" />
-
-  <!-- Open Graph for Social Media -->
-  <meta property="og:title" content="Our Models | Toast Talent" />
-  <meta property="og:description" content="Meet the faces of Toast Talent. Click any photo for more details." />
-  <meta property="og:image" content="https://toasttalent.co.za/images/og-image.jpg" />
-  <meta property="og:url" content="https://toasttalent.co.za/models.html" />
-  <meta property="og:type" content="website" />
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="images/favicon.png" />
-
-  <!-- Sitemap & Robots.txt -->
-  <link rel="sitemap" type="application/xml" title="Sitemap" href="https://toasttalent.co.za/sitemap.xml">
-  <meta name="robots" content="index, follow">
-
-  <!-- Google Analytics (replace with your GA ID) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <nav class="navbar">
-    <div class="nav-content">
-      <a href="index.html" class="nav-logo">
-        <!-- logo uses fallback if missing -->
-        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" onerror="this.onerror=null; this.src='images/default.jpg';">
-      </a>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="models.html" class="active">Models</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </div>
-  </nav>
-
-  <main>
-    <section class="models-hero">
-      <h1 class="rainbow-models">Our Models</h1>
-      <p>Meet the faces of Toast Talent. Click any photo for more details.</p>
-      <p class="info-note">💡 On a model’s profile, hover or click on gallery images to view the full picture.</p>
-    </section>
-
-    <section class="models-gallery">
-      <div class="models-grid" id="modelsGrid"></div>
-    </section>
-  </main>
-
-  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
-
-  <!-- model modal -->
-  <div id="modelModal" class="model-details-modal" style="display:none;">
-    <div id="modelModalContent" class="modal-content">
-      <button id="closeModalBtn" class="close-btn" title="Close">&times;</button>
-      <div id="modalModelInfo"></div>
-    </div>
-  </div>
-
-  <!-- lightbox -->
-  <div id="modalLightbox" class="lightbox" aria-hidden="true">
-    <span class="close-lightbox" title="Close">&times;</span>
-    <img class="lightbox-img" src="" alt="Expanded image">
-  </div>
-
 <script>
-/* ===== loadModels with onerror fallback ===== */
+const apiBaseUrl = "https://toast-talent-modeling-agency-ltbd-i6iz4yj5e.vercel.app"; // ✅ Your Vercel domain
+
 function loadModels() {
-  fetch('/api/models')
+  fetch(`${apiBaseUrl}/api/models`)
     .then(res => res.json())
     .then(models => {
       const grid = document.getElementById('modelsGrid');
-      grid.innerHTML = models.map(model => {
-        const imgSrc = model.profilePicture || 'images/default.jpg';
-        return `
-          <div class="model-card" data-model-id="${model._id}">
-            <img src="${imgSrc}" alt="${model.name}" onerror="this.onerror=null; this.src='images/default.jpg';">
-            <div class="model-name">${model.name}</div>
-          </div>
-        `;
-      }).join('');
+      grid.innerHTML = models.map(model => `
+        <div class="model-card" data-model-id="${model._id}">
+          <img src="${model.profilePicture || 'images/default.jpg'}" alt="${model.name}" onerror="this.src='images/default.jpg'">
+          <div class="model-name">${model.name}</div>
+        </div>`).join('');
 
       document.querySelectorAll('.model-card').forEach(card => {
         card.addEventListener('click', () => {
@@ -106,109 +21,60 @@ function loadModels() {
     })
     .catch(err => {
       console.error('Error loading models:', err);
-      document.getElementById('modelsGrid').innerHTML =
-        "<p style='color:red; text-align:center;'>Sorry, we couldn’t load the models. Please try again later.</p>";
+      document.getElementById('modelsGrid').innerHTML = "<p style='color:red;text-align:center;'>Couldn’t load models.</p>";
     });
 }
 
-/* ===== loadModelDetails with thumbnail fallback ===== */
 function loadModelDetails(modelId) {
-  fetch(`/api/models/${modelId}`)
+  fetch(`${apiBaseUrl}/api/models/${modelId}`)
     .then(res => res.json())
     .then(model => {
       let imagesHtml = '';
-      if (model.galleryImages && model.galleryImages.length > 0) {
+      if (model.galleryImages?.length) {
         imagesHtml = '<div class="modal-model-images">' +
-          model.galleryImages.map(img =>
-            `<img src="${img}" alt="${model.name}" loading="lazy" onerror="this.onerror=null; this.src='images/default.jpg';">`
-          ).join('') +
+          model.galleryImages.map(img => `<img src="${img}" alt="${model.name}" onerror="this.src='images/default.jpg'">`).join('') +
           '</div>';
       }
 
-      const noteHtml = '<p class="gallery-note-modal">Click any image to view it larger</p>';
-
       document.getElementById('modalModelInfo').innerHTML = `
         ${imagesHtml}
-        ${noteHtml}
-        <h2 style="margin-bottom:14px; text-align:center; font-size:2em;">${model.name}</h2>
-        <div style="font-size:1.1em; margin-bottom:8px;">
-          <div><span class="model-detail-label">Age:</span> ${model.age || '-'}</div>
-          <div><span class="model-detail-label">Shoe Size:</span> ${model.shoe || '-'}</div>
-          <div><span class="model-detail-label">Shirt Size:</span> ${model.shirt || '-'}</div>
-          <div><span class="model-detail-label">Pants Size:</span> ${model.pants || '-'}</div>
-          <div><span class="model-detail-label">Height:</span> ${model.height || '-'}</div>
-        </div>
+        <h2>${model.name}</h2>
+        <div>Age: ${model.age || '-'}</div>
+        <div>Shoe Size: ${model.shoe || '-'}</div>
+        <div>Shirt Size: ${model.shirt || '-'}</div>
+        <div>Pants Size: ${model.pants || '-'}</div>
+        <div>Height: ${model.height || '-'}</div>
       `;
-
       document.getElementById('modelModal').style.display = 'flex';
       attachModalImageHandlers();
     })
-    .catch(err => {
-      console.error('Error loading model details:', err);
+    .catch(() => {
       document.getElementById('modalModelInfo').innerHTML = "<p>Error loading model details.</p>";
       document.getElementById('modelModal').style.display = 'flex';
     });
 }
 
-/* ===== attach lightbox handlers ===== */
 function attachModalImageHandlers() {
   const lightbox = document.getElementById('modalLightbox');
   const lightboxImg = lightbox.querySelector('.lightbox-img');
   const closeLightboxBtn = lightbox.querySelector('.close-lightbox');
 
   document.querySelectorAll('#modelModalContent .modal-model-images img').forEach(img => {
-    img.style.cursor = 'pointer';
     img.addEventListener('click', () => {
       lightboxImg.src = img.src;
       lightbox.classList.add('show');
-      lightbox.setAttribute('aria-hidden', 'false');
     });
   });
 
   closeLightboxBtn.onclick = () => {
     lightbox.classList.remove('show');
-    lightbox.setAttribute('aria-hidden', 'true');
-    lightbox.querySelector('.lightbox-img').src = '';
+    lightboxImg.src = '';
   };
-
-  lightbox.onclick = (e) => {
-    if (e.target === lightbox) {
-      lightbox.classList.remove('show');
-      lightbox.setAttribute('aria-hidden', 'true');
-      lightbox.querySelector('.lightbox-img').src = '';
-    }
-  };
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      lightbox.classList.remove('show');
-      lightbox.setAttribute('aria-hidden', 'true');
-      lightbox.querySelector('.lightbox-img').src = '';
-    }
-  });
 }
 
-/* modal close handlers */
-document.addEventListener('click', (e) => {
-  if (e.target && e.target.id === 'closeModalBtn') {
-    document.getElementById('modelModal').style.display = 'none';
-    document.getElementById('modalModelInfo').innerHTML = '';
-    const lb = document.getElementById('modalLightbox');
-    if (lb) { lb.classList.remove('show'); lb.querySelector('.lightbox-img').src = ''; }
-  }
+document.getElementById('closeModalBtn').addEventListener('click', () => {
+  document.getElementById('modelModal').style.display = 'none';
 });
 
-document.getElementById('modelModal').addEventListener('click', function (e) {
-  if (e.target === this) {
-    this.style.display = 'none';
-    document.getElementById('modalModelInfo').innerHTML = '';
-    const lb = document.getElementById('modalLightbox');
-    if (lb) { lb.classList.remove('show'); lb.querySelector('.lightbox-img').src = ''; }
-  }
-});
-
-/* start */
 loadModels();
 </script>
-</body>
-</html>

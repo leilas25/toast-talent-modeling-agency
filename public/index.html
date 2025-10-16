@@ -5,39 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Toast Talent Modeling Agency</title>
 
-  <!-- SEO Meta Tags -->
+  <!-- SEO -->
   <meta name="description" content="Toast Talent Modeling Agency connects fresh faces with top opportunities in the modeling industry. Bookings, collaborations, and inquiries welcome." />
   <meta name="keywords" content="Toast Talent, modeling agency, models, fashion, bookings, collaborations" />
   <meta name="author" content="Toast Talent Modeling Agency" />
 
-  <!-- Open Graph for Social Media -->
+  <!-- Open Graph -->
   <meta property="og:title" content="Toast Talent Modeling Agency" />
   <meta property="og:description" content="Elevating new faces. Connecting talent with opportunity." />
   <meta property="og:image" content="https://toasttalent.co.za/images/og-image.jpg" />
-  <meta property="og:url" content="https://toasttalent.co.za/index.html" />
+  <meta property="og:url" content="https://toasttalent.co.za/" />
   <meta property="og:type" content="website" />
 
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="images/favicon.png" />
-
-  <!-- Sitemap & Robots.txt -->
-  <link rel="sitemap" type="application/xml" title="Sitemap" href="https://toasttalent.co.za/sitemap.xml">
-  <meta name="robots" content="index, follow">
-
-  <!-- Google Analytics (replace with your GA ID) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
-
-  <!-- Styles & Fonts -->
   <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
-  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <style>
     .admin-link { display: none; }
     #adminLoginModal {
@@ -88,14 +72,10 @@
   </header>
   <section class="home-feature">
     <h2 class="rainbow-word">Discover Our Talent</h2>
-    <p>
-      Toast Talent showcases exceptional models ready for runway, print, and commercial work.
-    </p>
+    <p>Toast Talent showcases exceptional models ready for runway, print, and commercial work.</p>
     <a href="models.html" class="feature-link">View Model Gallery &rarr;</a>
   </section>
-  <footer>
-    &copy; 2025 Toast Talent Modeling Agency
-  </footer>
+  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
 
   <!-- Admin Login Modal -->
   <div id="adminLoginModal">
@@ -106,8 +86,8 @@
       <div id="adminLoginError" style="color:#c0392b; font-size:0.92em;"></div>
     </form>
   </div>
+
   <script>
-    // Listen for P/p key for admin modal prompt
     document.addEventListener('keydown', function(e) {
       if (e.key === 'P' || e.key === 'p') {
         document.getElementById('adminLoginModal').style.display = 'flex';
@@ -120,9 +100,7 @@
     document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const password = document.getElementById('adminPassword').value;
-      // Replace this password with your own secret
       if (password === 'YumnaGugu1980') {
-        document.getElementById('adminLoginError').textContent = '';
         window.location.href = 'admin.html';
       } else {
         document.getElementById('adminLoginError').textContent = 'Incorrect password. Try again.';
