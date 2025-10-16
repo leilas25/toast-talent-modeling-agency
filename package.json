@@ -2,9 +2,11 @@
   "name": "toast-talent-agency",
   "version": "1.0.0",
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "vercel dev",
+    "start": "vercel dev"
   },
   "dependencies": {
+    "express": "^5.1.0",
     "@sendgrid/mail": "^8.1.5",
     "body-parser": "^2.2.0",
     "cloudinary": "^1.41.3",
