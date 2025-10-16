@@ -30,7 +30,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    /* Small inline rules kept for quick deploy; move to style.css if you prefer */
     .admin-link { display: none; }
     #adminLoginModal {
       display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
@@ -85,7 +84,7 @@
     <section class="home-feature" aria-labelledby="feature-heading">
       <h2 id="feature-heading" class="rainbow-word">Discover Our Talent</h2>
       <p>Toast Talent showcases exceptional models ready for runway, print, and commercial work.</p>
-      <a href="models.html" class="feature-link">View Model Gallery &rarr;</a>
+      <a href="models.html" class="feature-link">View Model Gallery →</a>
     </section>
   </main>
 
@@ -104,7 +103,6 @@
   </div>
 
   <script>
-    // Use DOMContentLoaded to ensure elements exist before we attach handlers
     document.addEventListener('DOMContentLoaded', function () {
       const modal = document.getElementById('adminLoginModal');
       const form = document.getElementById('adminLoginForm');
@@ -112,9 +110,7 @@
       const errorBox = document.getElementById('adminLoginError');
       const cancelBtn = document.getElementById('adminCancel');
 
-      // Keyboard shortcut to open modal — optional. Keep or remove as you prefer.
       document.addEventListener('keydown', function(e) {
-        // Use a safer combination to avoid accidental opens (e.g. Ctrl+Shift+P)
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
           modal.style.display = 'flex';
           modal.setAttribute('aria-hidden', 'false');
@@ -122,7 +118,6 @@
         }
       });
 
-      // Clicking outside the dialog closes it
       modal.addEventListener('click', function(e) {
         if (e.target === modal) {
           closeModal();
@@ -138,15 +133,12 @@
         form.reset();
       }
 
-      // Submit the form to the server instead of checking a client-side password
       form.addEventListener('submit', async function(e) {
         e.preventDefault();
         errorBox.textContent = '';
         const pw = passwordInput.value;
 
         try {
-          // POST to your server endpoint which should verify the password securely.
-          // The server should never expose the password in client code or responses.
           const res = await fetch(form.action, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -155,10 +147,8 @@
 
           const json = await res.json();
           if (res.ok && json.ok && json.redirect) {
-            // Server-approved: redirect to admin area
             window.location.href = json.redirect;
           } else {
-            // Show a generic error message; avoid leaking auth details
             errorBox.textContent = json.message || 'Incorrect password. Try again.';
             passwordInput.value = '';
             passwordInput.focus();
