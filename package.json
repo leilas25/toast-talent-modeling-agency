@@ -2,13 +2,10 @@
   "name": "toast-talent-agency",
   "version": "1.0.0",
   "private": true,
-  "engines": {
-    "node": "18.x"
-  },
+  "engines": { "node": "18.x" },
   "scripts": {
     "dev": "vercel dev",
-    "start": "vercel dev",
-    "build": "node -e \"const fs=require('fs');fs.mkdirSync('build',{recursive:true});fs.writeFileSync('build/index.html','<!doctype html><html lang=\\\"en\\\"><head><meta charset=\\\"utf-8\\\"/><meta name=\\\"viewport\\\" content=\\\"width=device-width,initial-scale=1\\\"/><title>Toast Talent</title></head><body><h1>Toast Talent — Frontend placeholder</h1><p>This site is served by Vercel. Replace with your real build output or add your static files into the <code>build</code> folder.</p></body></html>');\""
+    "start": "vercel dev"
   },
   "dependencies": {
     "express": "^5.1.0",
