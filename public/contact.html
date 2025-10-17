@@ -1,110 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Contact | Toast Talent Modeling Agency</title>
+const apiBaseUrl = "https://toast-talent-modeling-agency-ltbd-i6iz4yj5e.vercel.app";
 
-  <meta name="description" content="Contact Toast Talent Modeling Agency" />
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="icon" type="image/png" href="images/favicon.png" />
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
-</head>
-<body class="with-bg">
-  <nav class="navbar">
-    <div class="nav-content">
-      <a href="index.html" class="nav-logo">
-        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" onerror="this.onerror=null;this.src='images/default.jpg';">
-      </a>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="models.html">Models</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html" class="active">Contact</a></li>
-      </ul>
-    </div>
-  </nav>
+contactForm.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
 
-  <main>
-    <section class="contact-hero" aria-labelledby="contact-heading">
-      <h1 id="contact-heading" class="rainbow-contact">Contact Toast Talent</h1>
-      <p>Send us a message and we'll get back to you as soon as possible.</p>
-
-      <form id="contactForm" class="contact-form" aria-label="Contact form">
-        <label for="name">Name</label>
-        <input id="name" name="name" type="text" required placeholder="Your name">
-
-        <label for="email">Email</label>
-        <input id="email" name="email" type="email" required placeholder="you@example.com">
-
-        <label for="message">Message</label>
-        <textarea id="message" name="message" rows="6" required placeholder="Tell us about your enquiry"></textarea>
-
-        <button id="submitBtn" type="submit">Send Message</button>
-        <div id="contactFormStatus" style="min-height:1.2em; color:#c0392b; margin-top:6px;"></div>
-      </form>
-    </section>
-  </main>
-
-  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
-
-  <script>
-    // Contact page client script
-    document.addEventListener('DOMContentLoaded', function () {
-      // Use Render service domain from your Render dashboard
-      const apiBaseUrl = "https://api.toasttalent.co.za";
-
-      const contactForm = document.getElementById('contactForm');
-      const submitBtn = document.getElementById('submitBtn');
-      const statusBox = document.getElementById('contactFormStatus');
-
-      if (!contactForm) {
-        console.error('Contact form (id="contactForm") not found.');
-        return;
-      }
-
-      contactForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        statusBox.textContent = '';
-        submitBtn.disabled = true;
-        const prevText = submitBtn.textContent;
-        submitBtn.textContent = 'Sending...';
-
-        const payload = {
-          name: this.name?.value || '',
-          email: this.email?.value || '',
-          message: this.message?.value || ''
-        };
-
-        try {
-          const res = await fetch(`${apiBaseUrl}/api/contact`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-
-          if (res.ok) {
-            statusBox.style.color = 'green';
-            statusBox.textContent = "Thanks — your message was sent. We'll be in touch shortly.";
-            this.reset();
-          } else {
-            // Attempt to read server error message
-            let text = '';
-            try { text = await res.text(); } catch {}
-            console.error('Contact API error', res.status, text);
-            statusBox.style.color = '#c0392b';
-            statusBox.textContent = 'There was an issue sending your message. Please try again later.';
-          }
-        } catch (err) {
-          console.error('Network/CORS error sending contact', err);
-          statusBox.style.color = '#c0392b';
-          statusBox.textContent = 'An error occurred while sending your message. Check your connection.';
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = prevText || 'Send Message';
-        }
-      });
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: this.name.value,
+        email: this.email.value,
+        message: this.message.value
+      })
     });
-  </script>
-</body>
-</html>
+
+    if (response.ok) {
+      alert("Thank you for contacting Toast Talent! We'll respond soon.");
+      this.reset();
+    } else {
+      alert("There was an issue sending your message. Please try again later.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("An error occurred. Please try again later.");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send Message';
+  }
+});

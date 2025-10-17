@@ -1,219 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Models | Toast Talent</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" type="image/png" href="images/favicon.png" />
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
-</head>
-<body class="with-bg">
-  <nav class="navbar">
-    <div class="nav-content">
-      <a href="index.html" class="nav-logo">
-        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" onerror="this.onerror=null;this.src='images/default.jpg';">
-      </a>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="models.html" class="active">Models</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </div>
-  </nav>
+<script>
+const apiBaseUrl = "https://toast-talent-modeling-agency-ltbd-i6iz4yj5e.vercel.app"; // ✅ Your Vercel domain
 
-  <main class="models-gallery" role="main">
-    <header class="models-hero">
-      <h1 class="rainbow-models">Discover Our Talent</h1>
-      <p>Click any card to view model details and gallery.</p>
-    </header>
-
-    <section id="modelsGrid" class="models-grid" aria-live="polite" style="min-height:120px;">
-      <!-- Model cards will be injected here -->
-      <p style="text-align:center; width:100%;">Loading models…</p>
-    </section>
-  </main>
-
-  <!-- Modal for model details -->
-  <div id="modelModal" class="model-details-modal" style="display:none;">
-    <div id="modelModalContent" class="modal-content" role="dialog" aria-modal="true">
-      <span id="closeModalBtn" class="close-btn" title="Close">&times;</span>
-      <div id="modalModelInfo"></div>
-    </div>
-  </div>
-
-  <!-- Lightbox (if images clicked) -->
-  <div id="modalLightbox" class="lightbox" aria-hidden="true" style="display:none;">
-    <span class="close-lightbox">&times;</span>
-    <img class="lightbox-img" src="" alt="">
-  </div>
-
-  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Render service domain from your Render dashboard
-      const apiBaseUrl = "https://api.toasttalent.co.za";
-
+function loadModels() {
+  fetch(`${apiBaseUrl}/api/models`)
+    .then(res => res.json())
+    .then(models => {
       const grid = document.getElementById('modelsGrid');
-      const modal = document.getElementById('modelModal');
-      const modalInfo = document.getElementById('modalModelInfo');
-      const closeModalBtn = document.getElementById('closeModalBtn');
-      const lightbox = document.getElementById('modalLightbox');
-      const lightboxImg = lightbox.querySelector('.lightbox-img');
-      const closeLightboxBtn = lightbox.querySelector('.close-lightbox');
+      grid.innerHTML = models.map(model => `
+        <div class="model-card" data-model-id="${model._id}">
+          <img src="${model.profilePicture || 'images/default.jpg'}" alt="${model.name}" onerror="this.src='images/default.jpg'">
+          <div class="model-name">${model.name}</div>
+        </div>`).join('');
 
-      function showError(msg) {
-        grid.innerHTML = `<p style="color:red;text-align:center;">${msg}</p>`;
-      }
-
-      function renderModels(models) {
-        if (!models || models.length === 0) {
-          showError('No models available at the moment.');
-          return;
-        }
-
-        grid.innerHTML = models.map(model => `
-          <div class="model-card" data-model-id="${model._id || model.id}">
-            <img src="${(model.profilePicture || model.images?.[0]) || 'images/default.jpg'}" alt="${model.name || 'Model'}" onerror="this.src='images/default.jpg'">
-            <div class="model-name">${model.name || 'Unnamed'}</div>
-          </div>
-        `).join('');
-
-        document.querySelectorAll('.model-card').forEach(card => {
-          card.addEventListener('click', () => {
-            const id = card.getAttribute('data-model-id');
-            loadModelDetails(id);
-          });
+      document.querySelectorAll('.model-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const modelId = card.getAttribute('data-model-id');
+          loadModelDetails(modelId);
         });
-      }
-
-      function fetchModelsFromApi() {
-        return fetch(`${apiBaseUrl}/api/models`, { cache: 'no-store' })
-          .then(res => {
-            if (!res.ok) throw new Error('API returned ' + res.status);
-            return res.json();
-          });
-      }
-
-      function fetchFallback() {
-        return fetch('models.json', { cache: 'no-store' })
-          .then(res => {
-            if (!res.ok) throw new Error('models.json not found');
-            return res.json();
-          });
-      }
-
-      function loadModels() {
-        fetchModelsFromApi()
-          .then(renderModels)
-          .catch(err => {
-            console.warn('API failed, trying fallback models.json:', err);
-            fetchFallback()
-              .then(renderModels)
-              .catch(ferr => {
-                console.error('Fallback failed:', ferr);
-                showError("Couldn't load models right now. Please try again later.");
-              });
-          });
-      }
-
-      function showModelModal(model) {
-        let imagesHtml = '';
-        const imgs = model.galleryImages || model.images || [];
-        if (imgs.length) {
-          imagesHtml = '<div class="modal-model-images">' +
-            imgs.map(src => `<img src="${src}" alt="${model.name}" onerror="this.src='images/default.jpg'">`).join('') +
-            '</div>';
-        }
-
-        modalInfo.innerHTML = `
-          ${imagesHtml}
-          <h2>${model.name || 'Unnamed'}</h2>
-          <div>Age: ${model.age || '-'}</div>
-          <div>Shoe Size: ${model.shoe || '-'}</div>
-          <div>Shirt Size: ${model.shirt || '-'}</div>
-          <div>Pants Size: ${model.pants || '-'}</div>
-          <div>Height: ${model.height || '-'}</div>
-        `;
-
-        modal.style.display = 'flex';
-        attachModalImageHandlers();
-      }
-
-      function loadModelDetails(id) {
-        if (!id) {
-          modalInfo.innerHTML = '<p>Model not found.</p>';
-          modal.style.display = 'flex';
-          return;
-        }
-
-        fetch(`${apiBaseUrl}/api/models/${id}`, { cache: 'no-store' })
-          .then(res => {
-            if (!res.ok) throw new Error('API model request failed: ' + res.status);
-            return res.json();
-          })
-          .then(model => showModelModal(model))
-          .catch(err => {
-            console.warn('API model fetch failed, trying fallback:', err);
-            fetchFallback()
-              .then(models => {
-                const model = models.find(m => (m._id === id) || (m.id === id));
-                if (!model) throw new Error('Model not found in fallback');
-                showModelModal(model);
-              })
-              .catch(ferr => {
-                console.error('Fallback model load failed:', ferr);
-                modalInfo.innerHTML = '<p>Error loading model details.</p>';
-                modal.style.display = 'flex';
-              });
-          });
-      }
-
-      function attachModalImageHandlers() {
-        document.querySelectorAll('#modelModalContent .modal-model-images img, .modal-model-images img').forEach(img => {
-          img.addEventListener('click', () => {
-            lightboxImg.src = img.src;
-            lightbox.style.display = 'flex';
-            lightbox.classList.add('show');
-            lightbox.setAttribute('aria-hidden', 'false');
-          });
-        });
-
-        if (closeLightboxBtn) {
-          closeLightboxBtn.onclick = () => {
-            lightbox.classList.remove('show');
-            lightbox.style.display = 'none';
-            lightboxImg.src = '';
-            lightbox.setAttribute('aria-hidden', 'true');
-          };
-        }
-      }
-
-      // Close modal handlers
-      if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => {
-          modal.style.display = 'none';
-        });
-      }
-      if (modal) {
-        modal.addEventListener('click', (e) => {
-          if (e.target === modal) modal.style.display = 'none';
-        });
-      }
-      if (lightbox) {
-        lightbox.addEventListener('click', (e) => {
-          if (e.target === lightbox) {
-            lightbox.style.display = 'none';
-            lightboxImg.src = '';
-          }
-        });
-      }
-
-      // Start
-      loadModels();
+      });
+    })
+    .catch(err => {
+      console.error('Error loading models:', err);
+      document.getElementById('modelsGrid').innerHTML = "<p style='color:red;text-align:center;'>Couldn’t load models.</p>";
     });
-  </script>
-</body>
-</html>
+}
+
+function loadModelDetails(modelId) {
+  fetch(`${apiBaseUrl}/api/models/${modelId}`)
+    .then(res => res.json())
+    .then(model => {
+      let imagesHtml = '';
+      if (model.galleryImages?.length) {
+        imagesHtml = '<div class="modal-model-images">' +
+          model.galleryImages.map(img => `<img src="${img}" alt="${model.name}" onerror="this.src='images/default.jpg'">`).join('') +
+          '</div>';
+      }
+
+      document.getElementById('modalModelInfo').innerHTML = `
+        ${imagesHtml}
+        <h2>${model.name}</h2>
+        <div>Age: ${model.age || '-'}</div>
+        <div>Shoe Size: ${model.shoe || '-'}</div>
+        <div>Shirt Size: ${model.shirt || '-'}</div>
+        <div>Pants Size: ${model.pants || '-'}</div>
+        <div>Height: ${model.height || '-'}</div>
+      `;
+      document.getElementById('modelModal').style.display = 'flex';
+      attachModalImageHandlers();
+    })
+    .catch(() => {
+      document.getElementById('modalModelInfo').innerHTML = "<p>Error loading model details.</p>";
+      document.getElementById('modelModal').style.display = 'flex';
+    });
+}
+
+function attachModalImageHandlers() {
+  const lightbox = document.getElementById('modalLightbox');
+  const lightboxImg = lightbox.querySelector('.lightbox-img');
+  const closeLightboxBtn = lightbox.querySelector('.close-lightbox');
+
+  document.querySelectorAll('#modelModalContent .modal-model-images img').forEach(img => {
+    img.addEventListener('click', () => {
+      lightboxImg.src = img.src;
+      lightbox.classList.add('show');
+    });
+  });
+
+  closeLightboxBtn.onclick = () => {
+    lightbox.classList.remove('show');
+    lightboxImg.src = '';
+  };
+}
+
+document.getElementById('closeModalBtn').addEventListener('click', () => {
+  document.getElementById('modelModal').style.display = 'none';
+});
+
+loadModels();
+</script>
