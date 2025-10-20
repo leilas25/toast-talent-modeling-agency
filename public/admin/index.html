@@ -1,30 +1,219 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin Panel - Toast Talent</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9; color: #333; }
-    header { background: #111; color: white; padding: 15px; text-align: center; }
+    :root {
+      --bg: #f9f9f9;
+      --card: #ffffff;
+      --accent: #111;
+      --muted: #666;
+      --danger: #c0392b;
+    }
+    html,body { height: 100%; margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: var(--bg); color: #222; }
+    header { background: var(--accent); color: #fff; padding: 14px 20px; text-align: center; }
+    main { padding: 24px; max-width: 980px; margin: 28px auto; }
+    .card { background: var(--card); border-radius: 8px; padding: 20px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+    h1,h2 { margin: 0 0 12px 0; }
+    .small { color: var(--muted); font-size: 0.95rem; margin-top: 8px; }
+    form label { display:block; margin-top:10px; font-weight:600; }
+    form input[type="password"], form input[type="text"], form textarea {
+      width:100%; padding:10px 12px; margin-top:8px; border-radius:6px; border:1px solid #ddd; box-sizing:border-box;
+    }
+    form button { margin-top:12px; background:var(--accent); color:#fff; border:none; padding:10px 14px; border-radius:6px; cursor:pointer; font-weight:600; }
+    #admin-section { display:none; }
+    .list { margin: 12px 0 0 0; padding: 0; list-style: none; }
+    .list li { padding:10px; border-bottom:1px solid #f0f0f0; }
+    .muted { color:var(--muted); font-size:0.9rem; }
+    .actions { display:flex; gap:10px; margin-top:12px; }
+    .btn-ghost { background: #fff; border:1px solid #ddd; color: #111; padding:8px 12px; border-radius:6px; cursor:pointer; }
+    .status { margin-top:8px; min-height:1.1em; }
+    footer { text-align:center; padding:18px 0; color:var(--muted); font-size:0.9rem; }
+    @media (max-width:600px) {
+      main { padding:12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Toast Talent — Admin Panel</strong>
+  </header>
 
-    main { padding: 20px; }
-    #password-section, #admin-section {
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
+  <main>
+    <section id="password-section" class="card" aria-labelledby="pw-heading">
+      <h2 id="pw-heading">Admin Login</h2>
+      <p class="small">Enter the admin passcode to view the admin panel. This is a simple client-side gate so you can preview the UI. For production protect the admin routes on the server.</p>
 
-    h2, h3 { margin-bottom: 15px; }
-    form input, form button {
-      width: 100%; padding: 10px; margin: 8px 0;
-      border: 1px solid #ccc; border-radius: 5px;
-    }
-    form button {
-      background: #111; color: white; font-weight: bold;
-      cursor: pointer;
-    }
-   
+      <form id="adminLoginForm" class="login-form" aria-label="Admin login">
+        <label for="adminPass">Admin passcode</label>
+        <input id="adminPass" name="adminPass" type="password" placeholder="Enter passcode" autocomplete="off" required />
+        <button id="unlockBtn" type="submit">Unlock Admin</button>
+        <div id="loginStatus" class="status" aria-live="polite" style="color:var(--danger);"></div>
+      </form>
+    </section>
+
+    <section id="admin-section" class="card" aria-hidden="true">
+      <h2>Admin Panel</h2>
+      <p class="small">This is the admin area. Replace or extend these controls with your real admin functions (messages, model management, uploads).</p>
+
+      <div id="adminContent">
+        <div class="muted">Quick actions</div>
+        <div class="actions" style="margin-top:8px;">
+          <button id="refreshBtn" class="btn-ghost">Refresh Data</button>
+          <button id="exportBtn" class="btn-ghost">Export Models (JSON)</button>
+          <button id="logoutBtn" class="btn-ghost">Lock Admin</button>
+        </div>
+
+        <h3 style="margin-top:18px;">Recent messages</h3>
+        <ul id="messagesList" class="list">
+          <li class="muted">No messages loaded yet. Click "Refresh Data".</li>
+        </ul>
+
+        <h3 style="margin-top:18px;">Models (preview)</h3>
+        <ul id="modelsList" class="list">
+          <li class="muted">No models loaded yet. Click "Refresh Data".</li>
+        </ul>
+      </div>
+      <div id="adminStatus" class="status"></div>
+    </section>
+  </main>
+
+  <footer>&copy; <span id="year"></span> Toast Talent</footer>
+
+  <script>
+    (function () {
+      // NOTE: This is a client-side demo unlock. Do NOT rely on this for real security.
+      // Replace SECRET logic with server-side authentication for production.
+      const SECRET = 'toast-admin'; // change or remove for production
+      const loginForm = document.getElementById('adminLoginForm');
+      const adminSection = document.getElementById('admin-section');
+      const pwSection = document.getElementById('password-section');
+      const status = document.getElementById('loginStatus');
+      const adminStatus = document.getElementById('adminStatus');
+      const messagesList = document.getElementById('messagesList');
+      const modelsList = document.getElementById('modelsList');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const exportBtn = document.getElementById('exportBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      function showAdmin() {
+        pwSection.style.display = 'none';
+        adminSection.style.display = 'block';
+        adminSection.removeAttribute('aria-hidden');
+        status.textContent = '';
+      }
+
+      function hideAdmin() {
+        adminSection.style.display = 'none';
+        pwSection.style.display = 'block';
+        adminSection.setAttribute('aria-hidden', 'true');
+      }
+
+      loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        status.textContent = '';
+        const val = document.getElementById('adminPass').value.trim();
+        if (!val) {
+          status.textContent = 'Please enter the passcode.';
+          return;
+        }
+        if (val === SECRET) {
+          showAdmin();
+          adminStatus.textContent = 'Admin unlocked (client-side). Use Refresh to load data.';
+        } else {
+          status.textContent = 'Incorrect passcode.';
+        }
+      });
+
+      logoutBtn.addEventListener('click', function () {
+        document.getElementById('adminPass').value = '';
+        hideAdmin();
+      });
+
+      // Helper: render lists
+      function renderList(el, items, emptyText) {
+        el.innerHTML = '';
+        if (!items || items.length === 0) {
+          const li = document.createElement('li');
+          li.className = 'muted';
+          li.textContent = emptyText || 'No items.';
+          el.appendChild(li);
+          return;
+        }
+        items.forEach(it => {
+          const li = document.createElement('li');
+          li.textContent = it;
+          el.appendChild(li);
+        });
+      }
+
+      // Try to fetch admin data from your API; if it fails, show fallback messages.
+      async function fetchAdminData() {
+        adminStatus.textContent = 'Loading...';
+        // Use same origin API if hosted; update to your Render domain if needed.
+        const apiBase = (location.origin && location.origin !== 'null') ? location.origin : '';
+        // endpoints tried: /api/messages and /api/models
+        try {
+          // Fetch messages (if available)
+          const messagesResp = await fetch(apiBase + '/api/messages', { cache: 'no-store' });
+          if (messagesResp.ok) {
+            const messages = await messagesResp.json();
+            renderList(messagesList, (messages || []).map(m => `${m.name || m.email || 'Unknown'}: ${m.message?.slice(0,80) || '[no message]'}`), 'No messages.');
+          } else {
+            renderList(messagesList, [], 'No messages or API not available.');
+          }
+        } catch (err) {
+          renderList(messagesList, [], 'API unavailable (messages).');
+        }
+
+        try {
+          const modelsResp = await fetch(apiBase + '/api/models', { cache: 'no-store' });
+          if (modelsResp.ok) {
+            const models = await modelsResp.json();
+            renderList(modelsList, (models || []).slice(0,50).map(m => m.name || m._id || 'Unnamed'), 'No models.');
+          } else {
+            renderList(modelsList, [], 'No models or API not available.');
+          }
+        } catch (err) {
+          renderList(modelsList, [], 'API unavailable (models).');
+        }
+
+        adminStatus.textContent = '';
+      }
+
+      refreshBtn.addEventListener('click', fetchAdminData);
+
+      // Export models button just fetches /api/models and downloads as JSON if available
+      exportBtn.addEventListener('click', async function () {
+        adminStatus.textContent = 'Preparing export...';
+        try {
+          const res = await fetch((location.origin || '') + '/api/models', { cache: 'no-store' });
+          if (!res.ok) { adminStatus.textContent = 'Export failed: API not available.'; return; }
+          const json = await res.json();
+          const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'models-export.json';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          adminStatus.textContent = 'Export started.';
+        } catch (err) {
+          console.error(err);
+          adminStatus.textContent = 'Export failed (network).';
+        }
+      });
+
+      // If you want to auto-show admin in a dev environment, uncomment:
+      // showAdmin();
+
+    })();
+  </script>
+</body>
+</html>
