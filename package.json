@@ -2,11 +2,14 @@
   "name": "toast-talent-agency",
   "version": "1.0.0",
   "private": true,
-  "engines": { "node": "22.x" },
+  "main": "server.js",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "build": "node build.js",
     "dev": "vercel dev",
-    "start": "vercel dev"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^5.1.0",
