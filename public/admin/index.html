@@ -228,7 +228,6 @@
           // gallery (multiple)
           if (galleryInput.files && galleryInput.files.length) {
             Array.from(galleryInput.files).forEach((file, i) => {
-              // backend should expect gallery[] or gallery - adjust if needed
               formData.append('gallery', file);
             });
           }
