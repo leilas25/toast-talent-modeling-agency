@@ -7,17 +7,23 @@ const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// --- Helper: sanitize mount paths that are full URLs ---
-// Convert full URLs passed to app.use/app.get/... into pathname
+// --- Helper: sanitize mount paths that are full URLs and log stack traces to find caller ---
 function sanitizeMountArg(arg) {
   if (typeof arg !== 'string') return arg;
   if (/^https?:\/\//i.test(arg)) {
     try {
       const u = new URL(arg);
-      return u.pathname || '/';
+      const pathname = u.pathname || '/';
+      // capture stack to show who called app.use(...) with a full URL
+      const stack = new Error().stack || '';
+      console.warn(`[route-sanitize] Detected full-URL mount: "${arg}" -> sanitize to "${pathname}"`);
+      console.warn('[route-sanitize] Caller stack:\n' + stack.split('\n').slice(2, 12).join('\n'));
+      return pathname;
     } catch (err) {
-      // invalid URL -> signal skip by returning null
-      return null;
+      const stack = new Error().stack || '';
+      console.warn(`[route-sanitize] Invalid mount URL detected and skipped: "${arg}"`);
+      console.warn('[route-sanitize] Caller stack:\n' + stack.split('\n').slice(2, 12).join('\n'));
+      return null; // signal to caller to skip the mount
     }
   }
   return arg;
@@ -27,12 +33,13 @@ function wrapAppMethod(obj, name) {
   const orig = obj[name];
   if (typeof orig !== 'function') return;
   obj[name] = function firstArgSanitizer(first, ...rest) {
-    // If first arg is a string and a full URL, convert it to pathname
+    // If first arg is a string and a full URL, convert it to pathname or skip
     if (typeof first === 'string' && /^https?:\/\//i.test(first)) {
       const sanitized = sanitizeMountArg(first);
       if (sanitized === null) {
-        console.warn(`[route-sanitize] Skipping ${name} mount with invalid URL: ${first}`);
-        return this; // skip silently and return app/router for chaining
+        // skip mount entirely and return this for chaining
+        console.warn(`[route-sanitize] Skipped ${name} mount with invalid URL: ${first}`);
+        return this;
       }
       console.log(`[route-sanitize] Converted ${name} mount URL -> path: "${first}" -> "${sanitized}"`);
       return orig.call(this, sanitized, ...rest);
@@ -54,7 +61,6 @@ if (express && express.Router && express.Router.prototype) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Simple CORS for your frontend domain(s)
 app.use((req, res, next) => {
   const allowed = [
     'https://toasttalent.co.za',
@@ -90,7 +96,7 @@ app.get('/health', (req, res) => {
 app.get('/api', (req, res) => {
   res.json({
     message: 'API root — backend modules are currently disabled by default for safety.',
-    note: 'Re-enable modules one-by-one after fixing their imports/deps.'
+    note: 'After we find offending mounts we can enable modules step-by-step.'
   });
 });
 
@@ -107,7 +113,7 @@ app.get('*', (req, res, next) => {
   next();
 });
 
-// logging for unhandled errors
+// error logging
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err && err.stack ? err.stack : err);
 });
