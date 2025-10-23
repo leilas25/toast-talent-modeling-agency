@@ -7,11 +7,54 @@ const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Basic body parsing
+// --- Helper: sanitize mount paths that are full URLs ---
+// Convert full URLs passed to app.use/app.get/... into pathname
+function sanitizeMountArg(arg) {
+  if (typeof arg !== 'string') return arg;
+  if (/^https?:\/\//i.test(arg)) {
+    try {
+      const u = new URL(arg);
+      return u.pathname || '/';
+    } catch (err) {
+      // invalid URL -> signal skip by returning null
+      return null;
+    }
+  }
+  return arg;
+}
+
+function wrapAppMethod(obj, name) {
+  const orig = obj[name];
+  if (typeof orig !== 'function') return;
+  obj[name] = function firstArgSanitizer(first, ...rest) {
+    // If first arg is a string and a full URL, convert it to pathname
+    if (typeof first === 'string' && /^https?:\/\//i.test(first)) {
+      const sanitized = sanitizeMountArg(first);
+      if (sanitized === null) {
+        console.warn(`[route-sanitize] Skipping ${name} mount with invalid URL: ${first}`);
+        return this; // skip silently and return app/router for chaining
+      }
+      console.log(`[route-sanitize] Converted ${name} mount URL -> path: "${first}" -> "${sanitized}"`);
+      return orig.call(this, sanitized, ...rest);
+    }
+    return orig.call(this, first, ...rest);
+  };
+}
+
+// Wrap app-level methods
+['use', 'get', 'post', 'put', 'patch', 'delete', 'all'].forEach(m => wrapAppMethod(app, m));
+
+// Wrap router-level methods so Router().use(...) is also sanitized
+if (express && express.Router && express.Router.prototype) {
+  const proto = express.Router.prototype;
+  ['use', 'get', 'post', 'put', 'patch', 'delete', 'all'].forEach(m => wrapAppMethod(proto, m));
+}
+
+// --- Basic middleware and CORS ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Simple CORS for your frontend domain (adjust if needed)
+// Simple CORS for your frontend domain(s)
 app.use((req, res, next) => {
   const allowed = [
     'https://toasttalent.co.za',
@@ -25,74 +68,38 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   } else if (!origin) {
-    // allow non-browser requests (curl, server-side)
     res.setHeader('Access-Control-Allow-Origin', '*');
   }
   if (req.method === 'OPTIONS') return res.status(204).end();
   next();
 });
 
-// Serve static files from ./public if present
+// Serve static files if present
 const staticDir = path.join(__dirname, 'public');
 if (fs.existsSync(staticDir)) {
   app.use(express.static(staticDir));
   console.log('Serving static files from', staticDir);
 }
 
-// Health check endpoint
+// Health endpoint
 app.get('/health', (req, res) => {
   res.json({ ok: true, timestamp: Date.now(), env: process.env.NODE_ENV || 'unknown' });
 });
 
-// API root - intentionally minimal so server starts reliably
+// Minimal API root
 app.get('/api', (req, res) => {
   res.json({
-    message: 'API root — backend modules are currently disabled to ensure server stability.',
-    note: 'Enable modules individually after fixing missing dependencies and import paths.'
+    message: 'API root — backend modules are currently disabled by default for safety.',
+    note: 'Re-enable modules one-by-one after fixing their imports/deps.'
   });
 });
 
-/*
-  NOTE about mounting existing lib/ modules:
-  - Previously we attempted to require and mount many files under lib/ automatically, but some files
-    had broken relative imports or required packages not yet installed (e.g. iron-session), causing the
-    server to crash on startup. To keep Render deploys stable, this server intentionally does NOT
-    auto-require those modules.
-
-  - When you're ready to re-enable them, do this step-by-step:
-    1) Fix any missing npm packages (npm install iron-session ...).
-    2) Fix broken relative imports inside the modules (use path.join(__dirname, ...) or correct ../../ paths).
-    3) Re-enable mounting for only the modules you have confirmed work (example helper below).
-
-  Example safe mounting helper (uncomment and adapt when ready):
-  ------------------------------------------------------------
-  // const base = path.join(__dirname, 'lib');
-  // function safeMount(filePath, mountPath) {
-  //   try {
-  //     const mod = require(filePath);
-  //     if (mod && typeof mod === 'function' && Array.isArray(mod.stack)) {
-  //       app.use(mountPath, mod);
-  //       console.log('Mounted router', mountPath, '->', filePath);
-  //     } else if (mod && mod.router && typeof mod.router === 'function' && Array.isArray(mod.router.stack)) {
-  //       app.use(mountPath, mod.router);
-  //       console.log('Mounted router (export.router)', mountPath, '->', filePath);
-  //     } else {
-  //       console.log('Skipping (not a router):', filePath);
-  //     }
-  //   } catch (err) {
-  //     console.warn('Failed to require', filePath, '->', err && err.message);
-  //   }
-  // }
-  // safeMount(path.join(base, 'api', 'api', 'api', 'models.js'), '/api/models'); // example
-  ------------------------------------------------------------
-*/
-
-// Catch-all 404 for /api/*
+// 404 for /api/*
 app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'Not found', path: req.path });
 });
 
-// Optional SPA fallback for non-API routes: serve index.html if present
+// SPA fallback
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api')) return next();
   const index = path.join(staticDir, 'index.html');
@@ -100,7 +107,7 @@ app.get('*', (req, res, next) => {
   next();
 });
 
-// Error handling and process-level logging
+// logging for unhandled errors
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err && err.stack ? err.stack : err);
 });
