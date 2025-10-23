@@ -8,13 +8,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // --- Helper: sanitize mount paths that are full URLs and log stack traces to find caller ---
+// Also catch errors from Express route registration so we can log the offending value.
 function sanitizeMountArg(arg) {
   if (typeof arg !== 'string') return arg;
   if (/^https?:\/\//i.test(arg)) {
     try {
       const u = new URL(arg);
       const pathname = u.pathname || '/';
-      // capture stack to show who called app.use(...) with a full URL
       const stack = new Error().stack || '';
       console.warn(`[route-sanitize] Detected full-URL mount: "${arg}" -> sanitize to "${pathname}"`);
       console.warn('[route-sanitize] Caller stack:\n' + stack.split('\n').slice(2, 12).join('\n'));
@@ -23,7 +23,7 @@ function sanitizeMountArg(arg) {
       const stack = new Error().stack || '';
       console.warn(`[route-sanitize] Invalid mount URL detected and skipped: "${arg}"`);
       console.warn('[route-sanitize] Caller stack:\n' + stack.split('\n').slice(2, 12).join('\n'));
-      return null; // signal to caller to skip the mount
+      return null;
     }
   }
   return arg;
@@ -33,18 +33,35 @@ function wrapAppMethod(obj, name) {
   const orig = obj[name];
   if (typeof orig !== 'function') return;
   obj[name] = function firstArgSanitizer(first, ...rest) {
-    // If first arg is a string and a full URL, convert it to pathname or skip
-    if (typeof first === 'string' && /^https?:\/\//i.test(first)) {
-      const sanitized = sanitizeMountArg(first);
-      if (sanitized === null) {
-        // skip mount entirely and return this for chaining
-        console.warn(`[route-sanitize] Skipped ${name} mount with invalid URL: ${first}`);
-        return this;
+    try {
+      // If first arg is a string and a full URL, convert it to pathname or skip
+      if (typeof first === 'string' && /^https?:\/\//i.test(first)) {
+        const sanitized = sanitizeMountArg(first);
+        if (sanitized === null) {
+          console.warn(`[route-sanitize] Skipped ${name} mount with invalid URL: ${first}`);
+          return this;
+        }
+        console.log(`[route-sanitize] Converted ${name} mount URL -> path: "${first}" -> "${sanitized}"`);
+        return orig.call(this, sanitized, ...rest);
       }
-      console.log(`[route-sanitize] Converted ${name} mount URL -> path: "${first}" -> "${sanitized}"`);
-      return orig.call(this, sanitized, ...rest);
+      return orig.call(this, first, ...rest);
+    } catch (err) {
+      // Log the offending first arg and stack trace, but do not crash the server
+      try {
+        const info = {
+          method: name,
+          firstArg: typeof first === 'string' ? first : (first && first.name) || String(first),
+          firstArgType: typeof first,
+          message: err && err.message,
+        };
+        console.error('[route-sanitize] Error registering route', JSON.stringify(info));
+        console.error('[route-sanitize] Error stack:\n' + (err && err.stack ? err.stack : String(err)));
+      } catch (logErr) {
+        console.error('[route-sanitize] Failed to log route error:', logErr && logErr.stack ? logErr.stack : String(logErr));
+      }
+      // skip this mount to keep server alive
+      return this;
     }
-    return orig.call(this, first, ...rest);
   };
 }
 
@@ -113,7 +130,7 @@ app.get('*', (req, res, next) => {
   next();
 });
 
-// error logging
+// logging for unhandled errors
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err && err.stack ? err.stack : err);
 });
