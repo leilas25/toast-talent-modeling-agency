@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
-// Define a simple Model schema â€” adjust fields to match your frontend
+// Define a simple Model schema — adjust fields to match your frontend
 const ModelSchema = new mongoose.Schema({
   name: { type: String, required: true },
   age: Number,
@@ -13,7 +13,7 @@ const ModelSchema = new mongoose.Schema({
 
 const Model = mongoose.models.Model || mongoose.model('Model', ModelSchema);
 
-// GET /api/models  â€” list models
+// GET /api/models  — list models
 router.get('/', async (req, res) => {
   try {
     const results = await Model.find().sort({ createdAt: -1 }).lean();
@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/models â€” create a model
+// POST /api/models — create a model
 router.post('/', async (req, res) => {
   try {
     const payload = req.body || {};
