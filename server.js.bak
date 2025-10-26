@@ -54,24 +54,33 @@ if (fs.existsSync(staticDir)) {
 app.get('/health', (req, res) => res.json({ ok: true, timestamp: Date.now(), env: process.env.NODE_ENV || 'unknown' }));
 app.get('/api', (req, res) => res.json({ message: 'API root' }));
 
-// Mount models router (created below)
+// Mount models router (if present)
 try {
   const modelsRouter = require('./routes/models');
+  // mount the router at /api/models
   app.use('/api/models', modelsRouter);
   console.log('Mounted /api/models');
 } catch (err) {
   console.warn('Could not mount /api/models:', err && err.message ? err.message : err);
 }
 
-// 404 for API
-app.use('/api/*', (req, res) => res.status(404).json({ error: 'Not found', path: req.path }));
+// --- Safe API 404 handler (replaces app.use('/api/*', ...)) ---
+// If a request starts with /api and no earlier route handled it, return 404 JSON.
+// This avoids passing a wildcard pattern into Express's route parser.
+app.use((req, res, next) => {
+  if (req.path && req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'Not found', path: req.path });
+  }
+  next();
+});
 
-// SPA fallback
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) return next();
+// --- SPA fallback (replaces app.get('*', ...)) ---
+// Serve index.html for non-API routes if present, otherwise continue to next handler.
+app.use((req, res, next) => {
+  if (req.path && req.path.startsWith('/api')) return next();
   const index = path.join(staticDir, 'index.html');
   if (fs.existsSync(index)) return res.sendFile(index);
-  res.status(404).send('Not found');
+  next();
 });
 
 // error logging

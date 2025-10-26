@@ -90,7 +90,7 @@
       }
 
       function fetchModelsFromApi() {
-        return fetch(`${apiBaseUrl}/https://api.toasttalent.co.za/api/models`, { cache: 'no-store' })
+        return fetch(`${apiBaseUrl}/api/models`, { cache: 'no-store' })
           .then(res => {
             if (!res.ok) throw new Error('API returned ' + res.status);
             return res.json();
@@ -149,7 +149,7 @@
           return;
         }
 
-        fetch(`${apiBaseUrl}/https://api.toasttalent.co.za/api/models/${id}`, { cache: 'no-store' })
+        fetch(`${apiBaseUrl}/api/models/${id}`, { cache: 'no-store' })
           .then(res => {
             if (!res.ok) throw new Error('API model request failed: ' + res.status);
             return res.json();

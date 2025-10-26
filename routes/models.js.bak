@@ -13,18 +13,18 @@ const ModelSchema = new mongoose.Schema({
 
 const Model = mongoose.models.Model || mongoose.model('Model', ModelSchema);
 
-// GET /https://api.toasttalent.co.za/api/models  — list models
+// GET /api/models  — list models
 router.get('/', async (req, res) => {
   try {
     const results = await Model.find().sort({ createdAt: -1 }).lean();
     res.json(results);
   } catch (err) {
-    console.error('GET /https://api.toasttalent.co.za/api/models error:', err);
+    console.error('GET /api/models error:', err);
     res.status(500).json({ error: 'db_error' });
   }
 });
 
-// POST /https://api.toasttalent.co.za/api/models — create a model
+// POST /api/models — create a model
 router.post('/', async (req, res) => {
   try {
     const payload = req.body || {};
@@ -34,10 +34,9 @@ router.post('/', async (req, res) => {
     await rec.save();
     res.status(201).json(rec);
   } catch (err) {
-    console.error('POST /https://api.toasttalent.co.za/api/models error:', err);
+    console.error('POST /api/models error:', err);
     res.status(500).json({ error: 'db_error' });
   }
 });
 
 module.exports = router;
-

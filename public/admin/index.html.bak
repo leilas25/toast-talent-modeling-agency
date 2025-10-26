@@ -69,7 +69,7 @@
     <section id="admin-section" style="display:none;" aria-hidden="true">
       <div id="admin-controls" class="card">
         <h2>Model Submission Form</h2>
-        <p class="small">Use this form to add or update models. The form submits multipart/form-data to /https://api.toasttalent.co.za/api/models (relative). Adjust the endpoint if your API uses a different path or domain.</p>
+        <p class="small">Use this form to add or update models. The form submits multipart/form-data to /api/models (relative). Adjust the endpoint if your API uses a different path or domain.</p>
 
         <form id="modelForm" enctype="multipart/form-data" novalidate>
           <div class="two-col">
@@ -233,7 +233,7 @@
           }
 
           // set endpoint - relative so it uses same origin; change to your Render domain if needed
-          const endpoint = (location.origin && location.origin !== 'null') ? location.origin + '/https://api.toasttalent.co.za/api/models' : '/https://api.toasttalent.co.za/api/models';
+          const endpoint = (location.origin && location.origin !== 'null') ? location.origin + '/api/models' : '/api/models';
 
           const resp = await fetch(endpoint, {
             method: 'POST',

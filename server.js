@@ -57,11 +57,11 @@ app.get('/api', (req, res) => res.json({ message: 'API root' }));
 // Mount models router (if present)
 try {
   const modelsRouter = require('./routes/models');
-  // mount the router at /api/models
-  app.use('/api/models', modelsRouter);
-  console.log('Mounted /api/models');
+  // mount the router at /https://api.toasttalent.co.za/api/models
+  app.use('/https://api.toasttalent.co.za/api/models', modelsRouter);
+  console.log('Mounted /https://api.toasttalent.co.za/api/models');
 } catch (err) {
-  console.warn('Could not mount /api/models:', err && err.message ? err.message : err);
+  console.warn('Could not mount /https://api.toasttalent.co.za/api/models:', err && err.message ? err.message : err);
 }
 
 // --- Safe API 404 handler (replaces app.use('/api/*', ...)) ---
