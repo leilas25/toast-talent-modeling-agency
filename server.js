@@ -8,21 +8,61 @@ const mongoose = require('mongoose');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// --- Connect to MongoDB ---
+// --- Instrumentation: wrap app/router registration to catch and log bad mounts ---
+// This logs the method name, the first argument passed (path or url), and a short caller stack.
+function wrapRegistrant(obj, name) {
+  const orig = obj[name];
+  if (typeof orig !== 'function') return;
+  obj[name] = function wrappedRegistrant(first, ...rest) {
+    try {
+      return orig.call(this, first, ...rest);
+    } catch (err) {
+      try {
+        const info = {
+          method: name,
+          firstArg: (typeof first === 'string') ? first : (first && first.name) || String(first),
+          firstArgType: typeof first,
+          message: err && err.message ? err.message : String(err),
+        };
+        console.error('[route-sanitize] Error registering route', JSON.stringify(info));
+        // capture short stack and show where the call came from
+        const stack = new Error().stack || '';
+        const lines = stack.split('\n').slice(2, 14); // skip this function and show caller frames
+        console.error('[route-sanitize] Caller stack:\n' + lines.join('\n'));
+        // Also include the original error stack for path-to-regexp
+        console.error('[route-sanitize] Original error stack:\n' + (err && err.stack ? err.stack : String(err)));
+      } catch (logErr) {
+        console.error('[route-sanitize] Failed to log registration error:', logErr && logErr.stack ? logErr.stack : String(logErr));
+      }
+      // Skip the failing registration so server can continue
+      return this;
+    }
+  };
+}
+
+// wrap app-level methods
+['use', 'get', 'post', 'put', 'patch', 'delete', 'all'].forEach(m => wrapRegistrant(app, m));
+
+// wrap router prototype so Router().use/register also gets wrapped
+if (express && express.Router && express.Router.prototype) {
+  const proto = express.Router.prototype;
+  ['use', 'get', 'post', 'put', 'patch', 'delete', 'all'].forEach(m => wrapRegistrant(proto, m));
+}
+
+// --- Connect to MongoDB (if provided) ---
 const mongoUri = process.env.MONGODB_URI;
-if (!mongoUri) {
-  console.warn('WARNING: MONGODB_URI not set. Database features will be disabled.');
-} else {
+if (mongoUri) {
   mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('? Connected to MongoDB'))
     .catch(err => console.error('? MongoDB connection error:', err && err.message ? err.message : err));
+} else {
+  console.warn('WARNING: MONGODB_URI not set. Database features will be disabled.');
 }
 
 // --- Middleware ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Basic CORS (adjust allowed origins as needed)
 app.use((req, res, next) => {
   const allowed = [
     'https://toasttalent.co.za',
@@ -34,7 +74,6 @@ app.use((req, res, next) => {
   if (origin && allowed.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   } else if (!origin) {
-    // allow server-to-server (curl) requests
     res.setHeader('Access-Control-Allow-Origin', '*');
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
@@ -54,7 +93,7 @@ if (fs.existsSync(staticDir)) {
 app.get('/health', (req, res) => res.json({ ok: true, timestamp: Date.now(), env: process.env.NODE_ENV || 'unknown' }));
 app.get('/api', (req, res) => res.json({ message: 'API root' }));
 
-// Mount models router (created below)
+// Mount models router (if present). Instrumentation will log if any router registers a bad route.
 try {
   const modelsRouter = require('./routes/models');
   app.use('/api/models', modelsRouter);
