@@ -4,30 +4,10 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import bodyParser from 'body-parser';
 import modelsRouter from './routes/models.js';
-import fs from 'fs';
 
 const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT || 10000;
-
-// Debug: monkey-patch app.use to log registrations
-(function patchAppUse() {
-  const originalUse = app.use.bind(app);
-  app.use = function (first, ...rest) {
-    try {
-      if (typeof first === 'string') {
-        console.log('app.use called with path:', first);
-      } else if (first && first.name) {
-        console.log('app.use called with middleware function:', first.name);
-      } else {
-        console.log('app.use called with unknown first arg:', first);
-      }
-    } catch (e) {
-      console.error('Error logging app.use args', e);
-    }
-    return originalUse(first, ...rest);
-  };
-}());
 
 // Basic body parsing
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -70,12 +50,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Temporary sanity endpoint to verify deployed server.js is active
+// Temporary sanity endpoint
 app.get('/api/models-sanity', (req, res) => {
-  res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local', env: process.env.NODE_ENV || 'unknown' });
+  res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local' });
 });
 
-// Try to mount the models router and catch any mounting-time errors
+// Mount models router
 try {
   console.log('Mounting models router at /api/models');
   app.use('/api/models', modelsRouter);
@@ -84,7 +64,7 @@ try {
   console.error('Error mounting models router:', err && err.stack ? err.stack : err);
 }
 
-// Admin login
+// Admin login endpoint
 app.post('/api/admin-login', (req, res) => {
   const { password } = req.body || {};
   const ADMIN_PASS = process.env.ADMIN_PASS || 'YumnaGugu1980';
@@ -98,41 +78,16 @@ app.post('/api/admin-login', (req, res) => {
 // Health endpoint
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-// DEBUG: At startup, list the actual files under the public directory (safe, non-destructive)
-try {
-  const pub = path.join(__dirname, 'public');
-  console.log('PUBLIC DIR PATH:', pub);
-  if (fs.existsSync(pub)) {
-    const list = fs.readdirSync(pub, { withFileTypes: true });
-    console.log('PUBLIC DIR CONTENTS:');
-    list.forEach(entry => {
-      console.log(entry.isDirectory() ? `DIR: ${entry.name}` : `FILE: ${entry.name}`);
-      if (entry.isDirectory()) {
-        try {
-          const sub = fs.readdirSync(path.join(pub, entry.name), { withFileTypes: true });
-          sub.forEach(s => console.log(`  ${entry.name}/${s.name}`));
-        } catch (e) {
-          console.log(`  (error reading ${entry.name}): ${e && e.message ? e.message : e}`);
-        }
-      }
-    });
-  } else {
-    console.log('PUBLIC DIR DOES NOT EXIST at startup.');
+// Serve static frontend
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Fallback SPA for non-API GET requests
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API route not found' });
   }
-} catch (e) {
-  console.log('Error listing public directory (may not exist):', e && e.message ? e.message : e);
-}
-
-// Serve static frontend (COMMENTED OUT for debugging to avoid path-to-regexp crash)
-// app.use(express.static(path.join(__dirname, 'public')));
-
-// Fallback SPA for non-API GET requests (COMMENTED OUT during debug)
-// app.get('*', (req, res) => {
-//   if (req.path.startsWith('/api/')) {
-//     return res.status(404).json({ error: 'API route not found' });
-//   }
-//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// });
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Helper: list registered routes for debugging
 function listRegisteredRoutes() {
