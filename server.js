@@ -56,6 +56,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Temporary sanity endpoint to verify the running server.js is active
+app.get('/api/models-sanity', (req, res) => {
+  res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local' });
+});
+
 // Mount models API (router handles /)
 app.use('/api/models', modelsRouter);
 
@@ -65,7 +70,6 @@ app.post('/api/admin-login', (req, res) => {
   const ADMIN_PASS = process.env.ADMIN_PASS || 'YumnaGugu1980';
   if (password === ADMIN_PASS) {
     req.session.isAdmin = true;
-    // send a short JSON response — the session cookie will be set on the api domain
     return res.json({ ok: true, redirect: '/admin' });
   }
   return res.status(401).json({ ok: false, message: 'Incorrect password' });
@@ -84,6 +88,33 @@ app.get('*', (req, res) => {
   }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+// Helper: list registered routes (prints to logs)
+function listRegisteredRoutes() {
+  try {
+    const routes = [];
+    app._router.stack.forEach(mw => {
+      if (mw.route && mw.route.path) {
+        // direct route
+        const methods = Object.keys(mw.route.methods).map(m => m.toUpperCase()).join(',');
+        routes.push(`${methods} ${mw.route.path}`);
+      } else if (mw.name === 'router' && mw.handle && mw.handle.stack) {
+        // router with nested routes
+        mw.handle.stack.forEach(handler => {
+          if (handler.route && handler.route.path) {
+            const methods = Object.keys(handler.route.methods).map(m => m.toUpperCase()).join(',');
+            routes.push(`${methods} ${handler.route.path} (router)`);
+          }
+        });
+      }
+    });
+    console.log('Registered routes:', routes);
+  } catch (err) {
+    console.error('Error listing routes', err);
+  }
+}
+
+listRegisteredRoutes();
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
