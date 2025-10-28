@@ -2,39 +2,54 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import cors from 'cors';
 import bodyParser from 'body-parser';
 import modelsRouter from './routes/models.js';
 
 const __dirname = path.resolve();
-
 const app = express();
 const PORT = process.env.PORT || 10000;
+
+// Debug: monkey-patch app.use to log registrations
+(function patchAppUse() {
+  const originalUse = app.use.bind(app);
+  app.use = function (first, ...rest) {
+    try {
+      if (typeof first === 'string') {
+        console.log('app.use called with path:', first);
+      } else if (first && first.name) {
+        console.log('app.use called with middleware function:', first.name);
+      } else {
+        console.log('app.use called with unknown first arg:', first);
+      }
+    } catch (e) {
+      console.error('Error logging app.use args', e);
+    }
+    return originalUse(first, ...rest);
+  };
+}());
 
 // Basic body parsing
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Cookie parser (useful for debugging, session middleware reads cookies)
+// Cookie parser and session
 app.use(cookieParser());
 
-// Session - cookie settings allow cross-subdomain cookie for .toasttalent.co.za
-// IMPORTANT: set SESSION_SECRET in your Render env. In production use a secure store.
 app.use(session({
-  name: 'tt_session',
+  name: process.env.SESSION_NAME || 'tt_session',
   secret: process.env.SESSION_SECRET || 'change_this_secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
     domain: process.env.COOKIE_DOMAIN || '.toasttalent.co.za',
     httpOnly: true,
-    secure: true,         // requires HTTPS in production
-    sameSite: 'none',     // allow cross-site cookies (admin on toasttalent.co.za -> api.toasttalent.co.za)
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+    secure: true,
+    sameSite: 'none',
+    maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }));
 
-// CORS: allow the admin origin and API origin, and allow credentials.
+// CORS-ish headers middleware
 const allowedOrigins = [
   'https://toasttalent.co.za',
   'https://www.toasttalent.co.za',
@@ -46,8 +61,6 @@ app.use((req, res, next) => {
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Vary', 'Origin');
-  } else {
-    // don't set wildcard when credentials are used
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -56,15 +69,21 @@ app.use((req, res, next) => {
   next();
 });
 
-// Temporary sanity endpoint to verify the running server.js is active
+// Temporary sanity endpoint to verify deployed server.js is active
 app.get('/api/models-sanity', (req, res) => {
-  res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local' });
+  res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local', env: process.env.NODE_ENV || 'unknown' });
 });
 
-// Mount models API (router handles /)
-app.use('/api/models', modelsRouter);
+// Try to mount the models router and catch any mounting-time errors
+try {
+  console.log('Mounting models router at /api/models');
+  app.use('/api/models', modelsRouter);
+  console.log('Mounted models router OK');
+} catch (err) {
+  console.error('Error mounting models router:', err && err.stack ? err.stack : err);
+}
 
-// Admin login endpoint: sets session.isAdmin if password matches env var
+// Admin login
 app.post('/api/admin-login', (req, res) => {
   const { password } = req.body || {};
   const ADMIN_PASS = process.env.ADMIN_PASS || 'YumnaGugu1980';
@@ -75,48 +94,51 @@ app.post('/api/admin-login', (req, res) => {
   return res.status(401).json({ ok: false, message: 'Incorrect password' });
 });
 
-// Optional: health
+// Health endpoint
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 // Serve static frontend
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Fallback SPA handling for unknown non-API GETs
+// Fallback SPA for non-API GET requests
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'API route not found' });
+    return res.status(404).json({ error: 'API route not found', path: req.path });
   }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Helper: list registered routes (prints to logs)
+// Helper: list registered routes for debugging
 function listRegisteredRoutes() {
   try {
     const routes = [];
+    if (!app._router) {
+      console.log('No app._router present');
+      return;
+    }
     app._router.stack.forEach(mw => {
       if (mw.route && mw.route.path) {
-        // direct route
         const methods = Object.keys(mw.route.methods).map(m => m.toUpperCase()).join(',');
         routes.push(`${methods} ${mw.route.path}`);
       } else if (mw.name === 'router' && mw.handle && mw.handle.stack) {
-        // router with nested routes
         mw.handle.stack.forEach(handler => {
           if (handler.route && handler.route.path) {
             const methods = Object.keys(handler.route.methods).map(m => m.toUpperCase()).join(',');
-            routes.push(`${methods} ${handler.route.path} (router)`);
+            routes.push(`${methods} ${handler.route.path} (nested router)`);
           }
         });
+      } else if (mw.name && mw.name !== 'bound dispatch') {
+        routes.push(`MIDDLEWARE ${mw.name}`);
       }
     });
-    console.log('Registered routes:', routes);
+    console.log('Registered routes/middleware:', JSON.stringify(routes, null, 2));
   } catch (err) {
-    console.error('Error listing routes', err);
+    console.error('Error listing routes', err && err.stack ? err.stack : err);
   }
 }
 
 listRegisteredRoutes();
 
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
   console.log(`Server running on port ${PORT}`);
 });
