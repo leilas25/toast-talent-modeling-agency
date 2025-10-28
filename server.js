@@ -1,91 +1,91 @@
-'use strict';
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import modelsRouter from './routes/models.js';
 
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-const mongoose = require('mongoose');
+const __dirname = path.resolve();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
-// --- Connect to MongoDB ---
-const mongoUri = process.env.MONGODB_URI;
-if (!mongoUri) {
-  console.warn('WARNING: MONGODB_URI not set. Database features will be disabled.');
-} else {
-  mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('✅ Connected to MongoDB'))
-    .catch(err => console.error('❌ MongoDB connection error:', err && err.message ? err.message : err));
-}
+// Basic body parsing
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// --- Middleware ---
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Cookie parser (useful for debugging, session middleware reads cookies)
+app.use(cookieParser());
 
-// Basic CORS (adjust allowed origins as needed)
+// Session - cookie settings allow cross-subdomain cookie for .toasttalent.co.za
+// IMPORTANT: set SESSION_SECRET in your Render env. In production use a secure store.
+app.use(session({
+  name: 'tt_session',
+  secret: process.env.SESSION_SECRET || 'change_this_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    domain: process.env.COOKIE_DOMAIN || '.toasttalent.co.za',
+    httpOnly: true,
+    secure: true,         // requires HTTPS in production
+    sameSite: 'none',     // allow cross-site cookies (admin on toasttalent.co.za -> api.toasttalent.co.za)
+    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+  }
+}));
+
+// CORS: allow the admin origin and API origin, and allow credentials.
+const allowedOrigins = [
+  'https://toasttalent.co.za',
+  'https://www.toasttalent.co.za',
+  'https://api.toasttalent.co.za'
+];
+
 app.use((req, res, next) => {
-  const allowed = [
-    'https://toasttalent.co.za',
-    'https://www.toasttalent.co.za',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000'
-  ];
-  const origin = req.get('origin');
-  if (origin && allowed.includes(origin)) {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (!origin) {
-    // allow server-to-server (curl) requests
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Vary', 'Origin');
+  } else {
+    // don't set wildcard when credentials are used
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   if (req.method === 'OPTIONS') return res.status(204).end();
   next();
 });
 
-// Serve static files
-const staticDir = path.join(__dirname, 'public');
-if (fs.existsSync(staticDir)) {
-  app.use(express.static(staticDir));
-  console.log('Serving static files from', staticDir);
-}
+// Mount models API (router handles /)
+app.use('/api/models', modelsRouter);
 
-// Health and API root
-app.get('/health', (req, res) => res.json({ ok: true, timestamp: Date.now(), env: process.env.NODE_ENV || 'unknown' }));
-app.get('/api', (req, res) => res.json({ message: 'API root' }));
-
-// Mount models router (if present)
-try {
-  const modelsRouter = require('./routes/models');
-  // mount the router at /https://api.toasttalent.co.za/api/models
-  app.use('/https://api.toasttalent.co.za/api/models', modelsRouter);
-  console.log('Mounted /https://api.toasttalent.co.za/api/models');
-} catch (err) {
-  console.warn('Could not mount /https://api.toasttalent.co.za/api/models:', err && err.message ? err.message : err);
-}
-
-// --- Safe API 404 handler (replaces app.use('/api/*', ...)) ---
-// If a request starts with /api and no earlier route handled it, return 404 JSON.
-// This avoids passing a wildcard pattern into Express's route parser.
-app.use((req, res, next) => {
-  if (req.path && req.path.startsWith('/api')) {
-    return res.status(404).json({ error: 'Not found', path: req.path });
+// Admin login endpoint: sets session.isAdmin if password matches env var
+app.post('/api/admin-login', (req, res) => {
+  const { password } = req.body || {};
+  const ADMIN_PASS = process.env.ADMIN_PASS || 'YumnaGugu1980';
+  if (password === ADMIN_PASS) {
+    req.session.isAdmin = true;
+    // send a short JSON response — the session cookie will be set on the api domain
+    return res.json({ ok: true, redirect: '/admin' });
   }
-  next();
+  return res.status(401).json({ ok: false, message: 'Incorrect password' });
 });
 
-// --- SPA fallback (replaces app.get('*', ...)) ---
-// Serve index.html for non-API routes if present, otherwise continue to next handler.
-app.use((req, res, next) => {
-  if (req.path && req.path.startsWith('/api')) return next();
-  const index = path.join(staticDir, 'index.html');
-  if (fs.existsSync(index)) return res.sendFile(index);
-  next();
+// Optional: health
+app.get('/health', (req, res) => res.json({ ok: true }));
+
+// Serve static frontend
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Fallback SPA handling for unknown non-API GETs
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API route not found' });
+  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// error logging
-process.on('uncaughtException', (err) => console.error('Uncaught Exception:', err && err.stack ? err.stack : err));
-process.on('unhandledRejection', (reason) => console.error('Unhandled Rejection:', reason));
-
-// Start server
-app.listen(port, () => console.log('Server running on port', port));
+app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
+  console.log(`Server running on port ${PORT}`);
+});

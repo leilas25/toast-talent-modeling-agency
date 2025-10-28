@@ -1,275 +1,148 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Panel - Toast Talent</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Toast Talent</title>
+  <link rel="stylesheet" href="/style.css" />
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9; color: #333; }
-    header { background: #111; color: white; padding: 15px; text-align: center; }
-
-    main { padding: 20px; }
-    #password-section, #admin-section {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
-    h2, h3 { margin-bottom: 15px; }
-    form input, form select, form textarea, form button {
-      width: 100%; padding: 10px; margin: 8px 0;
-      border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
-    }
-    form button {
-      background: #111; color: white; font-weight: bold;
-      cursor: pointer;
-    }
-
-    .two-col { display:flex; gap:12px; }
-    .two-col > * { flex:1; }
-    label { font-weight:600; display:block; margin-top:8px; }
-    .muted { color:#666; font-size:0.95rem; margin-top:6px; }
-    .small { font-size:0.9rem; color:#666; }
-
-    .preview-row { display:flex; gap:12px; margin-top:8px; flex-wrap:wrap; }
-    .preview-row img { width:90px; height:90px; object-fit:cover; border-radius:6px; border:1px solid #eee; }
-
-    #admin-status { margin-top:10px; min-height:1.1em; }
-
-    @media (max-width:700px) {
-      .two-col { flex-direction:column; }
-    }
+    .admin-container { max-width: 680px; margin: 36px auto; padding: 22px; background:#fff; border-radius:12px; }
+    label { display:block; margin-top:12px; font-weight:600; }
+    input, textarea, select { width:100%; padding:10px; margin-top:6px; border:1px solid #ddd; border-radius:8px; }
+    button { margin-top:12px; padding:12px 18px; background:#111; color:#fff; border:none; border-radius:8px; cursor:pointer; }
+    .error { color:#c0392b; margin-top:8px; }
   </style>
 </head>
 <body>
-  <header>
-    <strong>Toast Talent — Admin</strong>
-  </header>
+  <div class="admin-container">
+    <h1>Admin — Toast Talent</h1>
 
-  <main>
-    <!-- Password gate -->
-    <section id="password-section" aria-labelledby="pw-heading">
-      <div class="card">
-        <h2 id="pw-heading">Admin Login</h2>
-        <p class="small">Enter admin passcode to access admin tools. (This is client-side only — for production you should use server-side auth.)</p>
-
-        <form id="adminLoginForm" aria-label="Admin login">
-          <label for="adminPass">Admin passcode</label>
-          <input id="adminPass" name="adminPass" type="password" placeholder="Enter passcode" autocomplete="off" required />
-          <button id="unlockBtn" type="submit">Unlock Admin</button>
-          <div id="loginStatus" class="small" style="color:#c0392b" aria-live="polite"></div>
-        </form>
-      </div>
+    <section id="loginSection">
+      <h2>Admin login</h2>
+      <form id="loginForm">
+        <label>Passcode</label>
+        <input id="adminPass" type="password" required autocomplete="current-password" />
+        <button type="submit">Unlock Admin</button>
+        <div id="loginError" class="error"></div>
+      </form>
     </section>
 
-    <!-- Admin content (hidden until unlock) -->
-    <section id="admin-section" style="display:none;" aria-hidden="true">
-      <div id="admin-controls" class="card">
-        <h2>Model Submission Form</h2>
-        <p class="small">Use this form to add or update models. The form submits multipart/form-data to /https://api.toasttalent.co.za/api/models (relative). Adjust the endpoint if your API uses a different path or domain.</p>
+    <section id="panel" style="display:none;">
+      <h2>Submit Model</h2>
+      <form id="modelForm">
+        <label for="name">Name</label>
+        <input id="name" name="name" required />
 
-        <form id="modelForm" enctype="multipart/form-data" novalidate>
-          <div class="two-col">
-            <div>
-              <label for="name">Name</label>
-              <input id="name" name="name" type="text" required placeholder="Full name" />
-            </div>
-            <div>
-              <label for="email">Email</label>
-              <input id="email" name="email" type="email" placeholder="email@example.com" />
-            </div>
-          </div>
+        <label for="age">Age</label>
+        <input id="age" name="age" type="number" />
 
-          <div class="two-col">
-            <div>
-              <label for="age">Age</label>
-              <input id="age" name="age" type="number" min="0" placeholder="Age" />
-            </div>
-            <div>
-              <label for="height">Height (cm)</label>
-              <input id="height" name="height" type="text" placeholder="e.g. 170" />
-            </div>
-          </div>
+        <label for="bio">Bio</label>
+        <textarea id="bio" name="bio"></textarea>
 
-          <div class="two-col">
-            <div>
-              <label for="shoe">Shoe Size</label>
-              <input id="shoe" name="shoe" type="text" placeholder="e.g. 7" />
-            </div>
-            <div>
-              <label for="shirt">Shirt Size</label>
-              <input id="shirt" name="shirt" type="text" placeholder="e.g. M" />
-            </div>
-          </div>
+        <label for="images">Images (comma-separated URLs)</label>
+        <input id="images" name="images" placeholder="https://... , https://..." />
 
-          <div class="two-col">
-            <div>
-              <label for="pants">Pants Size</label>
-              <input id="pants" name="pants" type="text" placeholder="e.g. 32" />
-            </div>
-            <div>
-              <label for="phone">Phone</label>
-              <input id="phone" name="phone" type="text" placeholder="+27..." />
-            </div>
-          </div>
+        <button type="submit">Submit Model</button>
+        <div id="submitError" class="error"></div>
+        <div id="submitSuccess" style="color:green;margin-top:8px;"></div>
+      </form>
 
-          <label for="bio">Bio / Notes</label>
-          <textarea id="bio" name="bio" rows="4" placeholder="Short bio or notes"></textarea>
-
-          <label for="profilePicture">Profile picture (single)</label>
-          <input id="profilePicture" name="profilePicture" type="file" accept="image/*" />
-
-          <div id="profilePreview" class="preview-row" aria-hidden="true"></div>
-
-          <label for="gallery">Gallery images (multiple)</label>
-          <input id="gallery" name="gallery" type="file" accept="image/*" multiple />
-          <div id="galleryPreview" class="preview-row" aria-hidden="true"></div>
-
-          <label for="status">Status</label>
-          <select id="status" name="status">
-            <option value="">(none)</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="booked">Booked</option>
-          </select>
-
-          <div style="margin-top:12px;">
-            <button id="submitModel" type="submit">Submit Model</button>
-          </div>
-
-          <div id="admin-status" class="small" aria-live="polite"></div>
-        </form>
-      </div>
+      <button id="logoutBtn" style="background:#777;">Logout</button>
     </section>
-  </main>
+  </div>
 
-  <script>
-    (function () {
-      // CLIENT-SIDE DEMO SECRET - this is visible in the repo. For production, use server-side auth.
-      const SECRET = 'Yumnagugu1980';
+<script>
+  // Make sure this matches your Render API domain
+  const API_BASE = 'https://api.toasttalent.co.za';
 
-      const loginForm = document.getElementById('adminLoginForm');
-      const adminSection = document.getElementById('admin-section');
-      const passwordSection = document.getElementById('password-section');
-      const loginStatus = document.getElementById('loginStatus');
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
+  const adminPass = document.getElementById('adminPass');
+  const panel = document.getElementById('panel');
+  const loginSection = document.getElementById('loginSection');
 
-      const modelForm = document.getElementById('modelForm');
-      const profileInput = document.getElementById('profilePicture');
-      const galleryInput = document.getElementById('gallery');
-      const profilePreview = document.getElementById('profilePreview');
-      const galleryPreview = document.getElementById('galleryPreview');
-      const adminStatus = document.getElementById('admin-status');
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.textContent = '';
+    const pw = adminPass.value || '';
 
-      // Unlock admin client-side
-      loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        loginStatus.textContent = '';
-        const v = document.getElementById('adminPass').value.trim();
-        if (!v) { loginStatus.textContent = 'Please enter the passcode.'; return; }
-        if (v === SECRET) {
-          passwordSection.style.display = 'none';
-          adminSection.style.display = 'block';
-          adminSection.removeAttribute('aria-hidden');
-          loginStatus.textContent = '';
-        } else {
-          loginStatus.textContent = 'Incorrect passcode.';
-        }
+    try {
+      const res = await fetch(`${API_BASE}/api/admin-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ password: pw })
       });
 
-      // Image previews
-      profileInput.addEventListener('change', () => {
-        profilePreview.innerHTML = '';
-        const f = profileInput.files[0];
-        if (!f) { profilePreview.setAttribute('aria-hidden','true'); return; }
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(f);
-        img.onload = () => URL.revokeObjectURL(img.src);
-        profilePreview.appendChild(img);
-        profilePreview.removeAttribute('aria-hidden');
+      const json = await res.json();
+      if (res.ok && json.ok) {
+        loginSection.style.display = 'none';
+        panel.style.display = 'block';
+      } else {
+        loginError.textContent = json.message || 'Incorrect password';
+        adminPass.value = '';
+        adminPass.focus();
+      }
+    } catch (err) {
+      console.error('Login error', err);
+      loginError.textContent = 'Network error during login';
+    }
+  });
+
+  // Model submit
+  const modelForm = document.getElementById('modelForm');
+  const submitError = document.getElementById('submitError');
+  const submitSuccess = document.getElementById('submitSuccess');
+
+  modelForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitError.textContent = '';
+    submitSuccess.textContent = '';
+
+    const payload = {
+      name: document.getElementById('name').value.trim(),
+      age: Number(document.getElementById('age').value) || undefined,
+      bio: document.getElementById('bio').value.trim(),
+      images: (document.getElementById('images').value || '').split(',').map(s => s.trim()).filter(Boolean)
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/api/models`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload)
       });
 
-      galleryInput.addEventListener('change', () => {
-        galleryPreview.innerHTML = '';
-        const files = Array.from(galleryInput.files || []);
-        if (files.length === 0) { galleryPreview.setAttribute('aria-hidden','true'); return; }
-        files.slice(0,12).forEach(f => {
-          const img = document.createElement('img');
-          img.src = URL.createObjectURL(f);
-          img.onload = () => URL.revokeObjectURL(img.src);
-          galleryPreview.appendChild(img);
-        });
-        galleryPreview.removeAttribute('aria-hidden');
-      });
+      if (res.ok) {
+        const created = await res.json();
+        submitSuccess.textContent = 'Model created: ' + (created.name || created._id || '');
+        modelForm.reset();
+      } else if (res.status === 401) {
+        submitError.textContent = 'You are not authorized. Please log in first.';
+        panel.style.display = 'none';
+        loginSection.style.display = 'block';
+      } else {
+        const txt = await res.text().catch(()=>'');
+        submitError.textContent = `Submission failed: ${res.status} ${res.statusText} ${txt}`;
+      }
+    } catch (err) {
+      console.error('Submit error', err);
+      submitError.textContent = 'Network error while submitting model';
+    }
+  });
 
-      // Submit model - multipart/form-data
-      modelForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        adminStatus.textContent = '';
-        const submitBtn = document.getElementById('submitModel');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
-
-        try {
-          const formData = new FormData();
-          // text fields
-          ['name','email','age','height','shoe','shirt','pants','phone','bio','status'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el && el.value) formData.append(id, el.value);
-          });
-
-          // profile picture (single)
-          if (profileInput.files && profileInput.files[0]) {
-            formData.append('profilePicture', profileInput.files[0]);
-          }
-
-          // gallery (multiple)
-          if (galleryInput.files && galleryInput.files.length) {
-            Array.from(galleryInput.files).forEach((file, i) => {
-              formData.append('gallery', file);
-            });
-          }
-
-          // set endpoint - relative so it uses same origin; change to your Render domain if needed
-          const endpoint = (location.origin && location.origin !== 'null') ? location.origin + '/https://api.toasttalent.co.za/api/models' : '/https://api.toasttalent.co.za/api/models';
-
-          const resp = await fetch(endpoint, {
-            method: 'POST',
-            body: formData
-          });
-
-          if (resp.ok) {
-            adminStatus.style.color = 'green';
-            adminStatus.textContent = 'Model submitted successfully.';
-            modelForm.reset();
-            profilePreview.innerHTML = '';
-            galleryPreview.innerHTML = '';
-          } else {
-            let text = '';
-            try { text = await resp.text(); } catch (err) { text = ''; }
-            adminStatus.style.color = '#c0392b';
-            adminStatus.textContent = 'Submission failed: ' + (resp.status + (text ? ' - ' + text : ''));
-            console.error('Model submit error', resp.status, text);
-          }
-        } catch (err) {
-          console.error('Submit error', err);
-          adminStatus.style.color = '#c0392b';
-          adminStatus.textContent = 'Network error while submitting. Check console.';
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Submit Model';
-        }
-      });
-
-      // Optional: quick helper to prefill a sample (for testing)
-      window.__prefillSample = function () {
-        document.getElementById('name').value = 'Sample Model';
-        document.getElementById('bio').value = 'Sample bio...';
-        document.getElementById('status').value = 'active';
-      };
-    })();
-  </script>
+  // Logout: clear session on API side by destroying session cookie server-side if desired.
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try {
+      // a simple server-side session destroy could be implemented; here we just clear UI
+      panel.style.display = 'none';
+      loginSection.style.display = 'block';
+      adminPass.value = '';
+    } catch (err) {
+      console.error(err);
+    }
+  });
+</script>
 </body>
 </html>
