@@ -9,6 +9,25 @@ const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+// Debug: monkey-patch app.use to log registrations
+(function patchAppUse() {
+  const originalUse = app.use.bind(app);
+  app.use = function (first, ...rest) {
+    try {
+      if (typeof first === 'string') {
+        console.log('app.use called with path:', first);
+      } else if (first && first.name) {
+        console.log('app.use called with middleware function:', first.name);
+      } else {
+        console.log('app.use called with unknown first arg:', first);
+      }
+    } catch (e) {
+      console.error('Error logging app.use args', e);
+    }
+    return originalUse(first, ...rest);
+  };
+}());
+
 // Basic body parsing
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -50,12 +69,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Temporary sanity endpoint
+// Temporary sanity endpoint to verify deployed server.js is active
 app.get('/api/models-sanity', (req, res) => {
-  res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local' });
+  res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local', env: process.env.NODE_ENV || 'unknown' });
 });
 
-// Mount models router
+// Try to mount the models router and catch any mounting-time errors
 try {
   console.log('Mounting models router at /api/models');
   app.use('/api/models', modelsRouter);
@@ -64,7 +83,7 @@ try {
   console.error('Error mounting models router:', err && err.stack ? err.stack : err);
 }
 
-// Admin login endpoint
+// Admin login
 app.post('/api/admin-login', (req, res) => {
   const { password } = req.body || {};
   const ADMIN_PASS = process.env.ADMIN_PASS || 'YumnaGugu1980';
@@ -84,7 +103,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Fallback SPA for non-API GET requests
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'API route not found' });
+    return res.status(404).json({ error: 'API route not found', path: req.path });
   }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

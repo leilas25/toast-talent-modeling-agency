@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /admin
-Allow: /
-Sitemap: https://toasttalent.co.za/sitemap.xml
