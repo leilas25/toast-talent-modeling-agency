@@ -98,15 +98,10 @@ app.post('/api/admin-login', (req, res) => {
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 // Serve static frontend
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 // Fallback SPA for non-API GET requests
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'API route not found', path: req.path });
-  }
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// app.get('', (req, res) => { /* TEMP disabled for debugging static/fallback */ });
 
 // Helper: list registered routes for debugging
 function listRegisteredRoutes() {
