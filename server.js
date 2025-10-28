@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import bodyParser from 'body-parser';
 import modelsRouter from './routes/models.js';
+import fs from 'fs';
 
 const __dirname = path.resolve();
 const app = express();
@@ -97,11 +98,41 @@ app.post('/api/admin-login', (req, res) => {
 // Health endpoint
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-// Serve static frontend
+// DEBUG: At startup, list the actual files under the public directory (safe, non-destructive)
+try {
+  const pub = path.join(__dirname, 'public');
+  console.log('PUBLIC DIR PATH:', pub);
+  if (fs.existsSync(pub)) {
+    const list = fs.readdirSync(pub, { withFileTypes: true });
+    console.log('PUBLIC DIR CONTENTS:');
+    list.forEach(entry => {
+      console.log(entry.isDirectory() ? `DIR: ${entry.name}` : `FILE: ${entry.name}`);
+      if (entry.isDirectory()) {
+        try {
+          const sub = fs.readdirSync(path.join(pub, entry.name), { withFileTypes: true });
+          sub.forEach(s => console.log(`  ${entry.name}/${s.name}`));
+        } catch (e) {
+          console.log(`  (error reading ${entry.name}): ${e && e.message ? e.message : e}`);
+        }
+      }
+    });
+  } else {
+    console.log('PUBLIC DIR DOES NOT EXIST at startup.');
+  }
+} catch (e) {
+  console.log('Error listing public directory (may not exist):', e && e.message ? e.message : e);
+}
+
+// Serve static frontend (COMMENTED OUT for debugging to avoid path-to-regexp crash)
 // app.use(express.static(path.join(__dirname, 'public')));
 
-// Fallback SPA for non-API GET requests
-// app.get('', (req, res) => { /* TEMP disabled for debugging static/fallback */ });
+// Fallback SPA for non-API GET requests (COMMENTED OUT during debug)
+// app.get('*', (req, res) => {
+//   if (req.path.startsWith('/api/')) {
+//     return res.status(404).json({ error: 'API route not found' });
+//   }
+//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
 
 // Helper: list registered routes for debugging
 function listRegisteredRoutes() {
