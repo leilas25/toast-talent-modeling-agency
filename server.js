@@ -9,7 +9,7 @@ const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Debug: monkey-patch app.use to log registrations
+// Optional: monkey-patch app.use to log registrations (helpful while debugging)
 (function patchAppUse() {
   const originalUse = app.use.bind(app);
   app.use = function (first, ...rest) {
@@ -97,16 +97,26 @@ app.post('/api/admin-login', (req, res) => {
 // Health endpoint
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-// Serve static frontend
-app.use(express.static(path.join(__dirname, 'public')));
+// Attempt to serve static frontend, but protect startup from crashes
+try {
+  app.use(express.static(path.join(__dirname, 'public')));
+  console.log('Static middleware mounted (attempted).');
+} catch (e) {
+  console.error('Failed to mount static middleware at startup (non-fatal).', e && e.stack ? e.stack : e);
+}
 
-// Fallback SPA for non-API GET requests
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'API route not found', path: req.path });
-  }
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// Attempt to mount SPA fallback, but protect startup from crashes
+try {
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ error: 'API route not found' });
+    }
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
+  console.log('SPA fallback route registered (attempted).');
+} catch (e) {
+  console.error('Failed to register SPA fallback at startup (non-fatal).', e && e.stack ? e.stack : e);
+}
 
 // Helper: list registered routes for debugging
 function listRegisteredRoutes() {
