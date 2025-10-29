@@ -9,7 +9,7 @@ const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Optional: monkey-patch app.use to log registrations (helpful while debugging)
+// Optional small app.use logger (helpful)
 (function patchAppUse() {
   const originalUse = app.use.bind(app);
   app.use = function (first, ...rest) {
@@ -69,12 +69,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Temporary sanity endpoint to verify deployed server.js is active
+// Sanity endpoint
 app.get('/api/models-sanity', (req, res) => {
   res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local', env: process.env.NODE_ENV || 'unknown' });
 });
 
-// Try to mount the models router and catch any mounting-time errors
+// Mount models router
 try {
   console.log('Mounting models router at /api/models');
   app.use('/api/models', modelsRouter);
@@ -97,13 +97,57 @@ app.post('/api/admin-login', (req, res) => {
 // Health endpoint
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-// Attempt to serve static frontend, but protect startup from crashes
+// Attempt to serve static frontend (non-fatal)
 try {
   app.use(express.static(path.join(__dirname, 'public')));
   console.log('Static middleware mounted (attempted).');
 } catch (e) {
   console.error('Failed to mount static middleware at startup (non-fatal).', e && e.stack ? e.stack : e);
 }
+
+// --- NEW DIAGNOSTIC: dump router stack so we can find any bad mounted path ---
+function dumpRouterStack() {
+  try {
+    if (!app._router) {
+      console.log('ROUTER: no app._router present');
+      return;
+    }
+    console.log('ROUTER: dumping stack (start)');
+    app._router.stack.forEach((layer, i) => {
+      try {
+        const name = layer.name || '<anonymous>';
+        // route-based layer (app.get('/path', ...))
+        if (layer.route) {
+          const methods = layer.route && layer.route.methods ? Object.keys(layer.route.methods).join(',') : '';
+          const routePath = layer.route.path || JSON.stringify(layer.route);
+          console.log(`ROUTER LAYER ${i}: type=route name=${name} methods=${methods} path=${routePath}`);
+          // check for suspicious substrings
+          if (String(routePath).includes('http') || String(routePath).includes('://') || String(routePath).includes('api.toasttalent')) {
+            console.log(`POSSIBLE OFFENDING LAYER ${i}: route.path=${routePath}`);
+          }
+        } else { // middleware layer
+          // layer.regexp (if present) is a RegExp object; convert to string
+          const regexpText = layer.regexp ? (layer.regexp.toString()) : '<no-regexp>';
+          // layer.path may not exist; print handle name
+          const handleName = layer.handle && layer.handle.name ? layer.handle.name : '<no-handle-name>';
+          console.log(`ROUTER LAYER ${i}: type=middleware name=${name} handle=${handleName} regexp=${regexpText}`);
+          if (String(regexpText).includes('http') || String(regexpText).includes('://') || String(regexpText).includes('api.toasttalent')) {
+            console.log(`POSSIBLE OFFENDING LAYER ${i}: regexp=${regexpText}`);
+          }
+        }
+      } catch (inner) {
+        console.log(`ROUTER LAYER ${i}: (error reading layer) ${inner && inner.message ? inner.message : inner}`);
+      }
+    });
+    console.log('ROUTER: dumping stack (end)');
+  } catch (e) {
+    console.error('Error dumping router stack:', e && e.stack ? e.stack : e);
+  }
+}
+
+// Dump router stack before registering fallback
+dumpRouterStack();
+// --- end diagnostic ---
 
 // Attempt to mount SPA fallback, but protect startup from crashes
 try {
@@ -116,6 +160,8 @@ try {
   console.log('SPA fallback route registered (attempted).');
 } catch (e) {
   console.error('Failed to register SPA fallback at startup (non-fatal).', e && e.stack ? e.stack : e);
+  // Also dump router stack again to capture state at error time
+  dumpRouterStack();
 }
 
 // Helper: list registered routes for debugging
