@@ -1,7 +1,11 @@
 {
-  "version": 3,
+  "version": 2,
+  "name": "toast-talent",
+  "builds": [
+    { "src": "public/**", "use": "@vercel/static" }
+  ],
   "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/api/(.*)", "dest": "https://api.toasttalent.co.za/api/$1" },
+    { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
