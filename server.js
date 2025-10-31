@@ -69,8 +69,8 @@ try {
 // Admin login
 app.post('/api/admin-login', (req, res) => {
   const { password } = req.body || {};
-  const ADMIN_PASS = process.env.ADMIN_PASS || 'YumnaGugu1980';
-  if (password === ADMIN_PASS) {
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'YumnaGugu1980';
+  if (password === ADMIN_PASSWORD) {
     req.session.isAdmin = true;
     return res.json({ ok: true, redirect: '/admin' });
   }
