@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Toast Talent Modeling Agency</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Toast Talent Modeling Agency connects fresh faces with top opportunities in the modeling industry. Bookings, collaborations, and inquiries welcome." />
+  <meta name="keywords" content="Toast Talent, modeling agency, models, fashion, bookings, collaborations" />
+  <meta name="author" content="Toast Talent Modeling Agency" />
+  <link rel="canonical" href="https://toasttalent.co.za/" />
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Toast Talent Modeling Agency" />
+  <meta property="og:description" content="Elevating new faces. Connecting talent with opportunity." />
+  <meta property="og:image" content="https://toasttalent.co.za/images/og-image.jpg" />
+  <meta property="og:url" content="https://toasttalent.co.za/" />
+  <meta property="og:type" content="website" />
+
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+
+  <!-- Performance: preconnect to font provider -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    .admin-link { display: none; }
+    #adminLoginModal {
+      display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
+      background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;
+    }
+    #adminLoginForm {
+      background:#fff; padding:30px 24px; border-radius:10px; box-shadow:0 2px 18px rgba(0,0,0,0.18);
+      display:flex; flex-direction:column; gap:12px; min-width:260px; align-items:stretch;
+    }
+    #adminLoginError { color:#c0392b; font-size:0.92em; min-height:1.1em; }
+  </style>
+</head>
+<body class="with-bg">
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-content">
+      <a href="index.html" class="nav-logo" aria-label="Toast Talent home">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+      </a>
+      <ul class="nav-links" role="menubar" aria-label="Primary">
+        <li role="none"><a role="menuitem" href="index.html" class="active">Home</a></li>
+        <li role="none"><a role="menuitem" href="models.html">Models</a></li>
+        <li role="none"><a role="menuitem" href="about.html">About</a></li>
+        <li role="none"><a role="menuitem" href="contact.html">Contact</a></li>
+        <li role="none"><a role="menuitem" href="admin.html" class="admin-link">Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main id="main" role="main">
+    <header class="hero" role="banner">
+      <div class="hero-content">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" class="hero-logo">
+        <h1 class="rainbow-title">Toast Talent Modeling Agency</h1>
+        <p class="hero-subtitle">
+          Elevating new faces.<br>
+          Connecting talent with opportunity.
+        </p>
+        <div class="hero-socials" aria-label="Social links">
+          <a href="https://instagram.com/toastalent_models" target="_blank" class="hero-icon" title="Instagram" rel="noopener noreferrer">
+            <i class="fab fa-instagram" aria-hidden="true"></i><span class="sr-only">Instagram</span>
+          </a>
+          <a href="mailto:toastalent@gmail.com" class="hero-icon" title="Email">
+            <i class="fas fa-envelope" aria-hidden="true"></i><span class="sr-only">Email</span>
+          </a>
+          <a href="https://tiktok.com/@toast.talentmodels" target="_blank" class="hero-icon" title="TikTok" rel="noopener noreferrer">
+            <i class="fab fa-tiktok" aria-hidden="true"></i><span class="sr-only">TikTok</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <section class="home-feature" aria-labelledby="feature-heading">
+      <h2 id="feature-heading" class="rainbow-word">Discover Our Talent</h2>
+      <p>Toast Talent showcases exceptional models ready for runway, print, and commercial work.</p>
+      <a href="models.html" class="feature-link">View Model Gallery →</a>
+    </section>
+  </main>
+
+  <footer role="contentinfo">&copy; 2025 Toast Talent Modeling Agency</footer>
+
+  <!-- Admin Login Modal -->
+  <div id="adminLoginModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle">
+    <form id="adminLoginForm" method="post" action="/api/admin-login" aria-describedby="adminLoginError">
+      <h3 id="adminLoginTitle" style="margin:0 0 6px 0;">Admin Login</h3>
+      <label for="adminPassword">Enter Admin Password:</label>
+      <input type="password" id="adminPassword" name="password" required autocomplete="current-password" />
+      <button type="submit">Login</button>
+      <div id="adminLoginError" aria-live="polite"></div>
+      <button type="button" id="adminCancel" style="margin-top:6px;">Cancel</button>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const modal = document.getElementById('adminLoginModal');
+      const form = document.getElementById('adminLoginForm');
+      const passwordInput = document.getElementById('adminPassword');
+      const errorBox = document.getElementById('adminLoginError');
+      const cancelBtn = document.getElementById('adminCancel');
+
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
+          modal.style.display = 'flex';
+          modal.setAttribute('aria-hidden', 'false');
+          passwordInput.focus();
+        }
+      });
+
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+
+      cancelBtn.addEventListener('click', closeModal);
+
+      function closeModal(){
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        errorBox.textContent = '';
+        form.reset();
+      }
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        errorBox.textContent = '';
+        const pw = passwordInput.value;
+
+        try {
+          const res = await fetch(form.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pw })
+          });
+
+          const json = await res.json();
+          if (res.ok && json.ok && json.redirect) {
+            window.location.href = json.redirect;
+          } else {
+            errorBox.textContent = json.message || 'Incorrect password. Try again.';
+            passwordInput.value = '';
+            passwordInput.focus();
+          }
+        } catch (err) {
+          console.error(err);
+          errorBox.textContent = 'Login failed. Please try again later.';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

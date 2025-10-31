@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <body class="with-bg">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact | Toast Talent Modeling Agency</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-content">
+      <a href="index.html" class="nav-logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="models.html">Models</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html" class="active">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+  <main>
+    <section class="contact-hero">
+      <h1 class="rainbow-contact">Contact Us</h1>
+      <p>We'd love to hear from you. For booking inquiries, collaboration, or more info, use the form below or email us at <a href="mailto:info@toasttalent.com">toastalent@gmail.com</a>.</p>
+      <form class="contact-form" autocomplete="off">
+        <label>
+          Name
+          <input type="text" name="name" required>
+        </label>
+        <label>
+          Email
+          <input type="email" name="email" required>
+        </label>
+        <label>
+          Message
+          <textarea name="message" rows="4" required></textarea>
+        </label>
+        <button type="submit">Send Message</button>
+      </form>
+      <div class="contact-details">
+        <p><b>Email:</b> toastalent@gmail.com</p>
+        <p><b>Whatsapp:</b> +27 74 656 3428</p>
+        <p><b>Phone:</b> +27 73 781 3751</p>
+
+      </div>
+    </section>
+  </main>
+  <footer>
+    &copy; 2025 Toast Talent Modeling Agency
+  </footer>
+  <script>
+    document.querySelector('.contact-form').onsubmit = function(e) {
+      e.preventDefault();
+      alert("Thank you for contacting Toast Talent! We'll respond soon.");
+      this.reset();
+    };
+  </script>
+</body>
+</html>
