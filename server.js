@@ -30,12 +30,15 @@ app.use(session({
   }
 }));
 
-// CORS-lite
+// ✅ FIXED CORS CONFIG
 const allowedOrigins = [
+  'https://toast-talent-modeling-agency.onrender.com',
   'https://toasttalent.co.za',
   'https://www.toasttalent.co.za',
-  'https://api.toasttalent.co.za'
+  'https://api.toasttalent.co.za',
+  'http://localhost:10000'
 ];
+
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (origin && allowedOrigins.includes(origin)) {
@@ -63,7 +66,7 @@ try {
   console.error('Error mounting models router:', err && err.stack ? err.stack : err);
 }
 
-// Admin login (unchanged)
+// Admin login
 app.post('/api/admin-login', (req, res) => {
   const { password } = req.body || {};
   const ADMIN_PASS = process.env.ADMIN_PASS || 'YumnaGugu1980';
@@ -74,57 +77,43 @@ app.post('/api/admin-login', (req, res) => {
   return res.status(401).json({ ok: false, message: 'Incorrect password' });
 });
 
-// Health
+// Health check
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-// Attempt to serve static assets (non-fatal)
+// Serve static assets
 try {
   app.use(express.static(path.join(__dirname, 'public')));
-  console.log('Static middleware mounted (attempted).');
+  console.log('✅ Static middleware mounted.');
 } catch (e) {
-  console.error('Failed to mount static middleware at startup (non-fatal).', e && e.stack ? e.stack : e);
+  console.error('⚠️ Failed to mount static middleware (non-fatal):', e);
 }
 
-// SAFE SPA fallback: register a middleware (no path string compiled by path-to-regexp).
-// This checks for API routes and existing static files first, then sends index.html for SPA.
+// Fallback for SPA routes
 app.use((req, res, next) => {
   try {
-    // Only handle GET requests
     if (req.method !== 'GET') return next();
-
-    // Don't interfere with API
     if (req.path && req.path.startsWith('/api/')) return next();
 
-    // If the request maps to an actual file under public, let static middleware handle it
     const candidate = path.join(__dirname, 'public', decodeURIComponent(req.path.replace(/^\//, '')));
-    try {
-      if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
-        return next(); // file exists: serve by static middleware
-      }
-    } catch (e) {
-      // ignore fs errors and continue to serve index.html fallback
-    }
+    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) return next();
 
-    // Serve index.html for SPA routes
     const indexFile = path.join(__dirname, 'public', 'index.html');
     if (fs.existsSync(indexFile)) {
       return res.sendFile(indexFile, err => {
         if (err) {
-          console.error('Error sending index.html fallback:', err && err.stack ? err.stack : err);
+          console.error('Error sending index.html fallback:', err);
           return next();
         }
       });
-    } else {
-      // no index to send, continue (so API still works)
-      return next();
     }
-  } catch (outerErr) {
-    console.error('Error in SPA fallback middleware (non-fatal):', outerErr && outerErr.stack ? outerErr.stack : outerErr);
-    return next();
+    next();
+  } catch (err) {
+    console.error('Error in SPA fallback middleware:', err);
+    next();
   }
 });
 
-// Listen
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
