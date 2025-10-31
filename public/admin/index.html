@@ -6,20 +6,27 @@
   <title>Admin — Toast Talent</title>
   <link rel="stylesheet" href="/style.css" />
   <style>
-    body { font-family: system-ui, sans-serif; background:#f6f6f6; }
-    .admin-container { max-width: 680px; margin: 36px auto; padding: 22px; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
+    body { font-family: Arial, Helvetica, sans-serif; background:#f6f6f6; }
+    .admin-container { max-width: 760px; margin: 36px auto; padding: 22px; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
     label { display:block; margin-top:12px; font-weight:600; }
-    input, textarea, select { width:100%; padding:10px; margin-top:6px; border:1px solid #ddd; border-radius:8px; font-size:15px; }
+    input, textarea { width:100%; padding:10px; margin-top:6px; border:1px solid #ddd; border-radius:8px; font-size:15px; }
     button { margin-top:12px; padding:12px 18px; background:#111; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:15px; }
     button[disabled] { background:#999; cursor:not-allowed; }
+    .row { display:grid; gap:12px; grid-template-columns: repeat(2, 1fr); }
     .error { color:#c0392b; margin-top:8px; font-weight:500; }
     .success { color:green; margin-top:8px; font-weight:500; }
+    .thumbs { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+    .thumbs img { width:90px; height:90px; object-fit:cover; border:1px solid #ddd; border-radius:6px; }
+    .list-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #eee; }
+    .list-item img { width:48px; height:48px; object-fit:cover; border-radius:6px; }
   </style>
+  <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 </head>
 <body>
   <div class="admin-container">
     <h1>Admin — Toast Talent</h1>
 
+    <!-- LOGIN -->
     <section id="loginSection">
       <h2>Admin login</h2>
       <form id="loginForm">
@@ -30,47 +37,137 @@
       </form>
     </section>
 
+    <!-- PANEL -->
     <section id="panel" style="display:none;">
-      <h2>Submit Model</h2>
+      <h2>Add Model</h2>
       <form id="modelForm">
-        <label for="name">Name</label>
-        <input id="name" name="name" required />
+        <div class="row">
+          <div>
+            <label>Name</label>
+            <input id="name" required />
+          </div>
+          <div>
+            <label>Surname</label>
+            <input id="surname" required />
+          </div>
+        </div>
 
-        <label for="age">Age</label>
-        <input id="age" name="age" type="number" />
+        <div class="row">
+          <div>
+            <label>Age</label>
+            <input id="age" type="number" min="0" />
+          </div>
+          <div>
+            <label>Height (cm)</label>
+            <input id="height" />
+          </div>
+        </div>
 
-        <label for="bio">Bio</label>
-        <textarea id="bio" name="bio"></textarea>
+        <div class="row">
+          <div>
+            <label>Shoe size</label>
+            <input id="shoe" />
+          </div>
+          <div>
+            <label>Shirt size</label>
+            <input id="shirt" />
+          </div>
+        </div>
 
-        <label for="images">Images (comma-separated URLs)</label>
-        <input id="images" name="images" placeholder="https://... , https://..." />
+        <div>
+          <label>Pants size</label>
+          <input id="pants" />
+        </div>
 
-        <button type="submit" id="submitBtn">Submit Model</button>
+        <div>
+          <label>Bio</label>
+          <textarea id="bio" rows="4"></textarea>
+        </div>
+
+        <div>
+          <label>Profile picture</label>
+          <input id="profileFile" type="file" accept="image/*" required />
+          <div id="profilePreview" class="thumbs"></div>
+        </div>
+
+        <div>
+          <label>Gallery images (you may select multiple)</label>
+          <input id="galleryFiles" type="file" accept="image/*" multiple />
+          <div id="galleryPreview" class="thumbs"></div>
+        </div>
+
+        <button type="submit" id="submitBtn">Create Model</button>
         <div id="submitError" class="error"></div>
         <div id="submitSuccess" class="success"></div>
       </form>
 
-      <button id="logoutBtn" style="background:#777;">Logout</button>
+      <h3 style="margin-top:28px;">Existing Models</h3>
+      <div id="modelList"></div>
+
+      <button id="logoutBtn" style="background:#777; margin-top:20px;">Logout</button>
     </section>
   </div>
 
 <script>
-  // Dynamically detect correct API base
+  /* --------- CONFIG --------- */
   const API_BASE = (() => {
     const host = window.location.hostname;
     if (host.includes('toasttalent.co.za')) return 'https://api.toasttalent.co.za';
     if (host.includes('onrender.com')) return 'https://toast-talent-modeling-agency.onrender.com';
-    return 'http://localhost:10000'; // local dev
+    return 'http://localhost:10000';
   })();
 
+  // Your Cloudinary account details
+  const cloudName = "dk1df1qmi";
+  const uploadPreset = "models_upload"; // unsigned preset in your Cloudinary settings
+
+  /* --------- HELPERS --------- */
+  function fileThumbs(input, previewEl) {
+    previewEl.innerHTML = '';
+    const files = input.files || [];
+    [...files].slice(0, 10).forEach(f => {
+      if (!f.type.startsWith('image/')) return;
+      const img = document.createElement('img');
+      img.alt = f.name;
+      const reader = new FileReader();
+      reader.onload = e => img.src = e.target.result;
+      reader.readAsDataURL(f);
+      previewEl.appendChild(img);
+    });
+  }
+
+  async function uploadToCloudinary(file) {
+    const data = new FormData();
+    data.append('file', file);
+    data.append('upload_preset', uploadPreset);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST',
+      body: data
+    });
+    if (!res.ok) throw new Error('Cloudinary upload failed');
+    return res.json(); // contains secure_url
+  }
+
+  async function checkAuth() {
+    // cheap check: try to list models; if 401, show login
+    const res = await fetch(`${API_BASE}/api/models`, { credentials: 'include' });
+    if (res.ok) {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('panel').style.display = 'block';
+      loadModels();
+    } else {
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('panel').style.display = 'none';
+    }
+  }
+
+  /* --------- LOGIN --------- */
   const loginForm = document.getElementById('loginForm');
   const loginError = document.getElementById('loginError');
   const adminPass = document.getElementById('adminPass');
-  const panel = document.getElementById('panel');
-  const loginSection = document.getElementById('loginSection');
   const loginBtn = document.getElementById('loginBtn');
 
-  // LOGIN
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     loginError.textContent = '';
@@ -83,18 +180,17 @@
         credentials: 'include',
         body: JSON.stringify({ password: adminPass.value.trim() })
       });
-
-      const json = await res.json();
+      const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok) {
-        loginSection.style.display = 'none';
-        panel.style.display = 'block';
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('panel').style.display = 'block';
+        loadModels();
       } else {
         loginError.textContent = json.message || 'Incorrect password';
         adminPass.value = '';
         adminPass.focus();
       }
     } catch (err) {
-      console.error('Login error', err);
       loginError.textContent = 'Network error during login.';
     } finally {
       loginBtn.disabled = false;
@@ -102,30 +198,56 @@
     }
   });
 
-  // SUBMIT MODEL
+  /* --------- FORM PREVIEWS --------- */
+  const profileFile = document.getElementById('profileFile');
+  const galleryFiles = document.getElementById('galleryFiles');
+  const profilePreview = document.getElementById('profilePreview');
+  const galleryPreview = document.getElementById('galleryPreview');
+
+  profileFile.addEventListener('change', () => fileThumbs(profileFile, profilePreview));
+  galleryFiles.addEventListener('change', () => fileThumbs(galleryFiles, galleryPreview));
+
+  /* --------- SUBMIT MODEL --------- */
   const modelForm = document.getElementById('modelForm');
+  const submitBtn = document.getElementById('submitBtn');
   const submitError = document.getElementById('submitError');
   const submitSuccess = document.getElementById('submitSuccess');
-  const submitBtn = document.getElementById('submitBtn');
 
   modelForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     submitError.textContent = '';
     submitSuccess.textContent = '';
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
-
-    const payload = {
-      name: document.getElementById('name').value.trim(),
-      age: Number(document.getElementById('age').value) || undefined,
-      bio: document.getElementById('bio').value.trim(),
-      images: (document.getElementById('images').value || '')
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean)
-    };
+    submitBtn.textContent = 'Uploading...';
 
     try {
+      // 1) Upload profile picture
+      const pf = profileFile.files?.[0];
+      if (!pf) throw new Error('Please choose a profile picture');
+      const profileRes = await uploadToCloudinary(pf);
+      const profileUrl = profileRes.secure_url;
+
+      // 2) Upload gallery images (if any)
+      const gallery = galleryFiles.files ? [...galleryFiles.files] : [];
+      const galleryUploads = await Promise.all(
+        gallery.map(file => uploadToCloudinary(file))
+      );
+      const galleryUrls = galleryUploads.map(u => u.secure_url);
+
+      // 3) Build payload and POST to API
+      const payload = {
+        name: document.getElementById('name').value.trim(),
+        surname: document.getElementById('surname').value.trim(),
+        age: document.getElementById('age').value.trim(),
+        height: document.getElementById('height').value.trim(),
+        shoe: document.getElementById('shoe').value.trim(),
+        shirt: document.getElementById('shirt').value.trim(),
+        pants: document.getElementById('pants').value.trim(),
+        bio: document.getElementById('bio').value.trim(),
+        profilePicture: profileUrl,
+        galleryImages: galleryUrls
+      };
+
       const res = await fetch(`${API_BASE}/api/models`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -133,33 +255,76 @@
         body: JSON.stringify(payload)
       });
 
-      if (res.ok) {
-        const created = await res.json();
-        submitSuccess.textContent = `✅ Model created successfully: ${created.name || created._id || ''}`;
-        modelForm.reset();
-      } else if (res.status === 401) {
-        submitError.textContent = 'You are not authorized. Please log in again.';
-        panel.style.display = 'none';
-        loginSection.style.display = 'block';
-      } else {
+      if (!res.ok) {
         const txt = await res.text().catch(()=> '');
-        submitError.textContent = `Submission failed: ${res.status} ${res.statusText} ${txt}`;
+        throw new Error(`Create failed: ${res.status} ${res.statusText} ${txt}`);
       }
+
+      const created = await res.json();
+      submitSuccess.textContent = `✅ Model created: ${created.name} ${created.surname}`;
+      modelForm.reset();
+      profilePreview.innerHTML = '';
+      galleryPreview.innerHTML = '';
+      loadModels();
     } catch (err) {
-      console.error('Submit error', err);
-      submitError.textContent = 'Network error while submitting model.';
+      submitError.textContent = err.message || 'Upload failed.';
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit Model';
+      submitBtn.textContent = 'Create Model';
     }
   });
 
-  // LOGOUT
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    panel.style.display = 'none';
-    loginSection.style.display = 'block';
-    adminPass.value = '';
+  /* --------- LIST / DELETE --------- */
+  async function loadModels() {
+    const listEl = document.getElementById('modelList');
+    listEl.innerHTML = 'Loading...';
+    try {
+      const res = await fetch(`${API_BASE}/api/models`, { credentials: 'include' });
+      if (!res.ok) {
+        listEl.innerHTML = 'Unable to load models (not logged in?)';
+        return;
+      }
+      const rows = await res.json();
+      listEl.innerHTML = rows.map(m => `
+        <div class="list-item">
+          <img src="${m.profilePicture || ''}" alt="${(m.name||'')}" />
+          <div style="flex:1;">
+            <div><strong>${m.name || ''} ${m.surname || ''}</strong></div>
+            <div style="font-size:13px;color:#777;">Age: ${m.age || '-'} • Height: ${m.height || '-'}</div>
+          </div>
+          <button onclick="deleteModel('${m._id}')">Delete</button>
+        </div>
+      `).join('') || '<div>No models yet.</div>';
+    } catch (e) {
+      listEl.innerHTML = 'Error loading models.';
+    }
+  }
+
+  window.deleteModel = async function(id) {
+    if (!confirm('Delete this model?')) return;
+    try {
+      const u = new URL(`${API_BASE}/api/models`);
+      u.searchParams.set('id', id);
+      const res = await fetch(u, { method: 'DELETE', credentials: 'include' });
+      if (res.ok) loadModels();
+      else alert('Failed to delete model');
+    } catch (e) {
+      alert('Error deleting model');
+    }
+  };
+
+  /* --------- LOGOUT --------- */
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try {
+      await fetch(`${API_BASE}/api/admin-logout`, { method: 'POST', credentials: 'include' });
+    } catch {}
+    document.getElementById('panel').style.display = 'none';
+    document.getElementById('loginSection').style.display = 'block';
+    document.getElementById('adminPass').value = '';
   });
+
+  // init
+  checkAuth();
 </script>
 </body>
 </html>

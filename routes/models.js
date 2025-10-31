@@ -4,7 +4,7 @@ import Model from '../lib/model.js';
 
 const router = express.Router();
 
-// Connect to DB on first use
+/* Connect to DB once */
 let connected = false;
 async function ensureDb() {
   if (!connected) {
@@ -13,20 +13,19 @@ async function ensureDb() {
   }
 }
 
-// GET /api/models
+/* GET /api/models */
 router.get('/', async (req, res) => {
   try {
     await ensureDb();
-    const models = await Model.find().sort({ name: 1 });
+    const models = await Model.find().sort({ name: 1, surname: 1 });
     return res.json(models);
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('Error fetching models', err);
     return res.status(500).json({ error: 'Failed to fetch models' });
   }
 });
 
-// POST /api/models  (requires admin session)
+/* POST /api/models  (expects JSON with Cloudinary URLs) */
 router.post('/', async (req, res) => {
   try {
     await ensureDb();
@@ -34,23 +33,48 @@ router.post('/', async (req, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const payload = req.body || {};
-    // Basic safety: require at least a name
-    if (!payload.name || typeof payload.name !== 'string') {
-      return res.status(400).json({ error: 'Missing model name' });
+    const {
+      name,
+      surname,
+      age,
+      height,
+      shoe,
+      shirt,
+      pants,
+      bio,
+      profilePicture,     // string URL from Cloudinary
+      galleryImages = []  // array of Cloudinary URLs
+    } = req.body || {};
+
+    if (!name || !surname) {
+      return res.status(400).json({ error: 'Name and surname are required' });
+    }
+    if (!profilePicture) {
+      return res.status(400).json({ error: 'Profile picture is required' });
     }
 
-    const m = new Model(payload);
-    await m.save();
-    return res.status(201).json(m);
+    const doc = new Model({
+      name,
+      surname,
+      age,
+      height,
+      shoe,
+      shirt,
+      pants,
+      bio,
+      profilePicture,
+      galleryImages
+    });
+
+    await doc.save();
+    return res.status(201).json(doc);
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('Error creating model', err);
     return res.status(500).json({ error: 'Failed to create model' });
   }
 });
 
-// DELETE /api/models?id=<id>  (requires admin)
+/* DELETE /api/models?id=<id> */
 router.delete('/', async (req, res) => {
   try {
     await ensureDb();
@@ -59,10 +83,10 @@ router.delete('/', async (req, res) => {
     }
     const { id } = req.query;
     if (!id) return res.status(400).json({ error: 'Missing id' });
+
     await Model.findByIdAndDelete(id);
     return res.json({ success: true });
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('Error deleting model', err);
     return res.status(500).json({ error: 'Failed to delete model' });
   }

@@ -4,17 +4,18 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import bodyParser from 'body-parser';
 import fs from 'fs';
+
 import modelsRouter from './routes/models.js';
 
 const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Body parsing
+/* ------------ Body parsing ------------ */
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Cookies & session
+/* ------------ Cookies & session ------------ */
 app.use(cookieParser());
 app.use(session({
   name: process.env.SESSION_NAME || 'tt_session',
@@ -24,19 +25,20 @@ app.use(session({
   cookie: {
     domain: process.env.COOKIE_DOMAIN || '.toasttalent.co.za',
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
+    secure: true,              // HTTPS only (true in prod)
+    sameSite: 'none',          // needed with cross-site cookies
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }));
 
-// ✅ FIXED CORS CONFIG
+/* ------------ CORS (allow your sites) ------------ */
 const allowedOrigins = [
   'https://toast-talent-modeling-agency.onrender.com',
   'https://toasttalent.co.za',
   'https://www.toasttalent.co.za',
   'https://api.toasttalent.co.za',
-  'http://localhost:10000'
+  'http://localhost:10000',
+  'http://localhost:3000'
 ];
 
 app.use((req, res, next) => {
@@ -52,35 +54,35 @@ app.use((req, res, next) => {
   next();
 });
 
-// Sanity endpoint
+/* ------------ Sanity / Health ------------ */
 app.get('/api/models-sanity', (req, res) => {
   res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local', env: process.env.NODE_ENV || 'unknown' });
 });
 
-// Mount models router (safe)
-try {
-  console.log('Mounting models router at /api/models');
-  app.use('/api/models', modelsRouter);
-  console.log('Mounted models router OK');
-} catch (err) {
-  console.error('Error mounting models router:', err && err.stack ? err.stack : err);
-}
+app.get('/health', (req, res) => res.json({ ok: true }));
 
-// Admin login
+/* ------------ Admin login (session-based) ------------ */
 app.post('/api/admin-login', (req, res) => {
   const { password } = req.body || {};
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'YumnaGugu1980';
-  if (password === ADMIN_PASSWORD) {
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; // set in Render dashboard
+  if (password && ADMIN_PASSWORD && password === ADMIN_PASSWORD) {
     req.session.isAdmin = true;
-    return res.json({ ok: true, redirect: '/admin' });
+    return res.json({ ok: true, message: 'Login successful' });
   }
   return res.status(401).json({ ok: false, message: 'Incorrect password' });
 });
 
-// Health check
-app.get('/health', (req, res) => res.json({ ok: true }));
+app.post('/api/admin-logout', (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie('tt_session');
+    res.json({ ok: true });
+  });
+});
 
-// Serve static assets
+/* ------------ API routes ------------ */
+app.use('/api/models', modelsRouter);
+
+/* ------------ Static assets ------------ */
 try {
   app.use(express.static(path.join(__dirname, 'public')));
   console.log('✅ Static middleware mounted.');
@@ -88,7 +90,7 @@ try {
   console.error('⚠️ Failed to mount static middleware (non-fatal):', e);
 }
 
-// Fallback for SPA routes
+/* ------------ SPA fallback (safe) ------------ */
 app.use((req, res, next) => {
   try {
     if (req.method !== 'GET') return next();
@@ -113,7 +115,7 @@ app.use((req, res, next) => {
   }
 });
 
-// Start server
+/* ------------ Start server ------------ */
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
