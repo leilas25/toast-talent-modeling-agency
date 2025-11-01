@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Apply | Toast Talent</title>
+
+  <!-- Optional: keep your site-wide stylesheet if you have one -->
+  <link rel="stylesheet" href="/style.css"/>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#fafafa; --card:#fff; --ink:#141212; --muted:#6b7280; --brand:#111; --border:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg); color:var(--ink);
+      font-family: Montserrat, Arial, Helvetica, sans-serif;
+    }
+    /* Simple nav to match your other pages */
+    .navbar{background:#141212; padding:12px 20px;}
+    .nav-content{max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;}
+    .nav-links{list-style:none; display:flex; gap:14px; margin:0; padding:0}
+    .nav-links a{color:#fff; text-decoration:none; font-weight:600}
+    .nav-logo img{height:38px; display:block}
+
+    .wrap{max-width:1100px; margin:32px auto; padding:0 16px;}
+    .card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px;}
+    h1{margin:0 0 18px 0; font-size:28px}
+    p.lead{color:var(--muted); margin-top:6px}
+
+    form{display:grid; gap:16px}
+    .row{display:grid; gap:16px}
+    @media(min-width:900px){ .row.cols-2{grid-template-columns:1fr 1fr} .row.cols-3{grid-template-columns:1fr 1fr 1fr} }
+
+    label{font-weight:600; display:block; margin-bottom:6px}
+    input[type="text"], input[type="email"], input[type="tel"], input[type="date"],
+    input[type="number"], select, textarea{
+      width:100%; padding:12px 12px; border:1px solid var(--border); border-radius:8px; font-size:15px; background:#fff;
+    }
+    textarea{min-height:110px; resize:vertical}
+    .help{font-size:12px; color:var(--muted); margin-top:6px}
+    .files{display:grid; gap:12px}
+    .hint{font-size:12px; color:var(--muted)}
+    .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    button{
+      background:var(--brand); color:#fff; border:none; border-radius:10px; padding:12px 18px; font-size:15px; cursor:pointer
+    }
+    button[disabled]{opacity:.6; cursor:not-allowed}
+    .status{font-weight:600}
+    .ok{color:#16a34a} .err{color:#dc2626}
+
+    .fieldset{border:1px dashed var(--border); padding:16px; border-radius:10px}
+    .legend{font-weight:700; margin-bottom:10px}
+    .radio-line{display:flex; gap:18px; align-items:center}
+    .radio-line label{font-weight:500; margin:0}
+    footer{color:#fff; background:#141212; margin-top:40px; padding:16px; text-align:center; font-size:13px}
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="navbar">
+    <div class="nav-content">
+      <a class="nav-logo" href="/index.html"><img src="/images/Toast Logo.jpeg" alt="Toast Talent Logo"/></a>
+      <ul class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/models.html">Models</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/apply.html">Apply</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <div class="card">
+      <h1>Join Toast Talent</h1>
+      <p class="lead">Fill in the application form below. We’ll review your submission and get back to you via email or WhatsApp.</p>
+
+      <!-- APPLY FORM -->
+      <form id="applyForm" enctype="multipart/form-data">
+        <!-- Personal -->
+        <div class="fieldset">
+          <div class="legend">Personal Details</div>
+          <div class="row cols-2">
+            <div>
+              <label for="firstName">First Name *</label>
+              <input id="firstName" name="firstName" type="text" required />
+            </div>
+            <div>
+              <label for="lastName">Last Name *</label>
+              <input id="lastName" name="lastName" type="text" required />
+            </div>
+          </div>
+
+          <div class="row cols-2">
+            <div>
+              <label for="email">Email Address *</label>
+              <input id="email" name="email" type="email" required />
+            </div>
+            <div>
+              <label for="phone">Contact Number *</label>
+              <input id="phone" name="phone" type="tel" placeholder="+27 ..." required />
+            </div>
+          </div>
+
+          <div class="row cols-2">
+            <div>
+              <label for="dob">Date of Birth *</label>
+              <input id="dob" name="dob" type="date" required />
+            </div>
+            <div>
+              <label>Gender *</label>
+              <div class="radio-line">
+                <label><input type="radio" name="gender" value="Female" required /> Female</label>
+                <label><input type="radio" name="gender" value="Male" /> Male</label>
+                <label><input type="radio" name="gender" value="Nonbinary" /> Nonbinary</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Measurements -->
+        <div class="fieldset">
+          <div class="legend">Measurements</div>
+          <div class="row cols-3">
+            <div>
+              <label for="height">Height *</label>
+              <input id="height" name="height" type="text" placeholder="e.g. 175 cm" required />
+            </div>
+            <div>
+              <label for="bust">Bust *</label>
+              <input id="bust" name="bust" type="text" required />
+            </div>
+            <div>
+              <label for="hips">Hips *</label>
+              <input id="hips" name="hips" type="text" required />
+            </div>
+          </div>
+
+          <div class="row cols-3">
+            <div>
+              <label for="waist">Waist *</label>
+              <input id="waist" name="waist" type="text" required />
+            </div>
+            <div>
+              <label for="dressSize">Dress Size</label>
+              <input id="dressSize" name="dressSize" type="text" />
+            </div>
+            <div>
+              <label for="shirtSize">Shirt Size *</label>
+              <input id="shirtSize" name="shirtSize" type="text" required />
+            </div>
+          </div>
+
+          <div class="row cols-3">
+            <div>
+              <label for="shoeSize">Shoe Size *</label>
+              <input id="shoeSize" name="shoeSize" type="text" required />
+            </div>
+            <div>
+              <label for="hairColor">Hair Color *</label>
+              <input id="hairColor" name="hairColor" type="text" required />
+            </div>
+            <div>
+              <label for="eyeColor">Eye Color *</label>
+              <input id="eyeColor" name="eyeColor" type="text" required />
+            </div>
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="fieldset">
+          <div class="legend">Location</div>
+          <div class="row cols-2">
+            <div>
+              <label for="address">Address *</label>
+              <input id="address" name="address" type="text" required />
+            </div>
+            <div>
+              <label for="city">City *</label>
+              <input id="city" name="city" type="text" required />
+            </div>
+          </div>
+          <div class="row cols-3">
+            <div>
+              <label for="province">Province *</label>
+              <input id="province" name="province" type="text" required />
+            </div>
+            <div>
+              <label for="zip">Zip</label>
+              <input id="zip" name="zip" type="text" />
+            </div>
+            <div>
+              <label for="message">Message</label>
+              <input id="message" name="message" type="text" placeholder="Optional note…" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Photos -->
+        <div class="fieldset">
+          <div class="legend">Photos (clear, natural light)</div>
+          <div class="files">
+            <div>
+              <label for="headshotNeutral">Headshot/Portrait (NOT smiling) *</label>
+              <input id="headshotNeutral" name="headshotNeutral" type="file" accept="image/*" required />
+              <div class="hint">JPG/PNG, up to ~8MB each</div>
+            </div>
+            <div>
+              <label for="headshotSmiling">Headshot/Portrait (SMILING) *</label>
+              <input id="headshotSmiling" name="headshotSmiling" type="file" accept="image/*" required />
+            </div>
+            <div>
+              <label for="sideProfile">Side Profile (Left or Right) *</label>
+              <input id="sideProfile" name="sideProfile" type="file" accept="image/*" required />
+            </div>
+            <div>
+              <label for="halfBody">Half Body *</label>
+              <input id="halfBody" name="halfBody" type="file" accept="image/*" required />
+            </div>
+            <div>
+              <label for="fullBody">Full Body *</label>
+              <input id="fullBody" name="fullBody" type="file" accept="image/*" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="submitBtn" type="submit">Submit Application</button>
+          <span id="formStatus" class="status" aria-live="polite"></span>
+        </div>
+        <div class="help">By submitting, you agree that Toast Talent may contact you about your application.</div>
+      </form>
+    </div>
+  </main>
+
+  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
+
+  <script>
+    // Choose the correct API automatically (Vercel/Render/local)
+    const API_BASE = (() => {
+      const h = location.hostname;
+      if (h.includes('toasttalent.co.za')) return 'https://api.toasttalent.co.za';
+      if (h.includes('onrender.com')) return 'https://toast-talent-modeling-agency.onrender.com';
+      return 'http://localhost:10000';
+    })();
+
+    const form = document.getElementById('applyForm');
+    const btn = document.getElementById('submitBtn');
+    const statusEl = document.getElementById('formStatus');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = '';
+      btn.disabled = true;
+
+      try {
+        const fd = new FormData(form);
+
+        // Send to backend that emails to leila@toasttalent.co.za
+        const res = await fetch(`${API_BASE}/api/apply`, {
+          method: 'POST',
+          body: fd
+        });
+
+        if (!res.ok) {
+          const t = await res.text().catch(()=> '');
+          throw new Error(`Submit failed (${res.status}) ${t}`);
+        }
+
+        statusEl.className = 'status ok';
+        statusEl.textContent = 'Application sent. Thank you!';
+        form.reset();
+      } catch (err) {
+        console.error(err);
+        statusEl.className = 'status err';
+        statusEl.textContent = err.message || 'Submit failed. Please try again.';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -4,12 +4,19 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import bodyParser from 'body-parser';
 import fs from 'fs';
+import multer from 'multer';
+import sgMail from '@sendgrid/mail';
 
 import modelsRouter from './routes/models.js';
 
 const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT || 10000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const IS_PROD = NODE_ENV === 'production';
+
+/* ------------ Trust proxy (needed for secure cookies on Render) ------------ */
+app.set('trust proxy', 1);
 
 /* ------------ Body parsing ------------ */
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -23,10 +30,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    domain: process.env.COOKIE_DOMAIN || '.toasttalent.co.za',
+    domain: IS_PROD ? (process.env.COOKIE_DOMAIN || '.toasttalent.co.za') : undefined,
     httpOnly: true,
-    secure: true,              // HTTPS only (true in prod)
-    sameSite: 'none',          // needed with cross-site cookies
+    secure: IS_PROD,           // HTTPS only in prod
+    sameSite: IS_PROD ? 'none' : 'lax',
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }));
@@ -56,9 +63,8 @@ app.use((req, res, next) => {
 
 /* ------------ Sanity / Health ------------ */
 app.get('/api/models-sanity', (req, res) => {
-  res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local', env: process.env.NODE_ENV || 'unknown' });
+  res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local', env: NODE_ENV });
 });
-
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 /* ------------ Admin login (session-based) ------------ */
@@ -79,8 +85,90 @@ app.post('/api/admin-logout', (req, res) => {
   });
 });
 
-/* ------------ API routes ------------ */
+/* ------------ Models API ------------ */
 app.use('/api/models', modelsRouter);
+
+/* ------------ Apply (email to Zoho via SendGrid, with photo attachments) ------------ */
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+} else {
+  console.warn('⚠️  SENDGRID_API_KEY not set. /api/apply emails will fail.');
+}
+
+const upload = multer({ limits: { fileSize: 8 * 1024 * 1024 } }); // 8MB/file
+
+app.post(
+  '/api/apply',
+  upload.fields([
+    { name: 'headshotNeutral', maxCount: 1 },
+    { name: 'headshotSmiling', maxCount: 1 },
+    { name: 'sideProfile',     maxCount: 1 },
+    { name: 'halfBody',        maxCount: 1 },
+    { name: 'fullBody',        maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const f = req.body || {};
+      const toB64 = (file) => ({
+        content: file.buffer.toString('base64'),
+        filename: file.originalname,
+        type: file.mimetype,
+        disposition: 'attachment',
+      });
+
+      const files = req.files || {};
+      const attachments = []
+        .concat(files.headshotNeutral || [])
+        .concat(files.headshotSmiling || [])
+        .concat(files.sideProfile || [])
+        .concat(files.halfBody || [])
+        .concat(files.fullBody || [])
+        .map(toB64);
+
+      const lines = [
+        'New Model Application',
+        '',
+        `Name: ${f.firstName || ''} ${f.lastName || ''}`,
+        `Email: ${f.email || ''}`,
+        `Phone: ${f.phone || ''}`,
+        `DOB: ${f.dob || ''}`,
+        `Gender: ${f.gender || ''}`,
+        '',
+        'Measurements:',
+        `Height: ${f.height || ''}`,
+        `Bust: ${f.bust || ''}`,
+        `Hips: ${f.hips || ''}`,
+        `Waist: ${f.waist || ''}`,
+        `Dress Size: ${f.dressSize || ''}`,
+        `Shirt Size: ${f.shirtSize || ''}`,
+        `Shoe Size: ${f.shoeSize || ''}`,
+        `Hair: ${f.hairColor || ''}`,
+        `Eyes: ${f.eyeColor || ''}`,
+        '',
+        'Location:',
+        `Address: ${f.address || ''}`,
+        `City: ${f.city || ''}`,
+        `Province: ${f.province || ''}`,
+        `Zip: ${f.zip || ''}`,
+        '',
+        `Message: ${f.message || ''}`,
+      ];
+
+      await sgMail.send({
+        to: 'leila@toasttalent.co.za',
+        from: 'leila@toasttalent.co.za', // must be verified in SendGrid
+        subject: `New Application — ${f.firstName || ''} ${f.lastName || ''}`,
+        text: lines.join('\n'),
+        attachments
+      });
+
+      res.json({ ok: true });
+    } catch (err) {
+      console.error('❌ Apply email failed:', err.response?.body || err);
+      res.status(500).json({ error: 'Failed to send application' });
+    }
+  }
+);
 
 /* ------------ Static assets ------------ */
 try {
@@ -117,5 +205,5 @@ app.use((req, res, next) => {
 
 /* ------------ Start server ------------ */
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT} (${NODE_ENV})`);
 });
