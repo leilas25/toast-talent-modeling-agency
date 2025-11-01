@@ -3,72 +3,108 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Models | Toast Talent</title>
-  <link rel="stylesheet" href="/style.css" />
+  <title>Models — Toast Talent</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; margin:0; background:#fafafa; }
+    header { background:#111; color:#fff; text-align:center; padding:16px 0; }
+    h1 { margin:0; font-size:24px; letter-spacing:1px; }
+    nav { display:flex; justify-content:center; background:#fff; border-bottom:1px solid #eee; }
+    nav button {
+      flex:1; padding:14px; background:none; border:none; cursor:pointer;
+      font-weight:600; font-size:16px; color:#333; transition: all 0.2s;
+    }
+    nav button:hover { background:#f0f0f0; }
+    nav button.active { border-bottom:3px solid #111; color:#111; }
+
+    .models-container {
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap:20px;
+      padding:24px;
+    }
+    .model-card {
+      background:#fff;
+      border-radius:10px;
+      overflow:hidden;
+      box-shadow:0 2px 8px rgba(0,0,0,0.05);
+      text-align:center;
+      transition: transform 0.2s;
+    }
+    .model-card:hover { transform:translateY(-4px); }
+    .model-card img {
+      width:100%;
+      height:240px;
+      object-fit:cover;
+    }
+    .model-card h3 {
+      margin:8px 0 0;
+      font-size:16px;
+      color:#111;
+    }
+    .model-card p {
+      margin:4px 0 12px;
+      font-size:13px;
+      color:#666;
+    }
+  </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="nav-content">
-      <a href="/" class="nav-logo"><img src="/images/Toast Logo.jpeg" alt="Toast Talent"></a>
-      <ul class="nav-links">
-        <li><a href="/index.html">Home</a></li>
-        <li><a href="/models.html" class="active">Models</a></li>
-        <li><a href="/about.html">About</a></li>
-      </ul>
-    </div>
+  <header>
+    <h1>Our Models</h1>
+  </header>
+
+  <nav>
+    <button class="active" data-category="Women">Women</button>
+    <button data-category="Men">Men</button>
+    <button data-category="Kids">Kids</button>
   </nav>
 
-  <main class="models-gallery">
-    <header class="models-hero">
-      <h1>Discover Our Talent</h1>
-      <p>Click any card to view model details.</p>
-    </header>
-
-    <section id="modelsGrid" class="models-grid" aria-live="polite" style="min-height:120px;">
-      <p style="text-align:center; width:100%;">Loading models…</p>
-    </section>
+  <main>
+    <div id="models" class="models-container"></div>
   </main>
 
-  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
+  <script>
+    const API_BASE = (window.location.hostname.includes('toasttalent.co.za'))
+      ? 'https://api.toasttalent.co.za'
+      : (window.location.hostname.includes('onrender.com'))
+      ? 'https://toast-talent-modeling-agency.onrender.com'
+      : 'http://localhost:10000';
 
-<script>
-  const API_BASE = 'https://api.toasttalent.co.za';
+    const container = document.getElementById('models');
+    const buttons = document.querySelectorAll('nav button');
 
-  const grid = document.getElementById('modelsGrid');
+    buttons.forEach(btn => btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadModels(btn.dataset.category);
+    }));
 
-  async function loadModels() {
-    try {
-      const res = await fetch(`${API_BASE}/api/models`, { cache: 'no-store' });
-      if (!res.ok) throw new Error('API returned ' + res.status);
-      const models = await res.json();
-      render(models);
-    } catch (err) {
-      console.warn('API failed, falling back to local models.json', err);
+    async function loadModels(category = 'Women') {
+      container.innerHTML = '<p>Loading...</p>';
       try {
-        const r2 = await fetch('/models.json', { cache: 'no-store' });
-        if (!r2.ok) throw new Error('Fallback not found');
-        const models = await r2.json();
-        render(models);
-      } catch (err2) {
-        grid.innerHTML = '<p style="color:red;text-align:center;">Could not load models right now.</p>';
+        const res = await fetch(`${API_BASE}/api/models`);
+        const data = await res.json();
+
+        const filtered = data.filter(m => m.category === category);
+        if (!filtered.length) {
+          container.innerHTML = `<p style="text-align:center;color:#777;">No ${category.toLowerCase()} models yet.</p>`;
+          return;
+        }
+
+        container.innerHTML = filtered.map(m => `
+          <div class="model-card">
+            <img src="${m.profilePicture || '/placeholder.jpg'}" alt="${m.name}" />
+            <h3>${m.name} ${m.surname}</h3>
+            <p>${m.height ? m.height + ' cm' : ''}</p>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = '<p>Error loading models.</p>';
       }
     }
-  }
 
-  function render(models) {
-    if (!models || models.length === 0) {
-      grid.innerHTML = '<p style="text-align:center;">No models available.</p>';
-      return;
-    }
-    grid.innerHTML = models.map(m => `
-      <div class="model-card" data-id="${m._id || m.id}">
-        <img src="${(m.profilePicture || m.images?.[0]) || '/images/default.jpg'}" alt="${m.name || 'Model'}" onerror="this.src='/images/default.jpg'">
-        <div class="model-name">${m.name || 'Unnamed'}</div>
-      </div>
-    `).join('');
-  }
-
-  loadModels();
-</script>
+    loadModels('Women');
+  </script>
 </body>
 </html>

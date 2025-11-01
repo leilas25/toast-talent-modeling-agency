@@ -10,6 +10,7 @@
     .admin-container { max-width: 760px; margin: 36px auto; padding: 22px; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
     label { display:block; margin-top:12px; font-weight:600; }
     input, textarea { width:100%; padding:10px; margin-top:6px; border:1px solid #ddd; border-radius:8px; font-size:15px; }
+    select { width:100%; padding:10px; margin-top:6px; border:1px solid #ddd; border-radius:8px; font-size:15px; background:#fff; }
     button { margin-top:12px; padding:12px 18px; background:#111; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:15px; }
     button[disabled] { background:#999; cursor:not-allowed; }
     .row { display:grid; gap:12px; grid-template-columns: repeat(2, 1fr); }
@@ -19,6 +20,7 @@
     .thumbs img { width:90px; height:90px; object-fit:cover; border:1px solid #ddd; border-radius:6px; }
     .list-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #eee; }
     .list-item img { width:48px; height:48px; object-fit:cover; border-radius:6px; }
+    .badge { display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; background:#f1f1f1; color:#333; margin-left:8px; }
   </style>
   <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 </head>
@@ -85,6 +87,15 @@
         </div>
 
         <div>
+          <label>Category</label>
+          <select id="category">
+            <option value="Women">Women</option>
+            <option value="Men">Men</option>
+            <option value="Kids">Kids</option>
+          </select>
+        </div>
+
+        <div>
           <label>Profile picture</label>
           <input id="profileFile" type="file" accept="image/*" required />
           <div id="profilePreview" class="thumbs"></div>
@@ -117,9 +128,9 @@
     return 'http://localhost:10000';
   })();
 
-  // Your Cloudinary account details
+  // Cloudinary details (unsigned preset)
   const cloudName = "dk1df1qmi";
-  const uploadPreset = "models_upload"; // unsigned preset in your Cloudinary settings
+  const uploadPreset = "models_upload";
 
   /* --------- HELPERS --------- */
   function fileThumbs(input, previewEl) {
@@ -150,7 +161,7 @@
   }
 
   async function checkAuth() {
-    // cheap check: try to list models; if 401, show login
+    // quick check: try to list models; if 401, show login
     const res = await fetch(`${API_BASE}/api/models`, { credentials: 'include' });
     if (res.ok) {
       document.getElementById('loginSection').style.display = 'none';
@@ -234,7 +245,7 @@
       );
       const galleryUrls = galleryUploads.map(u => u.secure_url);
 
-      // 3) Build payload and POST to API
+      // 3) Build payload and POST to API (✅ includes category)
       const payload = {
         name: document.getElementById('name').value.trim(),
         surname: document.getElementById('surname').value.trim(),
@@ -244,6 +255,7 @@
         shirt: document.getElementById('shirt').value.trim(),
         pants: document.getElementById('pants').value.trim(),
         bio: document.getElementById('bio').value.trim(),
+        category: document.getElementById('category').value,   // <-- added
         profilePicture: profileUrl,
         galleryImages: galleryUrls
       };
@@ -289,7 +301,9 @@
         <div class="list-item">
           <img src="${m.profilePicture || ''}" alt="${(m.name||'')}" />
           <div style="flex:1;">
-            <div><strong>${m.name || ''} ${m.surname || ''}</strong></div>
+            <div><strong>${m.name || ''} ${m.surname || ''}</strong>
+              ${m.category ? `<span class="badge">${m.category}</span>` : ``}
+            </div>
             <div style="font-size:13px;color:#777;">Age: ${m.age || '-'} • Height: ${m.height || '-'}</div>
           </div>
           <button onclick="deleteModel('${m._id}')">Delete</button>
