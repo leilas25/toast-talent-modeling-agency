@@ -19,7 +19,7 @@
         <li><a href="models.html">Models</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="contact.html" class="active">Contact</a></li>
-        <li><a href="apply.html" class="active">Apply</a></li>
+        <li><a href="apply.html">Apply</a></li>
       </ul>
     </div>
   </nav>
@@ -60,5 +60,24 @@
       this.reset();
     };
   </script>
+  <script>
+  (function () {
+    const params = new URLSearchParams(location.search);
+    const model = params.get('model');
+    if (!model) return;
+
+    // Adjust these selectors to your form’s fields if different
+    const nameInput = document.querySelector('input[name="name"]');
+    const msgTextarea = document.querySelector('textarea[name="message"]');
+
+    if (msgTextarea) {
+      msgTextarea.value = `Booking enquiry for ${model}\n\nProject details:\n• Dates:\n• Usage:\n• Budget:\n`;
+    }
+    if (nameInput && !nameInput.value) {
+      nameInput.value = 'Agency Booking';
+    }
+  })();
+</script>
+
 </body>
 </html>

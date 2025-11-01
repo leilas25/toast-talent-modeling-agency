@@ -170,6 +170,50 @@ app.post(
   }
 );
 
+// ---- Booking Email Endpoint ----
+import sgMail from '@sendgrid/mail';
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
+
+app.post('/api/book', async (req, res) => {
+  try {
+    const { modelId, modelName, requesterEmail, requesterWhatsapp } = req.body || {};
+    if (!modelName || !requesterEmail || !requesterWhatsapp) {
+      return res.status(400).json({ error: 'modelName, requesterEmail and requesterWhatsapp are required' });
+    }
+    if (!process.env.SENDGRID_API_KEY) {
+      return res.status(500).json({ error: 'Email service not configured' });
+    }
+
+    const to = process.env.BOOK_TO_EMAIL || 'leila@toasttalent.co.za';
+    const from = process.env.BOOK_FROM_EMAIL || 'leila@toasttalent.co.za';
+
+    const msg = {
+      to,
+      from,
+      subject: `Booking Request — ${modelName}`,
+      text:
+      `A new booking request has been submitted.
+
+      Model: ${modelName}
+      Model ID (if provided): ${modelId || '-'}
+
+      Requester Email: ${requesterEmail}
+      Requester WhatsApp: ${requesterWhatsapp}
+
+      Please follow up with the requester to confirm details.`,
+    };
+
+    await sgMail.send(msg);
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Booking email error:', err?.response?.body || err.message || err);
+    return res.status(500).json({ error: 'Failed to send booking email' });
+  }
+});
+
+
 /* ------------ Static assets ------------ */
 try {
   app.use(express.static(path.join(__dirname, 'public')));

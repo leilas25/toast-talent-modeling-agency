@@ -1,120 +1,260 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Models — Toast Talent</title>
-  <style>
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; margin:0; background:#fafafa; }
-    header { background:#111; color:#fff; text-align:center; padding:16px 0; }
-    h1 { margin:0; font-size:24px; letter-spacing:1px; }
-    nav { display:flex; justify-content:center; background:#fff; border-bottom:1px solid #eee; }
-    nav button {
-      flex:1; padding:14px; background:none; border:none; cursor:pointer;
-      font-weight:600; font-size:16px; color:#333; transition: all 0.2s;
-    }
-    nav button:hover { background:#f0f0f0; }
-    nav button.active { border-bottom:3px solid #111; color:#111; }
 
-    .models-container {
-      display:grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap:20px;
-      padding:24px;
-    }
-    .model-card {
-      background:#fff;
-      border-radius:10px;
-      overflow:hidden;
-      box-shadow:0 2px 8px rgba(0,0,0,0.05);
-      text-align:center;
-      transition: transform 0.2s;
-    }
-    .model-card:hover { transform:translateY(-4px); }
-    .model-card img {
-      width:100%;
-      height:240px;
-      object-fit:cover;
-    }
-    .model-card h3 {
-      margin:8px 0 0;
-      font-size:16px;
-      color:#111;
-    }
-    .model-card p {
-      margin:4px 0 12px;
-      font-size:13px;
-      color:#666;
-    }
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
+
+  <style>
+    :root{--bg:#fafafa;--ink:#111;--muted:#666;--border:#e5e7eb;--card:#fff;--shadow:0 2px 8px rgba(0,0,0,.05);--brand:#141212}
+    body{font-family:'Montserrat',Arial,sans-serif;margin:0;background:var(--bg);color:var(--ink)}
+    .navbar{background:var(--brand);padding:12px 20px}
+    .nav-content{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo img{height:40px;border-radius:6px}
+    .nav-links{list-style:none;display:flex;gap:18px;margin:0;padding:0}
+    .nav-links a{color:#fff;text-decoration:none;font-weight:600;transition:color .2s}
+    .nav-links a:hover,.nav-links a.active{color:#f5bcbc}
+
+    header{background:#fff;border-bottom:1px solid var(--border);text-align:center;padding:30px 10px 16px}
+    header h1{margin:0;font-size:28px;font-weight:700}
+
+    .category-nav{display:flex;justify-content:center;background:#fff;border-bottom:1px solid var(--border)}
+    .category-nav button{flex:1;max-width:160px;padding:14px;background:none;border:none;cursor:pointer;font-weight:600;font-size:16px;color:#333;transition:.2s}
+    .category-nav button:hover{background:#f5f5f5}
+    .category-nav button.active{border-bottom:3px solid var(--brand);color:var(--brand)}
+
+    main{max-width:1100px;margin:0 auto;padding:30px 20px}
+    .models-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}
+    .model-card{background:var(--card);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);transition:transform .2s}
+    .model-card:hover{transform:translateY(-4px)}
+    .model-card img{width:100%;height:240px;object-fit:cover;display:block}
+    .model-card .info{padding:10px;text-align:center}
+    .model-card h3{margin:6px 0 2px;font-size:16px}
+    .model-card p{margin:0 0 10px;font-size:12px;color:#777}
+    .model-card .actions{display:flex;gap:8px;justify-content:center;padding:0 10px 12px}
+    .btn{padding:8px 12px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px}
+    .btn-dark{background:#111;color:#fff}
+    .btn-ghost{background:#f2f2f2;color:#111}
+
+    /* Lightbox modal (existing) */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:50}
+    .modal{background:#fff;max-width:950px;width:95vw;max-height:92vh;border-radius:14px;overflow:hidden;display:grid;grid-template-columns:1.2fr 1fr}
+    .modal-left{background:#000;position:relative}
+    .modal-left img{width:100%;height:100%;object-fit:contain;background:#000}
+    .modal-right{padding:18px 18px 16px 18px;overflow:auto}
+    .modal-right h2{margin:0 0 6px 0}
+    .meta{color:#555;font-size:14px;line-height:1.6;margin:6px 0 12px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}
+    .chip{border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;color:#333;background:#fafafa}
+    .modal-actions{display:flex;gap:10px;margin-top:10px}
+    .close-x{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.95);border:none;border-radius:999px;width:34px;height:34px;font-size:18px;cursor:pointer}
+
+    /* Booking modal (new) */
+    .dialog{background:#fff;border-radius:12px;max-width:420px;width:92vw;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+    .dialog h3{margin:0 0 10px}
+    .field{margin:10px 0}
+    .field label{display:block;font-weight:600;margin-bottom:6px}
+    .field input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px}
+    .dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+
+    @media (max-width:860px){ .modal{grid-template-columns:1fr;max-height:96vh}.modal-left{height:50vh} }
+    footer{background:#141212;color:#fff;text-align:center;font-size:13px;padding:16px;margin-top:40px}
   </style>
 </head>
 <body>
-  <header>
-    <h1>Our Models</h1>
-  </header>
-<body>
+  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="nav-content">
-      <a href="index.html" class="nav-logo">
-        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+      <a href="/index.html" class="nav-logo">
+        <img src="/images/Toast Logo.jpeg" alt="Toast Talent Logo" />
       </a>
       <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="models.html">Models</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html" class="active">Contact</a></li>
-        <li><a href="apply.html" class="active">Apply</a></li>
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/models.html" class="active">Models</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/apply.html">Apply</a></li>
       </ul>
     </div>
   </nav>
-  <nav>
+
+  <!-- HEADER -->
+  <header><h1>Our Models</h1></header>
+
+  <!-- CATEGORY TABS -->
+  <nav class="category-nav">
     <button class="active" data-category="Women">Women</button>
     <button data-category="Men">Men</button>
     <button data-category="Kids">Kids</button>
   </nav>
 
+  <!-- GRID -->
   <main>
     <div id="models" class="models-container"></div>
   </main>
 
+  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
+
+  <!-- Booking Modal Backdrop -->
+  <div id="bookingBackdrop" class="modal-backdrop" style="display:none;">
+    <div class="dialog" role="dialog" aria-modal="true">
+      <h3 id="bookingTitle">Booking request</h3>
+      <p id="bookingModel" style="margin:0 0 10px; color:#555;"></p>
+      <div class="field">
+        <label for="reqEmail">Your Email</label>
+        <input type="email" id="reqEmail" placeholder="you@example.com" required />
+      </div>
+      <div class="field">
+        <label for="reqWhatsApp">Your WhatsApp Number</label>
+        <input type="text" id="reqWhatsApp" placeholder="+27 71 234 5678" required />
+      </div>
+      <div id="bookMsg" style="font-size:13px;color:#c0392b;margin-top:6px;"></div>
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" id="cancelBooking">Cancel</button>
+        <button class="btn btn-dark" id="sendBooking">Send booking</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- (Existing) Lightbox Modal kept as-is if you still use it -->
+
   <script>
-    const API_BASE = (window.location.hostname.includes('toasttalent.co.za'))
+    const API_BASE = (location.hostname.includes('toasttalent.co.za'))
       ? 'https://api.toasttalent.co.za'
-      : (window.location.hostname.includes('onrender.com'))
+      : (location.hostname.includes('onrender.com'))
       ? 'https://toast-talent-modeling-agency.onrender.com'
       : 'http://localhost:10000';
 
     const container = document.getElementById('models');
-    const buttons = document.querySelectorAll('nav button');
+    const tabBtns = document.querySelectorAll('.category-nav button');
 
-    buttons.forEach(btn => btn.addEventListener('click', () => {
-      buttons.forEach(b => b.classList.remove('active'));
+    tabBtns.forEach(btn => btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       loadModels(btn.dataset.category);
     }));
 
-    async function loadModels(category = 'Women') {
-      container.innerHTML = '<p>Loading...</p>';
+    // --- Booking modal logic ---
+    const bookingBackdrop = document.getElementById('bookingBackdrop');
+    const bookingTitle = document.getElementById('bookingTitle');
+    const bookingModel = document.getElementById('bookingModel');
+    const reqEmail = document.getElementById('reqEmail');
+    const reqWhatsApp = document.getElementById('reqWhatsApp');
+    const bookMsg = document.getElementById('bookMsg');
+    const cancelBooking = document.getElementById('cancelBooking');
+    const sendBooking = document.getElementById('sendBooking');
+
+    let currentModel = null;
+
+    function openBooking(model) {
+      currentModel = model;
+      bookingTitle.textContent = 'Booking request';
+      bookingModel.textContent = `${(model.name||'') + ' ' + (model.surname||'')}`.trim();
+      reqEmail.value = '';
+      reqWhatsApp.value = '';
+      bookMsg.textContent = '';
+      bookingBackdrop.style.display = 'flex';
+    }
+    function closeBooking() {
+      bookingBackdrop.style.display = 'none';
+      currentModel = null;
+    }
+    cancelBooking.addEventListener('click', closeBooking);
+    bookingBackdrop.addEventListener('click', (e)=>{ if (e.target === bookingBackdrop) closeBooking(); });
+
+    sendBooking.addEventListener('click', async () => {
+      if (!currentModel) return;
+      bookMsg.style.color = '#c0392b';
+      bookMsg.textContent = '';
+
+      const email = reqEmail.value.trim();
+      const wa = reqWhatsApp.value.trim();
+      if (!email || !wa) {
+        bookMsg.textContent = 'Please enter your email and WhatsApp number.';
+        return;
+      }
+
       try {
+        const payload = {
+          modelId: currentModel._id || '',
+          modelName: `${currentModel.name||''} ${currentModel.surname||''}`.trim(),
+          requesterEmail: email,
+          requesterWhatsapp: wa
+        };
+
+        const res = await fetch(`${API_BASE}/api/book`, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          bookMsg.style.color = 'green';
+          bookMsg.textContent = 'Booking request sent. We will contact you shortly.';
+          setTimeout(closeBooking, 1200);
+        } else {
+          const txt = await res.text().catch(()=> '');
+          throw new Error(`Failed: ${res.status} ${res.statusText} ${txt}`);
+        }
+      } catch (err) {
+        console.error(err);
+        bookMsg.textContent = 'Could not send booking request. Please try again.';
+      }
+    });
+
+    // --- Load models + render cards with Book button ---
+    async function loadModels(category='Women'){
+      container.innerHTML = '<p style="text-align:center;">Loading...</p>';
+      try{
         const res = await fetch(`${API_BASE}/api/models`);
         const data = await res.json();
-
         const filtered = data.filter(m => m.category === category);
-        if (!filtered.length) {
+
+        if(!filtered.length){
           container.innerHTML = `<p style="text-align:center;color:#777;">No ${category.toLowerCase()} models yet.</p>`;
           return;
         }
 
-        container.innerHTML = filtered.map(m => `
-          <div class="model-card">
-            <img src="${m.profilePicture || '/placeholder.jpg'}" alt="${m.name}" />
-            <h3>${m.name} ${m.surname}</h3>
-            <p>${m.height ? m.height + ' cm' : ''}</p>
-          </div>
-        `).join('');
-      } catch (err) {
-        console.error(err);
-        container.innerHTML = '<p>Error loading models.</p>';
+        container.innerHTML = filtered.map(m => {
+          const fullName = `${m.name||''} ${m.surname||''}`.trim();
+          const imgSrc = m.profilePicture || (m.galleryImages?.[0] || '/placeholder.jpg');
+          const heightText = m.height ? `${m.height} cm` : '';
+          return `
+            <div class="model-card" data-id="${m._id}">
+              <img src="${imgSrc}" alt="${fullName}" />
+              <div class="info">
+                <h3>${fullName}</h3>
+                <p>${heightText}</p>
+              </div>
+              <div class="actions">
+                <button class="btn btn-dark" data-action="book">Book</button>
+                <a class="btn btn-ghost" href="/contact.html?model=${encodeURIComponent(fullName)}">Contact</a>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Attach book handlers
+        [...container.querySelectorAll('.model-card')].forEach(card=>{
+          const id = card.getAttribute('data-id');
+          const model = filtered.find(x=>x._id===id);
+
+          const bookBtn = card.querySelector('[data-action="book"]');
+          bookBtn.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            openBooking(model);
+          });
+
+          // (Optional) clicking card could open your image modal, if you still use it
+          // card.addEventListener('click', ()=> openModal(model));
+        });
+
+      }catch(e){
+        console.error(e);
+        container.innerHTML = '<p style="text-align:center;color:red;">Error loading models.</p>';
       }
     }
 
