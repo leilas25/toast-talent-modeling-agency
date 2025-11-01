@@ -92,7 +92,7 @@ app.use('/api/models', modelsRouter);
 if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 } else {
-  console.warn('⚠️  SENDGRID_API_KEY not set. /api/apply emails will fail.');
+  console.warn('⚠️  SENDGRID_API_KEY not set. /api/apply and /api/book emails will fail.');
 }
 
 const upload = multer({ limits: { fileSize: 8 * 1024 * 1024 } }); // 8MB/file
@@ -108,6 +108,10 @@ app.post(
   ]),
   async (req, res) => {
     try {
+      if (!process.env.SENDGRID_API_KEY) {
+        return res.status(500).json({ error: 'Email service not configured' });
+      }
+
       const f = req.body || {};
       const toB64 = (file) => ({
         content: file.buffer.toString('base64'),
@@ -170,12 +174,7 @@ app.post(
   }
 );
 
-// ---- Booking Email Endpoint ----
-import sgMail from '@sendgrid/mail';
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-}
-
+/* ------------ Booking Email Endpoint ------------ */
 app.post('/api/book', async (req, res) => {
   try {
     const { modelId, modelName, requesterEmail, requesterWhatsapp } = req.body || {};
@@ -194,15 +193,15 @@ app.post('/api/book', async (req, res) => {
       from,
       subject: `Booking Request — ${modelName}`,
       text:
-      `A new booking request has been submitted.
+`A new booking request has been submitted.
 
-      Model: ${modelName}
-      Model ID (if provided): ${modelId || '-'}
+Model: ${modelName}
+Model ID (if provided): ${modelId || '-'}
 
-      Requester Email: ${requesterEmail}
-      Requester WhatsApp: ${requesterWhatsapp}
+Requester Email: ${requesterEmail}
+Requester WhatsApp: ${requesterWhatsapp}
 
-      Please follow up with the requester to confirm details.`,
+Please follow up with the requester to confirm details.`,
     };
 
     await sgMail.send(msg);
@@ -212,7 +211,6 @@ app.post('/api/book', async (req, res) => {
     return res.status(500).json({ error: 'Failed to send booking email' });
   }
 });
-
 
 /* ------------ Static assets ------------ */
 try {
