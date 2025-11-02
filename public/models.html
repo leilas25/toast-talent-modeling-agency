@@ -5,334 +5,346 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Models — Toast Talent</title>
   <style>
-    :root{
-      --bg:#fafafa;--ink:#111;--muted:#666;--card:#fff;--line:#eee;--accent:#111;
+    :root {
+      --bg:#fafafa; --text:#111; --muted:#666; --card:#fff; --line:#eee; --acc:#111;
     }
     *{box-sizing:border-box}
-    body{font-family: 'Helvetica Neue', Arial, sans-serif; margin:0; background:var(--bg); color:var(--ink);}
-    /* Header + top nav (same vibe as other pages) */
-    .navbar{background:#fff;border-bottom:1px solid var(--line);}
-    .nav-content{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:10px 16px}
-    .nav-logo img{height:36px;width:auto;border-radius:4px}
-    .nav-links{list-style:none;display:flex;gap:14px;margin:0 0 0 auto;padding:0}
-    .nav-links a{display:block;padding:8px 10px;border-radius:6px;text-decoration:none;color:#333;font-weight:600}
-    .nav-links a.active,.nav-links a:hover{background:#f0f0f0;color:#000}
-
-    header{background:var(--accent);color:#fff;text-align:center;padding:16px 0}
-    header h1{margin:0;font-size:24px;letter-spacing:1px}
+    body{margin:0;font-family: Inter, system-ui, -apple-system, Arial, sans-serif;background:var(--bg);color:var(--text)}
+    /* Top bar / site nav (same feel as other pages) */
+    .topbar{background:var(--acc);color:#fff}
+    .topbar-inner{max-width:1100px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;gap:16px}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700}
+    .logo img{width:36px;height:36px;object-fit:cover;border-radius:6px}
+    .links{margin-left:auto;display:flex;gap:16px}
+    .links a{color:#fff;text-decoration:none;opacity:.9}
+    .links a:hover{opacity:1}
 
     /* Category tabs */
-    .tabs{display:flex;justify-content:center;background:#fff;border-bottom:1px solid var(--line)}
-    .tabs button{flex:1;max-width:220px;padding:14px;background:none;border:none;cursor:pointer;
-      font-weight:700;font-size:16px;color:#333;transition:.2s;border-bottom:3px solid transparent}
-    .tabs button:hover{background:#f5f5f5}
-    .tabs button.active{border-bottom-color:var(--accent);color:#000}
+    .tabs{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line)}
+    .tabs-inner{max-width:1100px;margin:0 auto;display:flex;gap:4px;padding:10px 8px}
+    .tab{appearance:none;border:none;background:none;padding:12px 16px;border-radius:8px;cursor:pointer;font-weight:600;color:#333}
+    .tab:hover{background:#f2f2f2}
+    .tab.active{background:#111;color:#fff}
 
     /* Grid */
-    .wrap{max-width:1100px;margin:0 auto}
-    .models{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:20px;padding:24px 16px}
-    .card{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;transition:.2s}
-    .card:hover{transform:translateY(-4px)}
-    .card img{width:100%;height:240px;object-fit:cover;display:block}
-    .card h3{margin:8px 10px 2px;font-size:16px}
-    .card p{margin:0 10px 12px;font-size:13px;color:var(--muted)}
+    .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px}
+    .card{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06);cursor:pointer;transition:transform .15s}
+    .card:hover{transform:translateY(-3px)}
+    .card img{width:100%;height:240px;object-fit:cover;background:#ddd}
+    .card .meta{padding:10px 12px}
+    .card h3{margin:0 0 4px;font-size:15px}
+    .chip{display:inline-block;padding:2px 8px;background:#f3f3f3;border-radius:999px;font-size:12px;color:#444;margin-right:6px}
 
-    /* Fullscreen modal */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:stretch;justify-content:center;padding:20px;z-index:1000}
-    .modal.open{display:flex}
-    .sheet{background:#fff;border-radius:14px;max-width:1100px;width:100%;display:grid;grid-template-columns:1.2fr .8fr;gap:0;overflow:hidden}
-    @media (max-width:900px){ .sheet{grid-template-columns:1fr} }
+    /* Modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}
+    .modal.show{display:flex}
+    .sheet{width:100%;max-width:1100px;background:#fff;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:1.2fr .9fr;min-height:70vh}
+    @media (max-width:900px){.sheet{grid-template-columns:1fr}}
+    .gallery{position:relative;background:#000;display:flex;align-items:center;justify-content:center}
+    .gallery img{max-width:100%;max-height:70vh;object-fit:contain;background:#000}
+    .thumbs{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:6px;justify-content:center;padding:0 12px}
+    .thumbs img{width:64px;height:64px;object-fit:cover;border:2px solid transparent;border-radius:6px;cursor:pointer;opacity:.9}
+    .thumbs img.active{border-color:#fff;opacity:1}
+    .navbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.9);border:none;border-radius:999px;width:40px;height:40px;cursor:pointer;font-size:18px}
+    .navbtn:hover{background:#fff}
+    .navbtn.prev{left:10px}
+    .navbtn.next{right:10px}
 
-    /* Left: gallery */
-    .gallery{position:relative;background:#000}
-    .stage{height:520px;display:flex;align-items:center;justify-content:center;background:#000}
-    .stage img{max-height:100%;max-width:100%;object-fit:contain;background:#000}
-    .dots{display:flex;gap:6px;justify-content:center;padding:10px;background:#0a0a0a}
-    .dot{width:9px;height:9px;border-radius:50%;background:#777;opacity:.7}
-    .dot.active{background:#fff;opacity:1}
-    .navBtn{position:absolute;top:50%;transform:translateY(-50%);border:none;background:rgba(0,0,0,.5);color:#fff;
-      width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:20px}
-    .navBtn:hover{background:rgba(0,0,0,.7)}
-    .prev{left:12px} .next{right:12px}
+    .side{padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+    .side h2{margin:0;font-size:22px}
+    .profile-row{display:flex;align-items:center;gap:12px}
+    .pfp{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#ddd}
+    .rows{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row{background:#fafafa;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+    .row b{display:block;font-size:12px;color:#666;margin-bottom:4px}
+    .row span{font-size:14px}
+    .actions{display:flex;gap:10px;margin-top:4px}
+    .btn{appearance:none;border:none;border-radius:10px;padding:12px 14px;font-weight:600;cursor:pointer}
+    .btn.primary{background:#111;color:#fff}
+    .btn.light{background:#f3f3f3;color:#111}
 
-    /* Right: info */
-    .panel{padding:18px 18px 22px;overflow:auto}
-    .topRow{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-    .pfp{width:72px;height:72px;border-radius:10px;object-fit:cover;border:1px solid var(--line)}
-    .name{margin:0;font-size:20px}
-    .age{margin:2px 0 0;color:var(--muted);font-size:13px}
+    .book{margin-top:4px;border-top:1px dashed var(--line);padding-top:12px;display:none}
+    .book.show{display:block}
+    .book label{display:block;font-size:12px;color:#666;margin:6px 0 4px}
+    .book input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+    .note{font-size:12px;color:#666}
 
-    .specs{display:grid;grid-template-columns: repeat(2, 1fr);gap:10px;margin:14px 0}
-    .spec{background:#fafafa;border:1px solid var(--line);border-radius:8px;padding:10px}
-    .spec b{display:block;font-size:12px;color:#555}
-    .spec span{font-size:14px}
-
-    .bio{margin-top:6px;white-space:pre-wrap;color:#333;font-size:14px}
-
-    .actions{display:flex;gap:10px;margin-top:14px}
-    .btn{border:none;border-radius:10px;background:#111;color:#fff;padding:12px 14px;font-weight:700;cursor:pointer}
-    .btn.secondary{background:#f2f2f2;color:#111;border:1px solid var(--line)}
-
-    /* Booking mini-form */
-    .bookForm{display:none;margin-top:10px;gap:8px}
-    .bookForm.show{display:grid}
-    .bookForm input{padding:10px;border:1px solid var(--line);border-radius:8px;font-size:14px}
-    .bookForm .submit{background:#111;color:#fff;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer}
-
-    /* Close */
-    .closeX{position:absolute;right:18px;top:18px;border:none;background:#fff;border-radius:999px;width:36px;height:36px;
-      box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;font-size:18px}
+    .closeX{position:absolute;top:10px;right:12px;background:rgba(255,255,255,.95);border:none;border-radius:999px;width:36px;height:36px;cursor:pointer;font-size:18px}
   </style>
 </head>
 <body>
-  <!-- top nav consistent with other pages -->
-  <nav class="navbar">
-    <div class="nav-content">
-      <a href="index.html" class="nav-logo">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a class="logo" href="index.html">
         <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+        <span>Toast Talent</span>
       </a>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a class="active" href="models.html">Models</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="apply.html">Apply</a></li>
-      </ul>
+      <nav class="links">
+        <a href="index.html">Home</a>
+        <a href="models.html" aria-current="page" style="text-decoration:underline">Models</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="apply.html">Apply</a>
+      </nav>
     </div>
-  </nav>
-
-  <header><h1>Our Models</h1></header>
-
-  <div class="tabs">
-    <button class="active" data-category="Women" aria-pressed="true">Women</button>
-    <button data-category="Men" aria-pressed="false">Men</button>
-    <button data-category="Kids" aria-pressed="false">Kids</button>
   </div>
 
-  <main class="wrap">
-    <div id="grid" class="models"></div>
-  </main>
+  <!-- Category tabs -->
+  <div class="tabs">
+    <div class="tabs-inner">
+      <button class="tab active" data-cat="Women">Women</button>
+      <button class="tab" data-cat="Men">Men</button>
+      <button class="tab" data-cat="Kids">Kids</button>
+    </div>
+  </div>
 
-  <!-- MODAL -->
+  <div class="wrap">
+    <div id="grid" class="grid"></div>
+  </div>
+
+  <!-- Modal -->
   <div id="modal" class="modal" aria-hidden="true">
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mdlTitle">
-      <button class="closeX" id="closeM" aria-label="Close">✕</button>
-
-      <!-- Gallery -->
-      <section class="gallery">
-        <button class="navBtn prev" id="gPrev" aria-label="Previous image">‹</button>
-        <div class="stage"><img id="gImg" src="" alt=""></div>
-        <button class="navBtn next" id="gNext" aria-label="Next image">›</button>
-        <div class="dots" id="gDots"></div>
-      </section>
-
-      <!-- Info -->
-      <aside class="panel">
-        <div class="topRow">
+    <div class="sheet">
+      <div class="gallery">
+        <button class="closeX" id="closeX" aria-label="Close">✕</button>
+        <button class="navbtn prev" id="prev">‹</button>
+        <img id="hero" alt="Model image" />
+        <button class="navbtn next" id="next">›</button>
+        <div class="thumbs" id="thumbs"></div>
+      </div>
+      <div class="side">
+        <div class="profile-row">
           <img id="pfp" class="pfp" alt="">
           <div>
-            <h2 id="mdlTitle" class="name"></h2>
-            <p id="mdlAge" class="age"></p>
+            <h2 id="fullname">—</h2>
+            <div class="note" id="catBadge">—</div>
           </div>
         </div>
-
-        <div class="specs">
-          <div class="spec"><b>Height</b><span id="spHeight">-</span></div>
-          <div class="spec"><b>Shoe</b><span id="spShoe">-</span></div>
-          <div class="spec"><b>Shirt</b><span id="spShirt">-</span></div>
-          <div class="spec"><b>Pants</b><span id="spPants">-</span></div>
+        <div class="rows">
+          <div class="row"><b>Age</b><span id="age">—</span></div>
+          <div class="row"><b>Height</b><span id="height">—</span></div>
+          <div class="row"><b>Shoe</b><span id="shoe">—</span></div>
+          <div class="row"><b>Shirt</b><span id="shirt">—</span></div>
+          <div class="row"><b>Pants</b><span id="pants">—</span></div>
         </div>
-
-        <div class="bio" id="spBio"></div>
-
         <div class="actions">
-          <button class="btn" id="bookBtn">Request Booking</button>
-          <button class="btn secondary" id="viewNext">Next Photo</button>
+          <button class="btn primary" id="bookBtn">Book this model</button>
+          <button class="btn light" id="shareBtn">Share</button>
         </div>
 
-        <!-- tiny booking form -->
-        <form id="bookForm" class="bookForm">
-          <input id="bkEmail" type="email" placeholder="Your email" required>
-          <input id="bkWa" type="text" placeholder="Your WhatsApp number" required>
-          <button class="submit" type="submit">Send Request</button>
-          <div id="bkMsg" style="font-size:13px;color:#111;"></div>
-        </form>
-      </aside>
+        <!-- Booking inline form -->
+        <div id="bookBox" class="book">
+          <label>Your email</label>
+          <input id="reqEmail" type="email" placeholder="you@example.com" />
+          <label>Your WhatsApp number</label>
+          <input id="reqWhats" type="tel" placeholder="+27 ..." />
+          <div class="actions" style="margin-top:10px">
+            <button class="btn primary" id="sendBook">Send booking request</button>
+            <button class="btn light" id="cancelBook" type="button">Cancel</button>
+          </div>
+          <div class="note" id="bookMsg"></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    /* ----- API base autodetect ----- */
+    // -------- API base detection --------
     const API_BASE = (location.hostname.includes('toasttalent.co.za'))
       ? 'https://api.toasttalent.co.za'
       : (location.hostname.includes('onrender.com'))
-        ? 'https://toast-talent-modeling-agency.onrender.com'
-        : 'http://localhost:10000';
+      ? 'https://toast-talent-modeling-agency.onrender.com'
+      : 'http://localhost:10000';
 
+    // -------- UI refs --------
     const grid = document.getElementById('grid');
-    const tabBtns = document.querySelectorAll('.tabs button');
+    const tabs = document.querySelectorAll('.tab');
+    const modal = document.getElementById('modal');
+    const hero = document.getElementById('hero');
+    const thumbs = document.getElementById('thumbs');
+    const pfp = document.getElementById('pfp');
+    const fullname = document.getElementById('fullname');
+    const catBadge = document.getElementById('catBadge');
+    const ageEl = document.getElementById('age');
+    const heightEl = document.getElementById('height');
+    const shoeEl = document.getElementById('shoe');
+    const shirtEl = document.getElementById('shirt');
+    const pantsEl = document.getElementById('pants');
+    const closeX = document.getElementById('closeX');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    const bookBtn = document.getElementById('bookBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const bookBox = document.getElementById('bookBox');
+    const reqEmail = document.getElementById('reqEmail');
+    const reqWhats = document.getElementById('reqWhats');
+    const sendBook = document.getElementById('sendBook');
+    const cancelBook = document.getElementById('cancelBook');
+    const bookMsg = document.getElementById('bookMsg');
 
     let allModels = [];
-    let currentCategory = 'Women';
+    let current = null; // { model, index, currentImgIdx }
 
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
-        btn.classList.add('active'); btn.setAttribute('aria-pressed','true');
-        currentCategory = btn.dataset.category;
-        renderGrid();
+    tabs.forEach(t => {
+      t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        renderGrid(t.dataset.cat);
       });
     });
 
-    async function fetchModels(){
-      grid.innerHTML = '<p style="padding:24px;color:#777;">Loading…</p>';
-      try{
-        const res = await fetch(`${API_BASE}/api/models`);
-        allModels = await res.json();
-        renderGrid();
-      }catch(e){
-        grid.innerHTML = '<p style="padding:24px;color:#b00;">Failed to load models.</p>';
-      }
+    async function fetchModels() {
+      const res = await fetch(`${API_BASE}/api/models`);
+      allModels = await res.json();
     }
 
-    function renderGrid(){
-      const list = allModels.filter(m => (m.category || 'Women') === currentCategory);
-      if(!list.length){
-        grid.innerHTML = `<p style="padding:24px;color:#777;">No ${currentCategory.toLowerCase()} models yet.</p>`;
+    function renderGrid(category) {
+      const items = allModels.filter(m => (m.category || 'Women') === category);
+      if (!items.length) {
+        grid.innerHTML = `<p style="color:#666;text-align:center;width:100%">No ${category} yet.</p>`;
         return;
       }
-      grid.innerHTML = list.map((m,idx)=>`
-        <article class="card" data-idx="${allModels.indexOf(m)}" tabindex="0" aria-label="Open ${m.name} ${m.surname}">
-          <img src="${m.profilePicture || ''}" alt="${m.name || ''}">
-          <h3>${m.name || ''} ${m.surname || ''}</h3>
-          <p>${m.height ? `${m.height} cm` : ''}</p>
-        </article>
+      grid.innerHTML = items.map(m => `
+        <div class="card" data-id="${m._id}">
+          <img src="${m.profilePicture || ''}" alt="${(m.name||'')}" loading="lazy">
+          <div class="meta">
+            <h3>${m.name || ''} ${m.surname || ''}</h3>
+            <span class="chip">${m.height ? (m.height + ' cm') : ''}</span>
+            <span class="chip">${m.age ? ('Age ' + m.age) : ''}</span>
+          </div>
+        </div>
       `).join('');
 
-      grid.querySelectorAll('.card').forEach(card=>{
-        card.addEventListener('click', ()=> openModal(+card.dataset.idx));
-        card.addEventListener('keypress', (e)=>{ if(e.key==='Enter' || e.key===' ') openModal(+card.dataset.idx); });
+      grid.querySelectorAll('.card').forEach(el => {
+        el.addEventListener('click', () => {
+          const id = el.getAttribute('data-id');
+          const model = allModels.find(x => x._id === id);
+          openModal(model);
+        });
       });
     }
 
-    /* ----- Modal / Gallery ----- */
-    const modal = document.getElementById('modal');
-    const closeM = document.getElementById('closeM');
-    const gImg = document.getElementById('gImg');
-    const gDots = document.getElementById('gDots');
-    const gPrev = document.getElementById('gPrev');
-    const gNext = document.getElementById('gNext');
-    const viewNext = document.getElementById('viewNext');
+    function openModal(model) {
+      current = { model, currentImgIdx: 0 };
+      pfp.src = model.profilePicture || '';
+      fullname.textContent = `${model.name || ''} ${model.surname || ''}`.trim();
+      catBadge.textContent = model.category || '';
+      ageEl.textContent = model.age || '—';
+      heightEl.textContent = model.height ? `${model.height} cm` : '—';
+      shoeEl.textContent = model.shoe || '—';
+      shirtEl.textContent = model.shirt || '—';
+      pantsEl.textContent = model.pants || '—';
 
-    const pfp = document.getElementById('pfp');
-    const mdlTitle = document.getElementById('mdlTitle');
-    const mdlAge = document.getElementById('mdlAge');
-    const spHeight = document.getElementById('spHeight');
-    const spShoe = document.getElementById('spShoe');
-    const spShirt = document.getElementById('spShirt');
-    const spPants = document.getElementById('spPants');
-    const spBio = document.getElementById('spBio');
+      const imgs = [model.profilePicture, ...(model.galleryImages || [])].filter(Boolean);
+      if (!imgs.length) imgs.push(''); // fallback
+      setHero(imgs[0]);
 
-    let currentModel = null;
-    let images = [];
-    let at = 0;
+      thumbs.innerHTML = imgs.map((src, i) =>
+        `<img src="${src}" data-i="${i}" class="${i===0?'active':''}" alt="thumb">`
+      ).join('');
+      thumbs.querySelectorAll('img').forEach(img => {
+        img.addEventListener('click', () => {
+          const idx = Number(img.dataset.i);
+          current.currentImgIdx = idx;
+          setHero(imgs[idx]);
+          thumbs.querySelectorAll('img').forEach(t => t.classList.remove('active'));
+          img.classList.add('active');
+        });
+      });
 
-    function openModal(idx){
-      currentModel = allModels[idx];
-      if(!currentModel) return;
+      // reset booking box
+      bookBox.classList.remove('show');
+      bookMsg.textContent = '';
+      reqEmail.value = ''; reqWhats.value = '';
 
-      // assemble gallery list: profile first, then galleryImages
-      const g = Array.isArray(currentModel.galleryImages) ? currentModel.galleryImages : [];
-      images = [currentModel.profilePicture, ...g].filter(Boolean);
-      if(!images.length) images = [''];
-
-      // populate info
-      pfp.src = currentModel.profilePicture || '';
-      pfp.alt = (currentModel.name || '') + ' ' + (currentModel.surname || '');
-      mdlTitle.textContent = `${currentModel.name || ''} ${currentModel.surname || ''}`.trim();
-      mdlAge.textContent = currentModel.age ? `Age: ${currentModel.age}` : '';
-      spHeight.textContent = currentModel.height || '-';
-      spShoe.textContent = currentModel.shoe || '-';
-      spShirt.textContent = currentModel.shirt || '-';
-      spPants.textContent = currentModel.pants || '-';
-      spBio.textContent = currentModel.bio || '';
-
-      at = 0;
-      paintImage();
-
-      modal.classList.add('open');
+      modal.classList.add('show');
       modal.setAttribute('aria-hidden','false');
-      document.body.style.overflow='hidden';
+
+      prev.onclick = () => stepImage(-1);
+      next.onclick = () => stepImage(1);
+    }
+
+    function setHero(src){ hero.src = src; }
+
+    function stepImage(delta){
+      const imgs = [current.model.profilePicture, ...(current.model.galleryImages||[])].filter(Boolean);
+      current.currentImgIdx = (current.currentImgIdx + delta + imgs.length) % imgs.length;
+      setHero(imgs[current.currentImgIdx]);
+      thumbs.querySelectorAll('img').forEach((t,i)=>t.classList.toggle('active', i===current.currentImgIdx));
     }
 
     function closeModal(){
-      modal.classList.remove('open');
+      modal.classList.remove('show');
       modal.setAttribute('aria-hidden','true');
-      document.body.style.overflow='';
+      current = null;
     }
 
-    function paintImage(){
-      gImg.src = images[at] || '';
-      gImg.alt = `${mdlTitle.textContent} — image ${at+1} of ${images.length}`;
-      // dots
-      gDots.innerHTML = images.map((_,i)=>`<span class="dot ${i===at?'active':''}"></span>`).join('');
-      [...gDots.children].forEach((d,i)=> d.addEventListener('click', ()=>{ at=i; paintImage(); }));
-    }
-
-    function next(){ at = (at+1) % images.length; paintImage(); }
-    function prev(){ at = (at-1+images.length) % images.length; paintImage(); }
-
-    gNext.addEventListener('click', next);
-    gPrev.addEventListener('click', prev);
-    viewNext.addEventListener('click', next);
-    closeM.addEventListener('click', closeModal);
+    closeX.addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
-    window.addEventListener('keydown', (e)=>{
-      if(!modal.classList.contains('open')) return;
-      if(e.key==='Escape') closeModal();
-      if(e.key==='ArrowRight') next();
-      if(e.key==='ArrowLeft') prev();
+
+    // Share (optional)
+    shareBtn.addEventListener('click', async () => {
+      if (!current) return;
+      const m = current.model;
+      const url = location.origin + location.pathname + `?model=${encodeURIComponent(m._id)}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        alert('Link copied to clipboard');
+      } catch { alert('Link: ' + url); }
     });
 
-    /* ----- Booking mini-form ----- */
-    const bookBtn = document.getElementById('bookBtn');
-    const bookForm = document.getElementById('bookForm');
-    const bkEmail = document.getElementById('bkEmail');
-    const bkWa = document.getElementById('bkWa');
-    const bkMsg = document.getElementById('bkMsg');
-
-    bookBtn.addEventListener('click', ()=>{
-      bookForm.classList.toggle('show');
-      bkMsg.textContent = '';
+    // Booking
+    bookBtn.addEventListener('click', () => {
+      bookBox.classList.toggle('show');
+      bookMsg.textContent = '';
     });
-
-    bookForm.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      bkMsg.style.color = '#111';
-      bkMsg.textContent = 'Sending…';
-      try{
+    cancelBook.addEventListener('click', () => {
+      bookBox.classList.remove('show');
+      bookMsg.textContent = '';
+    });
+    sendBook.addEventListener('click', async () => {
+      if (!current) return;
+      const email = reqEmail.value.trim();
+      const wa = reqWhats.value.trim();
+      if (!email || !wa) {
+        bookMsg.textContent = 'Please enter your email and WhatsApp number.'; return;
+      }
+      bookMsg.textContent = 'Sending...';
+      try {
         const payload = {
-          modelId: currentModel?._id || '',
-          modelName: `${currentModel?.name || ''} ${currentModel?.surname || ''}`.trim(),
-          requesterEmail: bkEmail.value.trim(),
-          requesterWhatsapp: bkWa.value.trim()
+          modelId: current.model._id,
+          modelName: `${current.model.name||''} ${current.model.surname||''}`.trim(),
+          requesterEmail: email,
+          requesterWhatsapp: wa
         };
-        const res = await fetch(`${API_BASE}/api/book`,{
+        const res = await fetch(`${API_BASE}/api/book`, {
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body: JSON.stringify(payload)
         });
-        if(!res.ok) throw new Error('Failed to send booking request');
-        bkMsg.style.color = 'green';
-        bkMsg.textContent = 'Thanks! We’ll contact you shortly.';
-        bookForm.reset();
-      }catch(err){
-        bkMsg.style.color = '#b00020';
-        bkMsg.textContent = 'Error sending request. Please try again.';
+        if (!res.ok) throw new Error(await res.text());
+        bookMsg.textContent = 'Booked! We will contact you shortly.';
+      } catch (err) {
+        bookMsg.textContent = 'Failed to send booking. Please try again.';
+        console.error(err);
       }
     });
 
-    fetchModels();
+    // Init
+    (async function init(){
+      await fetchModels();
+      renderGrid('Women');
+
+      // If shared deep-link with ?model=ID, open it
+      const params = new URLSearchParams(location.search);
+      const pre = params.get('model');
+      if (pre) {
+        const m = allModels.find(x => x._id === pre);
+        if (m) openModal(m);
+      }
+    })();
   </script>
 </body>
 </html>
