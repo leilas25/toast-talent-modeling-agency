@@ -6,7 +6,135 @@
   <title>Contact | Toast Talent Modeling Agency</title>
   <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
+
+  <!-- Page-scoped, modern refinements -->
+  <style>
+    .contact-wrap {
+      max-width: 1000px;
+      margin: 64px auto;
+      padding: 0 18px;
+    }
+    .contact-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+    .contact-head {
+      padding: 28px 28px 10px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .contact-head h1 {
+      margin: 0 0 10px;
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: .5px;
+      background: linear-gradient(90deg, #ee3045, #f9c846, #7cc65a, #2493e1, #a259c6, #f76e2a);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; color: transparent;
+    }
+    .contact-head p {
+      margin: 0 0 18px;
+      color: #444;
+      font-size: 1.05rem;
+    }
+    .contact-body {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 0;
+    }
+    @media (max-width: 900px) {
+      .contact-body { grid-template-columns: 1fr; }
+    }
+
+    /* Left panel: info */
+    .contact-info {
+      padding: 28px;
+      display: grid;
+      align-content: center;
+      gap: 18px;
+      background: linear-gradient(180deg, #fafafa, #fff);
+    }
+    .info-block {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .info-block b {
+      display: block;
+      color: var(--accent);
+      margin-bottom: 6px;
+      letter-spacing: .2px;
+    }
+    .info-block p { margin: 0; color: #333; }
+
+    /* Right panel: form */
+    .contact-form-wrap {
+      padding: 28px;
+      background: #fff;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+    .field label {
+      font-weight: 600;
+      color: #222;
+      font-size: .95rem;
+    }
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1.2px solid var(--border);
+      background: #f7f7f7;
+      font-size: 1rem;
+      transition: border .18s, background .18s, box-shadow .18s;
+    }
+    .field input:focus,
+    .field textarea:focus {
+      outline: none;
+      background: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(36,147,225,.08);
+    }
+
+    .actions {
+      display: flex; gap: 12px; margin-top: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, var(--danger), var(--accent));
+      color: var(--white);
+      padding: 13px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter .18s, transform .08s;
+    }
+    .btn-primary:hover { filter: brightness(.95); }
+    .btn-primary:active { transform: translateY(1px); }
+
+    .notice {
+      font-size: .9rem;
+      color: #666;
+      margin-top: 10px;
+    }
+  </style>
 </head>
+
 <body class="with-bg">
   <!-- Navbar -->
   <nav class="navbar">
@@ -24,33 +152,68 @@
     </div>
   </nav>
 
-  <main>
-    <section class="contact-hero">
-      <h1 class="rainbow-contact">Contact Us</h1>
-      <p>
-        We'd love to hear from you. For booking inquiries, collaboration, or more info,
-        use the form below or email us at
-        <a href="mailto:leila@toasttalent.co.za">leila@toasttalent.co.za</a>.
-      </p>
+  <main class="contact-wrap">
+    <section class="contact-card">
+      <header class="contact-head">
+        <h1>Contact Us</h1>
+        <p>
+          Booking enquiries, collabs or questions — reach out below or email
+          <a href="mailto:leila@toasttalent.co.za">leila@toasttalent.co.za</a>.
+        </p>
+      </header>
 
-      <!-- Contact form -->
-      <form class="contact-form" id="contactForm" autocomplete="off">
-        <label for="cname">Name</label>
-        <input id="cname" name="name" type="text" placeholder="Your name" required />
+      <div class="contact-body">
+        <!-- Left: info -->
+        <div class="contact-info">
+          <div class="info-block">
+            <b>Email</b>
+            <p><a href="mailto:leila@toasttalent.co.za">leila@toasttalent.co.za</a></p>
+          </div>
+          <div class="info-block">
+            <b>WhatsApp</b>
+            <p><a href="https://wa.me/27746563428" target="_blank" rel="noopener">+27 74 656 3428</a></p>
+          </div>
+          <div class="info-block">
+            <b>Phone</b>
+            <p>+27 73 781 3751</p>
+          </div>
+          <div class="info-block">
+            <b>Office Hours</b>
+            <p>Mon–Fri, 09:00–17:00 SAST</p>
+          </div>
+        </div>
 
-        <label for="cemail">Email</label>
-        <input id="cemail" name="email" type="email" placeholder="you@example.com" required />
+        <!-- Right: form -->
+        <div class="contact-form-wrap">
+          <form id="contactForm" novalidate>
+            <div class="form-grid">
+              <div class="field">
+                <label for="cname">Name</label>
+                <input id="cname" name="name" type="text" placeholder="Your name" required />
+              </div>
+              <div class="field">
+                <label for="cemail">Email</label>
+                <input id="cemail" name="email" type="email" placeholder="you@example.com" required />
+              </div>
+            </div>
 
-        <label for="cmsg">Message</label>
-        <textarea id="cmsg" name="message" rows="5" placeholder="How can we help?" required></textarea>
+            <div class="field" style="margin-top:14px;">
+              <label for="cwhats">WhatsApp (optional)</label>
+              <input id="cwhats" name="whatsapp" type="tel" placeholder="+27 ..." />
+            </div>
 
-        <button type="submit">Send Message</button>
-      </form>
+            <div class="field" style="margin-top:14px;">
+              <label for="cmsg">Message</label>
+              <textarea id="cmsg" name="message" rows="6" placeholder="Tell us about the project, dates, usage & budget…" required></textarea>
+            </div>
 
-      <div class="contact-details">
-        <p><b>Email:</b> leila@toasttalent.co.za</p>
-        <p><b>Whatsapp:</b> +27 74 656 3428</p>
-        <p><b>Phone:</b> +27 73 781 3751</p>
+            <div class="actions">
+              <button class="btn-primary" type="submit">Send Message</button>
+            </div>
+
+            <div class="notice">You’ll get a confirmation in your email app.</div>
+          </form>
+        </div>
       </div>
     </section>
   </main>
@@ -59,44 +222,44 @@
     &copy; 2025 Toast Talent Modeling Agency
   </footer>
 
-  <!-- Mailto handler + deep-link prefill -->
+  <!-- Mailto submit + deep-link prefill -->
   <script>
-    // Submit using mailto (no backend needed)
+    // Submit using mailto (clean + no backend)
     document.getElementById('contactForm').addEventListener('submit', function (e) {
       e.preventDefault();
       const name = document.getElementById('cname').value.trim();
       const email = document.getElementById('cemail').value.trim();
-      const msg = document.getElementById('cmsg').value.trim();
+      const wa   = document.getElementById('cwhats').value.trim();
+      const msg  = document.getElementById('cmsg').value.trim();
+
+      if (!name || !email || !msg) {
+        alert('Please fill in your name, email, and message.'); return;
+        }
 
       const subject = encodeURIComponent('Website enquiry from ' + name);
-      const body = encodeURIComponent(`${msg}\n\nFrom: ${name} (${email})`);
-      window.location.href = `mailto:leila@toasttalent.co.za?subject=${subject}&body=${body}`;
+      const body = encodeURIComponent(
+        `${msg}\n\nFrom: ${name} (${email})${wa ? `\nWhatsApp: ${wa}` : ''}`
+      );
 
-      // Optional UX: reset after launching mail client
+      window.location.href = `mailto:leila@toasttalent.co.za?subject=${subject}&body=${body}`;
       this.reset();
     });
 
-    // If page is opened with ?model=<name>, prefill the message
+    // Prefill when opened as /contact.html?model=Leila%20Sono
     (function () {
-      const params = new URLSearchParams(location.search);
-      const model = params.get('model');
+      const model = new URLSearchParams(location.search).get('model');
       if (!model) return;
-
       const nameInput = document.getElementById('cname');
       const msgTextarea = document.getElementById('cmsg');
 
-      if (msgTextarea) {
-        msgTextarea.value =
+      msgTextarea.value =
 `Booking enquiry for ${model}
 
 Project details:
 • Dates:
 • Usage:
 • Budget:`;
-      }
-      if (nameInput && !nameInput.value) {
-        nameInput.value = 'Agency Booking';
-      }
+      if (!nameInput.value) nameInput.value = 'Agency Booking';
     })();
   </script>
 </body>
