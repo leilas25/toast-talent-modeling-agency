@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <body class="with-bg">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Contact | Toast Talent Modeling Agency</title>
   <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="with-bg">
+  <!-- Navbar -->
   <nav class="navbar">
     <div class="nav-content">
       <a href="index.html" class="nav-logo">
@@ -23,61 +23,81 @@
       </ul>
     </div>
   </nav>
+
   <main>
     <section class="contact-hero">
       <h1 class="rainbow-contact">Contact Us</h1>
-      <p>We'd love to hear from you. For booking inquiries, collaboration, or more info, use the form below or email us at <a href="mailto:info@toasttalent.com">toastalent@gmail.com</a>.</p>
-      <form class="contact-form" autocomplete="off">
-        <label>
-          Name
-          <input type="text" name="name" required>
-        </label>
-        <label>
-          Email
-          <input type="email" name="email" required>
-        </label>
-        <label>
-          Message
-          <textarea name="message" rows="4" required></textarea>
-        </label>
+      <p>
+        We'd love to hear from you. For booking inquiries, collaboration, or more info,
+        use the form below or email us at
+        <a href="mailto:leila@toasttalent.co.za">leila@toasttalent.co.za</a>.
+      </p>
+
+      <!-- Contact form -->
+      <form class="contact-form" id="contactForm" autocomplete="off">
+        <label for="cname">Name</label>
+        <input id="cname" name="name" type="text" placeholder="Your name" required />
+
+        <label for="cemail">Email</label>
+        <input id="cemail" name="email" type="email" placeholder="you@example.com" required />
+
+        <label for="cmsg">Message</label>
+        <textarea id="cmsg" name="message" rows="5" placeholder="How can we help?" required></textarea>
+
         <button type="submit">Send Message</button>
       </form>
+
       <div class="contact-details">
-        <p><b>Email:</b> toastalent@gmail.com</p>
+        <p><b>Email:</b> leila@toasttalent.co.za</p>
         <p><b>Whatsapp:</b> +27 74 656 3428</p>
         <p><b>Phone:</b> +27 73 781 3751</p>
-
       </div>
     </section>
   </main>
+
   <footer>
     &copy; 2025 Toast Talent Modeling Agency
   </footer>
+
+  <!-- Mailto handler + deep-link prefill -->
   <script>
-    document.querySelector('.contact-form').onsubmit = function(e) {
+    // Submit using mailto (no backend needed)
+    document.getElementById('contactForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      alert("Thank you for contacting Toast Talent! We'll respond soon.");
+      const name = document.getElementById('cname').value.trim();
+      const email = document.getElementById('cemail').value.trim();
+      const msg = document.getElementById('cmsg').value.trim();
+
+      const subject = encodeURIComponent('Website enquiry from ' + name);
+      const body = encodeURIComponent(`${msg}\n\nFrom: ${name} (${email})`);
+      window.location.href = `mailto:leila@toasttalent.co.za?subject=${subject}&body=${body}`;
+
+      // Optional UX: reset after launching mail client
       this.reset();
-    };
+    });
+
+    // If page is opened with ?model=<name>, prefill the message
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const model = params.get('model');
+      if (!model) return;
+
+      const nameInput = document.getElementById('cname');
+      const msgTextarea = document.getElementById('cmsg');
+
+      if (msgTextarea) {
+        msgTextarea.value =
+`Booking enquiry for ${model}
+
+Project details:
+• Dates:
+• Usage:
+• Budget:`;
+      }
+      if (nameInput && !nameInput.value) {
+        nameInput.value = 'Agency Booking';
+      }
+    })();
   </script>
-  <script>
-  (function () {
-    const params = new URLSearchParams(location.search);
-    const model = params.get('model');
-    if (!model) return;
-
-    // Adjust these selectors to your form’s fields if different
-    const nameInput = document.querySelector('input[name="name"]');
-    const msgTextarea = document.querySelector('textarea[name="message"]');
-
-    if (msgTextarea) {
-      msgTextarea.value = `Booking enquiry for ${model}\n\nProject details:\n• Dates:\n• Usage:\n• Budget:\n`;
-    }
-    if (nameInput && !nameInput.value) {
-      nameInput.value = 'Agency Booking';
-    }
-  })();
-</script>
-
 </body>
 </html>
