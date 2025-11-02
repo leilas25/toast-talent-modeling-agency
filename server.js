@@ -32,7 +32,7 @@ app.use(session({
   cookie: {
     domain: IS_PROD ? (process.env.COOKIE_DOMAIN || '.toasttalent.co.za') : undefined,
     httpOnly: true,
-    secure: IS_PROD,           // HTTPS only in prod
+    secure: IS_PROD,            // HTTPS only in prod
     sameSite: IS_PROD ? 'none' : 'lax',
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
@@ -67,20 +67,36 @@ app.get('/api/models-sanity', (req, res) => {
 });
 app.get('/health', (req, res) => res.json({ ok: true }));
 
+/* ------------ Auth helpers (for debugging UI) ------------ */
+app.get('/api/whoami', (req, res) => {
+  res.json({ isAdmin: !!req.session?.isAdmin, sessionID: req.sessionID || null });
+});
+app.get('/api/check-auth', (req, res) => {
+  if (req.session?.isAdmin) return res.json({ authenticated: true });
+  return res.status(401).json({ authenticated: false });
+});
+
 /* ------------ Admin login (session-based) ------------ */
 app.post('/api/admin-login', (req, res) => {
   const { password } = req.body || {};
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; // set in Render dashboard
   if (password && ADMIN_PASSWORD && password === ADMIN_PASSWORD) {
     req.session.isAdmin = true;
-    return res.json({ ok: true, message: 'Login successful' });
+    // ensure session is saved before responding
+    return req.session.save(() => res.json({ ok: true, message: 'Login successful' }));
   }
   return res.status(401).json({ ok: false, message: 'Incorrect password' });
 });
 
 app.post('/api/admin-logout', (req, res) => {
+  const cookieOptions = {
+    path: '/',
+    domain: IS_PROD ? (process.env.COOKIE_DOMAIN || '.toasttalent.co.za') : undefined,
+    secure: IS_PROD,
+    sameSite: IS_PROD ? 'none' : 'lax'
+  };
   req.session.destroy(() => {
-    res.clearCookie('tt_session');
+    res.clearCookie('tt_session', cookieOptions);
     res.json({ ok: true });
   });
 });
@@ -130,14 +146,12 @@ app.post(
         .map(toB64);
 
       const lines = [
-        'New Model Application',
-        '',
+        'New Model Application', '',
         `Name: ${f.firstName || ''} ${f.lastName || ''}`,
         `Email: ${f.email || ''}`,
         `Phone: ${f.phone || ''}`,
         `DOB: ${f.dob || ''}`,
-        `Gender: ${f.gender || ''}`,
-        '',
+        `Gender: ${f.gender || ''}`, '',
         'Measurements:',
         `Height: ${f.height || ''}`,
         `Bust: ${f.bust || ''}`,
@@ -147,14 +161,12 @@ app.post(
         `Shirt Size: ${f.shirtSize || ''}`,
         `Shoe Size: ${f.shoeSize || ''}`,
         `Hair: ${f.hairColor || ''}`,
-        `Eyes: ${f.eyeColor || ''}`,
-        '',
+        `Eyes: ${f.eyeColor || ''}`, '',
         'Location:',
         `Address: ${f.address || ''}`,
         `City: ${f.city || ''}`,
         `Province: ${f.province || ''}`,
-        `Zip: ${f.zip || ''}`,
-        '',
+        `Zip: ${f.zip || ''}`, '',
         `Message: ${f.message || ''}`,
       ];
 
