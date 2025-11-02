@@ -55,10 +55,36 @@
         <li role="none"><a role="menuitem" href="contact.html">Contact</a></li>
         <li role="none"><a role="menuitem" href="admin.html" class="admin-link">Admin</a></li>
         <li role="none"><a role="menuitem" href="apply.html">Apply</a></li>
-
       </ul>
     </div>
   </nav>
+
+  <!-- ===== BTS CINEMATIC VIDEO BANNER ===== -->
+  <section class="bts-hero" aria-label="Behind the scenes">
+    <video
+      class="bts-video"
+      playsinline
+      muted
+      loop
+      autoplay
+      preload="metadata"
+      poster="images/bts-poster.jpg"
+    >
+      <!-- Place your file in /videos/ (create folder if needed) -->
+      <source src="videos/bts.mp4" type="video/mp4" />
+      <source src="videos/bts.webm" type="video/webm" />
+      Your browser does not support the video tag.
+    </video>
+
+    <div class="bts-overlay"></div>
+
+    <div class="bts-content">
+      <h1>Real moments. Real talent.</h1>
+      <p>Go behind the scenes with Toast Talent.</p>
+      <a href="models.html" class="bts-cta">Explore Models</a>
+    </div>
+  </section>
+  <!-- ===== END BTS BANNER ===== -->
 
   <main id="main" role="main">
     <header class="hero" role="banner">
@@ -105,6 +131,17 @@
   </div>
 
   <script>
+    // Try to kick video in case some browsers pause autoplay even when muted
+    (function ensureVideoPlays(){
+      const v = document.querySelector('.bts-video');
+      if (!v) return;
+      const tryPlay = () => v.play().catch(()=>{});
+      if (v.readyState >= 2) tryPlay();
+      else v.addEventListener('canplay', tryPlay, { once: true });
+      // Keep muted to comply with autoplay policies
+      v.muted = true;
+    })();
+
     document.addEventListener('DOMContentLoaded', function () {
       const modal = document.getElementById('adminLoginModal');
       const form = document.getElementById('adminLoginForm');
@@ -121,9 +158,7 @@
       });
 
       modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-          closeModal();
-        }
+        if (e.target === modal) closeModal();
       });
 
       cancelBtn.addEventListener('click', closeModal);
