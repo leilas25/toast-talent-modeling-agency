@@ -7,10 +7,8 @@
   --border: #ececec;
 }
 
-* {
-  box-sizing: border-box;
-}
-
+/* Reset / base */
+* { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: 'Montserrat', Arial, sans-serif;
@@ -19,7 +17,9 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* Navbar */
+/* =================
+   NAVIGATION BAR
+   ================= */
 .navbar {
   width: 100%;
   background: var(--white);
@@ -28,7 +28,6 @@ body {
   top: 0;
   z-index: 99;
 }
-
 .nav-content {
   max-width: 1200px;
   margin: 0 auto;
@@ -38,21 +37,8 @@ body {
   height: 72px;
   justify-content: space-between;
 }
-
-.nav-logo img {
-  height: 50px;
-  width: auto;
-  display: block;
-}
-
-.nav-links {
-  display: flex;
-  gap: 32px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
+.nav-logo img { height: 50px; width: auto; display: block; }
+.nav-links { display: flex; gap: 32px; list-style: none; margin: 0; padding: 0; }
 .nav-links a {
   text-decoration: none;
   color: var(--primary);
@@ -61,12 +47,8 @@ body {
   position: relative;
   transition: color 0.2s;
 }
-
 .nav-links a.active,
-.nav-links a:hover {
-  color: var(--accent);
-}
-
+.nav-links a:hover { color: var(--accent); }
 .nav-links a.active::after,
 .nav-links a:hover::after {
   content: '';
@@ -78,7 +60,9 @@ body {
   border-radius: 2px;
 }
 
-/* Hero Section */
+/* =================
+   HERO (GENERAL)
+   ================= */
 .hero {
   width: 100%;
   background: var(--white);
@@ -86,7 +70,6 @@ body {
   text-align: center;
   border-bottom: 1px solid var(--border);
 }
-
 .rainbow-title,
 .rainbow-word,
 .rainbow-contact,
@@ -100,13 +83,7 @@ body {
   font-weight: 800;
   letter-spacing: 2px;
 }
-
-.hero-logo {
-  width: 180px;
-  height: auto;
-  margin-bottom: 28px;
-}
-
+.hero-logo { width: 180px; height: auto; margin-bottom: 28px; }
 .hero-content h1 {
   font-size: 2.8rem;
   font-weight: 700;
@@ -114,41 +91,20 @@ body {
   margin: 0 0 18px 0;
   letter-spacing: 0.05em;
 }
-
-.hero-subtitle {
-  font-size: 1.25rem;
-  color: var(--primary);
-  margin: 0 0 32px 0;
-  font-weight: 500;
-}
-
-.hero-socials {
-  display: flex;
-  justify-content: center;
-  gap: 18px;
-  margin-top: 10px;
-}
-
+.hero-subtitle { font-size: 1.25rem; color: var(--primary); margin: 0 0 32px 0; font-weight: 500; }
+.hero-socials { display: flex; justify-content: center; gap: 18px; margin-top: 10px; }
 .hero-icon {
-  color: hwb(0 0% 100%);
+  color: #000;
   background: #fff;
   border-radius: 50%;
   font-size: 1.8rem;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
   text-decoration: none;
   box-shadow: 0 2px 8px #ececec;
   transition: background 0.2s, color 0.2s;
 }
-
-.hero-icon:hover {
-  background: #2493e1;
-  color: hwb(10 97% 0%);
-}
-
+.hero-icon:hover { background: #2493e1; color: #fff; }
 .hero-cta {
   display: inline-block;
   background: linear-gradient(90deg, var(--danger), var(--accent));
@@ -161,12 +117,11 @@ body {
   transition: filter 0.18s, background 0.25s;
   box-shadow: 0 2px 12px #e0e0e0;
 }
+.hero-cta:hover { filter: brightness(0.95); }
 
-.hero-cta:hover {
-  filter: brightness(0.95);
-}
-
-/* Home Feature Section */
+/* =========================
+   HOME FEATURE CALLOUT
+   ========================= */
 .home-feature {
   max-width: 700px;
   background: var(--white);
@@ -176,19 +131,8 @@ body {
   border-radius: 14px;
   box-shadow: 0 2px 14px #ececec;
 }
-
-.home-feature h2 {
-  font-size: 2.1rem;
-  color: var(--accent);
-  margin-bottom: 12px;
-}
-
-.home-feature p {
-  color: #444;
-  margin-bottom: 24px;
-  font-size: 1.1rem;
-}
-
+.home-feature h2 { font-size: 2.1rem; color: var(--accent); margin-bottom: 12px; }
+.home-feature p { color: #444; margin-bottom: 24px; font-size: 1.1rem; }
 .feature-link {
   color: var(--danger);
   font-weight: 600;
@@ -198,41 +142,17 @@ body {
   padding-bottom: 2px;
   transition: border-color 0.2s, color 0.2s;
 }
+.feature-link:hover { color: var(--accent); border-color: var(--accent); }
 
-.feature-link:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
+/* =========================
+   MODELS GALLERY (CARDS)
+   ========================= */
+.models-hero { text-align: center; margin: 60px 0 28px 0; }
+.models-hero h1 { font-size: 2.2rem; color: var(--danger); font-weight: 700; margin-bottom: 8px; }
+.models-hero p { color: #444; font-size: 1.1rem; }
 
-/* Models Gallery */
-.models-hero {
-  text-align: center;
-  margin: 60px 0 28px 0;
-}
-
-.models-hero h1 {
-  font-size: 2.2rem;
-  color: var(--danger);
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.models-hero p {
-  color: #444;
-  font-size: 1.1rem;
-}
-
-.models-gallery {
-  max-width: 1200px;
-  margin: 0 auto 60px auto;
-  padding: 0 18px;
-}
-
-.models-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 36px;
-}
+.models-gallery { max-width: 1200px; margin: 0 auto 60px auto; padding: 0 18px; }
+.models-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 36px; }
 
 .model-card {
   background: var(--white);
@@ -240,35 +160,22 @@ body {
   box-shadow: 0 2px 12px #e0e0e0;
   overflow: hidden;
   text-align: center;
-  transition: transform 0.18s;
+  transition: transform 0.18s, box-shadow 0.18s;
+  cursor: pointer;
 }
+.model-card:hover { transform: translateY(-7px) scale(1.03); box-shadow: 0 6px 30px #ddd; }
+.model-card img { width: 100%; height: 350px; object-fit: cover; display: block; }
+.model-name { padding: 16px 0; font-weight: 600; font-size: 1.1rem; color: var(--accent); }
 
-.model-card:hover {
-  transform: translateY(-7px) scale(1.03);
-  box-shadow: 0 6px 30px #ddd;
-}
-
-.model-card img {
-  width: 100%;
-  height: 350px;
-  object-fit: cover;
-}
-
-.model-name {
-  padding: 16px 0;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--accent);
-}
-
-/* -------- LIGHT CLEAN GALLERY (no black background) -------- */
+/* ==========================================
+   LIGHT, CLEAN OVERLAYS FOR VIEWERS/LIGHTBOX
+   ========================================== */
 .viewer,
 .modal,
 .gallery-overlay {
   background: rgba(255, 255, 255, 0.85) !important;
   backdrop-filter: blur(4px);
 }
-
 .stage,
 .viewer-wrap,
 .gallery,
@@ -278,11 +185,8 @@ body {
   background: var(--white) !important;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
 }
-
 .viewer img,
-.gallery img {
-  background: #fff !important;
-}
+.gallery img { background: #fff !important; }
 
 .thumbs-row {
   background: rgba(255, 255, 255, 0.9);
@@ -290,38 +194,18 @@ body {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
-
 .nav-arrow {
   background: var(--white);
   border: 1px solid var(--border);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* About Page */
-.about-hero {
-  max-width: 700px;
-  margin: 70px auto 50px auto;
-  background: var(--white);
-  border-radius: 14px;
-  box-shadow: 0 2px 14px #ececec;
-  padding: 38px 24px;
-}
-
-.about-hero h1 {
-  color: var(--danger);
-  font-size: 2.2rem;
-  margin-bottom: 18px;
-}
-
-.about-hero p {
-  color: #444;
-  font-size: 1.1rem;
-  margin: 18px 0;
-}
-
-/* Contact Page */
+/* =================
+   ABOUT / CONTACT
+   ================= */
+.about-hero,
 .contact-hero {
-  max-width: 600px;
+  max-width: 700px;
   margin: 70px auto 50px auto;
   background: var(--white);
   border-radius: 14px;
@@ -329,20 +213,49 @@ body {
   padding: 38px 24px;
   text-align: center;
 }
+.about-hero h1,
+.contact-hero h1 { color: var(--danger); font-size: 2.2rem; margin-bottom: 18px; }
+.about-hero p,
+.contact-hero p { color: #444; font-size: 1.1rem; margin: 18px 0; }
+.contact-hero p { margin-bottom: 24px; font-size: 1.08rem; }
 
-.contact-hero h1 {
-  color: var(--danger);
-  font-size: 2.1rem;
-  margin-bottom: 18px;
+/* Contact form fields (keep them clean & consistent) */
+.contact-form { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; align-items: stretch; }
+.contact-form label { text-align: left; font-weight: 500; color: #222; }
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 9px 13px;
+  border-radius: 7px;
+  border: 1.2px solid var(--border);
+  background: #f4f4f4;
+  font-size: 1rem;
+  font-family: 'Montserrat', Arial, sans-serif;
+  resize: vertical;
+  margin-top: 4px;
+  margin-bottom: 2px;
+  transition: border 0.2s, background 0.2s;
 }
-
-.contact-hero p {
-  color: #444;
-  margin-bottom: 24px;
-  font-size: 1.08rem;
+.contact-form input:focus,
+.contact-form textarea:focus { border: 1.2px solid var(--accent); outline: none; background: #fff; }
+.contact-form button {
+  background: linear-gradient(90deg, var(--danger), var(--accent));
+  color: var(--white);
+  padding: 13px 0;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
 }
+.contact-form button:hover { filter: brightness(0.93); }
+.contact-details { text-align: center; margin-top: 20px; color: #222; }
+.contact-details b { color: var(--accent); font-weight: 600; }
 
-/* Footer */
+/* =========
+   FOOTER
+   ========= */
 footer {
   background: var(--white);
   color: #888;
@@ -353,46 +266,28 @@ footer {
   margin-top: 60px;
 }
 
-/* Responsive */
+/* =========================
+   RESPONSIVE TWEAKS
+   ========================= */
 @media (max-width: 700px) {
-  .nav-content {
-    flex-direction: column;
-    height: auto;
-    padding: 0 10px;
-  }
-
-  .nav-links {
-    gap: 16px;
-  }
-
+  .nav-content { flex-direction: column; height: auto; padding: 0 10px; }
+  .nav-links { gap: 16px; }
   .hero-content h1,
   .about-hero h1,
   .models-hero h1,
-  .contact-hero h1 {
-    font-size: 1.4rem;
-  }
-
-  .models-grid {
-    grid-template-columns: 1fr;
-    gap: 22px;
-  }
-
-  .about-hero,
-  .contact-hero,
-  .home-feature {
-    padding: 18px 8px;
-    margin: 38px 7px;
-  }
+  .contact-hero h1 { font-size: 1.4rem; }
+  .models-grid { grid-template-columns: 1fr; gap: 22px; }
+  .about-hero, .contact-hero, .home-feature { padding: 18px 8px; margin: 38px 7px; }
 }
 
-/* Background collage */
+/* ====================================
+   BACKGROUND COLLAGE (page-wide subtle)
+   ==================================== */
 .with-bg::before {
   content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
   background-image: url('images/Talent collage.jpg');
   background-size: 100%;
   background-position: center;
@@ -402,7 +297,9 @@ footer {
   pointer-events: none;
 }
 
-/* === FINAL HARD OVERRIDES: kill black overlay/backgrounds === */
+/* ===================================================
+   HARD OVERRIDES FOR ANY DARK OVERLAY LIBRARIES
+   =================================================== */
 #modelOverlay,
 .model-overlay,
 .modal-overlay,
@@ -422,8 +319,6 @@ footer {
   background: rgba(255,255,255,0.92) !important;
   backdrop-filter: blur(4px);
 }
-
-/* The image stage itself */
 #modelOverlay .stage,
 #modelOverlay .image-stage,
 .viewer-stage,
@@ -433,8 +328,6 @@ footer {
   background: #fff !important;
   box-shadow: 0 4px 24px rgba(0,0,0,0.05);
 }
-
-/* Arrows & thumbs to match light theme */
 #modelOverlay .nav-arrow,
 .viewer .nav-arrow,
 .lightbox .nav,
@@ -443,7 +336,6 @@ footer {
   border: 1px solid var(--border) !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
 }
-
 #modelOverlay .thumbs-row,
 .viewer .thumbs,
 .lightbox .thumbnails,
@@ -453,50 +345,40 @@ footer {
   border-radius: 12px !important;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
 }
-
-/* Ensure images never inherit dark fills */
 #modelOverlay img,
 .viewer img,
 .lightbox img,
-.fancybox__slide img {
-  background: #fff !important;
-}
-
-/* Prevent body from going dark while overlay is open */
+.fancybox__slide img { background: #fff !important; }
 body.modal-open,
 body.viewer-open,
-body.fancybox-active {
-  background: #fff !important;
-}
+body.fancybox-active { background: #fff !important; }
 
-/* =========================
-   BTS CINEMATIC VIDEO BANNER
-   ========================= */
+/* =====================================
+   BTS CINEMATIC VIDEO BANNER (HOMEPAGE)
+   ===================================== */
 .bts-hero{
   position: relative;
   width: 100%;
-  height: 68vh;              /* nice cinematic height */
+  height: 68vh;             /* cinematic height */
   min-height: 420px;
   max-height: 780px;
   overflow: hidden;
   background: #f5f5f5;
   border-bottom: 1px solid var(--border);
 }
-
 .bts-video{
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;         /* cover for cinematic feel */
+  object-fit: cover;        /* use 'contain' to show full frame with letterbox */
+  object-position: center center;
   z-index: 1;
   background: #e9e9e9;
 }
-
 .bts-overlay{
   position: absolute;
   inset: 0;
-  /* soft light gradient, not black */
   background: linear-gradient(
     to bottom,
     rgba(255,255,255,0.20) 0%,
@@ -507,7 +389,6 @@ body.fancybox-active {
   z-index: 2;
   pointer-events: none;
 }
-
 .bts-content{
   position: relative;
   z-index: 3;
@@ -515,38 +396,22 @@ body.fancybox-active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end; /* text sits over lower third */
+  justify-content: flex-end; /* lower third placement */
   text-align: center;
   padding: 40px 16px 46px;
   color: #111;
 }
-
 .bts-content h1{
   margin: 0 0 8px 0;
   font-size: 2.4rem;
   font-weight: 800;
   letter-spacing: .5px;
 }
-
 .bts-content p{
   margin: 0 0 18px 0;
   font-size: 1.08rem;
   color: #333;
 }
-
-.bts-cta{
-  display: inline-block;
-  background: linear-gradient(90deg, var(--danger), var(--accent));
-  color: #fff;
-  text-decoration: none;
-  padding: 12px 22px;
-  border-radius: 999px;
-  font-weight: 700;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-  transition: transform .15s ease, filter .2s ease;
-}
-.bts-cta:hover{ filter: brightness(.95); transform: translateY(-1px); }
-
 @media (max-width: 800px){
   .bts-hero{ height: 56vh; min-height: 360px; }
   .bts-content h1{ font-size: 1.9rem; }
