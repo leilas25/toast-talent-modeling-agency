@@ -59,22 +59,28 @@
     </div>
   </nav>
 
-  <!-- ===== BTS CINEMATIC VIDEO BANNER ===== -->
-  <section class="bts-hero" aria-label="Behind the scenes">
-    <video
-      class="bts-video"
-      playsinline
-      muted
-      loop
-      autoplay
-      preload="metadata"
-      poster="images/bts-poster.jpg"
-    >
-      <!-- Place your file in /videos/ (create folder if needed) -->
-      <source src="videos/bts.mov" type="video/mov" />
-      <source src="videos/bts.mov" type="video/mov" />
-      Your browser does not support the video tag.
-    </video>
+<section class="bts-hero" aria-label="Behind the scenes">
+  <video
+    class="bts-video"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    poster="images/bts-poster.jpg"
+  >
+    <source src="videos/bts.webm" type="video/webm" />
+    <source src="videos/bts.mp4"  type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+</section>
+<script>
+  // Nudge autoplay on strict browsers (no visual change if it already plays)
+  document.addEventListener('DOMContentLoaded', () => {
+    const v = document.querySelector('.bts-video');
+    if (v) v.play().catch(() => {});
+  });
+</script>
 
     <div class="bts-overlay"></div>
 
@@ -83,6 +89,7 @@
       <p>Experience the energy behind the scenes at Toast Talent Modeling Agency.</p>
     </div>
   </section>
+
   <!-- ===== END BTS BANNER ===== -->
 
   <main id="main" role="main">
