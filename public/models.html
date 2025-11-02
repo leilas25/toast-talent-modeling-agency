@@ -4,16 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Models — Toast Talent</title>
-
-  <!-- ✅ Load your shared stylesheet (put this BEFORE any inline styles) -->
-  <link rel="stylesheet" href="/style.css?v=10">
-
+  <link rel="stylesheet" href="style.css" />
   <style>
-    :root { --bg:#fafafa; --text:#111; --muted:#666; --card:#fff; --line:#eee; --acc:#111; }
+    :root{--bg:#fafafa;--text:#111;--muted:#666;--card:#fff;--line:#eee;--acc:#111}
     *{box-sizing:border-box}
-    body{margin:0;font-family: Inter, system-ui, -apple-system, Arial, sans-serif;background:var(--bg);color:var(--text)}
-
-    /* Top bar / site nav (page-specific bits; your global navbar styles live in style.css) */
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Arial,sans-serif;background:var(--bg);color:var(--text)}
     .topbar{background:var(--acc);color:#fff}
     .topbar-inner{max-width:1100px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;gap:16px}
     .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700}
@@ -22,14 +17,12 @@
     .links a{color:#fff;text-decoration:none;opacity:.9}
     .links a:hover{opacity:1}
 
-    /* Category tabs */
     .tabs{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line)}
     .tabs-inner{max-width:1100px;margin:0 auto;display:flex;gap:4px;padding:10px 8px}
     .tab{appearance:none;border:none;background:none;padding:12px 16px;border-radius:8px;cursor:pointer;font-weight:600;color:#333}
     .tab:hover{background:#f2f2f2}
     .tab.active{background:#111;color:#fff}
 
-    /* Grid */
     .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px}
     .card{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06);cursor:pointer;transition:transform .15s}
@@ -39,16 +32,15 @@
     .card h3{margin:0 0 4px;font-size:15px}
     .chip{display:inline-block;padding:2px 8px;background:#f3f3f3;border-radius:999px;font-size:12px;color:#444;margin-right:6px}
 
-    /* Modal (❗light overlay so no black background) */
-    .modal{position:fixed;inset:0;background:rgba(255,255,255,.92);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}
     .modal.show{display:flex}
     .sheet{width:100%;max-width:1100px;background:#fff;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:1.2fr .9fr;min-height:70vh}
     @media (max-width:900px){.sheet{grid-template-columns:1fr}}
-    .gallery{position:relative;background:#fff;display:flex;align-items:center;justify-content:center}
-    .gallery img{max-width:100%;max-height:70vh;object-fit:contain;background:#fff}
+    .gallery{position:relative;background:#000;display:flex;align-items:center;justify-content:center}
+    .gallery img{max-width:100%;max-height:70vh;object-fit:contain;background:#000}
     .thumbs{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:6px;justify-content:center;padding:0 12px}
     .thumbs img{width:64px;height:64px;object-fit:cover;border:2px solid transparent;border-radius:6px;cursor:pointer;opacity:.9}
-    .thumbs img.active{border-color:#111;opacity:1}
+    .thumbs img.active{border-color:#fff;opacity:1}
     .navbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.9);border:none;border-radius:999px;width:40px;height:40px;cursor:pointer;font-size:18px}
     .navbtn:hover{background:#fff}
     .navbtn.prev{left:10px}
@@ -97,9 +89,10 @@
   <!-- Category tabs -->
   <div class="tabs">
     <div class="tabs-inner">
-      <button class="tab active" data-cat="Women">Women</button>
+      <button class="tab" data-cat="Women">Women</button>
       <button class="tab" data-cat="Men">Men</button>
       <button class="tab" data-cat="Kids">Kids</button>
+      <button class="tab" data-cat="Influencers">Influencers</button>
     </div>
   </div>
 
@@ -154,12 +147,14 @@
   </div>
 
   <script>
+    // -------- API base detection --------
     const API_BASE = (location.hostname.includes('toasttalent.co.za'))
       ? 'https://api.toasttalent.co.za'
       : (location.hostname.includes('onrender.com'))
       ? 'https://toast-talent-modeling-agency.onrender.com'
       : 'http://localhost:10000';
 
+    // -------- UI refs --------
     const grid = document.getElementById('grid');
     const tabs = document.querySelectorAll('.tab');
     const modal = document.getElementById('modal');
@@ -193,6 +188,10 @@
         tabs.forEach(x => x.classList.remove('active'));
         t.classList.add('active');
         renderGrid(t.dataset.cat);
+        // update query param for sharable state
+        const u = new URL(location.href);
+        u.searchParams.set('cat', t.dataset.cat);
+        history.replaceState(null, '', u);
       });
     });
 
@@ -239,8 +238,7 @@
       pantsEl.textContent = model.pants || '—';
 
       const imgs = [model.profilePicture, ...(model.galleryImages || [])].filter(Boolean);
-      if (!imgs.length) imgs.push('');
-      setHero(imgs[0]);
+      setHero(imgs[0] || '');
 
       thumbs.innerHTML = imgs.map((src, i) =>
         `<img src="${src}" data-i="${i}" class="${i===0?'active':''}" alt="thumb">`
@@ -281,34 +279,37 @@
       current = null;
     }
 
-    closeX.addEventListener('click', closeModal);
+    document.getElementById('closeX').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
 
+    // Share
     shareBtn.addEventListener('click', async () => {
       if (!current) return;
       const m = current.model;
-      const url = location.origin + location.pathname + `?model=${encodeURIComponent(m._id)}`;
+      const u = new URL(location.href);
+      u.searchParams.set('model', m._id);
       try {
-        await navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(u.toString());
         alert('Link copied to clipboard');
-      } catch { alert('Link: ' + url); }
+      } catch {
+        alert('Link: ' + u.toString());
+      }
     });
 
-    bookBtn.addEventListener('click', () => {
+    // Booking
+    document.getElementById('bookBtn').addEventListener('click', () => {
       bookBox.classList.toggle('show');
       bookMsg.textContent = '';
     });
-    cancelBook.addEventListener('click', () => {
+    document.getElementById('cancelBook').addEventListener('click', () => {
       bookBox.classList.remove('show');
       bookMsg.textContent = '';
     });
-    sendBook.addEventListener('click', async () => {
+    document.getElementById('sendBook').addEventListener('click', async () => {
       if (!current) return;
       const email = reqEmail.value.trim();
       const wa = reqWhats.value.trim();
-      if (!email || !wa) {
-        bookMsg.textContent = 'Please enter your email and WhatsApp number.'; return;
-      }
+      if (!email || !wa) { bookMsg.textContent = 'Please enter your email and WhatsApp number.'; return; }
       bookMsg.textContent = 'Sending...';
       try {
         const payload = {
@@ -330,10 +331,17 @@
       }
     });
 
+    // Init with deep-link: ?cat=Influencers (or Women/Men/Kids) and optional ?model=
     (async function init(){
       await fetchModels();
-      renderGrid('Women');
+
       const params = new URLSearchParams(location.search);
+      const defaultCat = params.get('cat') || 'Women';
+      const tab = Array.from(tabs).find(t => t.dataset.cat === defaultCat) || tabs[0];
+      tabs.forEach(x => x.classList.remove('active'));
+      tab.classList.add('active');
+      renderGrid(tab.dataset.cat);
+
       const pre = params.get('model');
       if (pre) {
         const m = allModels.find(x => x._id === pre);

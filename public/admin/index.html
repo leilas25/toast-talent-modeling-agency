@@ -21,6 +21,7 @@
     .list-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #eee; }
     .list-item img { width:48px; height:48px; object-fit:cover; border-radius:6px; }
     .badge { display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; background:#f1f1f1; color:#333; margin-left:8px; }
+    .hint { font-size:12px; color:#777; margin-top:6px; }
   </style>
   <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 </head>
@@ -36,6 +37,7 @@
         <input id="adminPass" type="password" required autocomplete="current-password" />
         <button type="submit" id="loginBtn">Unlock Admin</button>
         <div id="loginError" class="error"></div>
+        <div class="hint">If you see a “blocked by CORS” error, ensure you are on <b>toasttalent.co.za</b> and the API is <b>api.toasttalent.co.za</b>.</div>
       </form>
     </section>
 
@@ -92,6 +94,7 @@
             <option value="Women">Women</option>
             <option value="Men">Men</option>
             <option value="Kids">Kids</option>
+            <option value="Influencers">Influencers</option>
           </select>
         </div>
 
@@ -137,7 +140,7 @@
     previewEl.innerHTML = '';
     const files = input.files || [];
     [...files].slice(0, 10).forEach(f => {
-      if (!f.type.startsWith('image/')) return;
+      if (!f.type?.startsWith?.('image/')) return;
       const img = document.createElement('img');
       img.alt = f.name;
       const reader = new FileReader();
@@ -161,15 +164,28 @@
   }
 
   async function checkAuth() {
-    // quick check: try to list models; if 401, show login
-    const res = await fetch(`${API_BASE}/api/models`, { credentials: 'include' });
-    if (res.ok) {
-      document.getElementById('loginSection').style.display = 'none';
-      document.getElementById('panel').style.display = 'block';
-      loadModels();
-    } else {
-      document.getElementById('loginSection').style.display = 'block';
-      document.getElementById('panel').style.display = 'none';
+    try {
+      const res = await fetch(`${API_BASE}/api/check-auth`, { credentials: 'include' });
+      const j = await res.json().catch(()=>({}));
+      if (res.ok && j.authenticated) {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('panel').style.display = 'block';
+        loadModels();
+      } else {
+        document.getElementById('loginSection').style.display = 'block';
+        document.getElementById('panel').style.display = 'none';
+      }
+    } catch {
+      // fall back to old method if /api/check-auth not available
+      const res2 = await fetch(`${API_BASE}/api/models`, { credentials: 'include' }).catch(()=>({ok:false}));
+      if (res2.ok) {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('panel').style.display = 'block';
+        loadModels();
+      } else {
+        document.getElementById('loginSection').style.display = 'block';
+        document.getElementById('panel').style.display = 'none';
+      }
     }
   }
 
@@ -202,7 +218,7 @@
         adminPass.focus();
       }
     } catch (err) {
-      loginError.textContent = 'Network error during login.';
+      loginError.textContent = 'Network/CORS error during login. Make sure you are on https://toasttalent.co.za.';
     } finally {
       loginBtn.disabled = false;
       loginBtn.textContent = 'Unlock Admin';
@@ -245,7 +261,7 @@
       );
       const galleryUrls = galleryUploads.map(u => u.secure_url);
 
-      // 3) Build payload and POST to API (✅ includes category)
+      // 3) Build payload and POST to API
       const payload = {
         name: document.getElementById('name').value.trim(),
         surname: document.getElementById('surname').value.trim(),
@@ -255,7 +271,7 @@
         shirt: document.getElementById('shirt').value.trim(),
         pants: document.getElementById('pants').value.trim(),
         bio: document.getElementById('bio').value.trim(),
-        category: document.getElementById('category').value,   // <-- added
+        category: document.getElementById('category').value,
         profilePicture: profileUrl,
         galleryImages: galleryUrls
       };
