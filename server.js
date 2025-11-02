@@ -1,3 +1,4 @@
+// server.js
 import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
@@ -6,68 +7,88 @@ import bodyParser from 'body-parser';
 import fs from 'fs';
 import multer from 'multer';
 import sgMail from '@sendgrid/mail';
+import cors from 'cors';
 
 import modelsRouter from './routes/models.js';
 
 const __dirname = path.resolve();
 const app = express();
+
 const PORT = process.env.PORT || 10000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PROD = NODE_ENV === 'production';
 
-/* ------------ Trust proxy (needed for secure cookies on Render) ------------ */
+/* ------------------------------------------
+   Trust proxy (secure cookies behind Render)
+------------------------------------------- */
 app.set('trust proxy', 1);
 
-/* ------------ Body parsing ------------ */
+/* ------------- Body parsing ------------- */
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-/* ------------ Cookies & session ------------ */
-app.use(cookieParser());
-app.use(session({
-  name: process.env.SESSION_NAME || 'tt_session',
-  secret: process.env.SESSION_SECRET || 'change_this_secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    domain: IS_PROD ? (process.env.COOKIE_DOMAIN || '.toasttalent.co.za') : undefined,
-    httpOnly: true,
-    secure: IS_PROD,            // HTTPS only in prod
-    sameSite: IS_PROD ? 'none' : 'lax',
-    maxAge: 1000 * 60 * 60 * 24 * 7
-  }
-}));
-
-/* ------------ CORS (allow your sites) ------------ */
-const allowedOrigins = [
-  'https://toast-talent-modeling-agency.onrender.com',
+/* ----------------- CORS ----------------- */
+/** We reflect only allowed origins and fully handle preflight */
+const allowedOrigins = new Set([
   'https://toasttalent.co.za',
   'https://www.toasttalent.co.za',
   'https://api.toasttalent.co.za',
+  'https://toast-talent-modeling-agency.onrender.com',
   'http://localhost:10000',
   'http://localhost:3000'
-];
+]);
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Vary', 'Origin');
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  if (req.method === 'OPTIONS') return res.status(204).end();
-  next();
-});
+app.use(
+  cors({
+    origin(origin, cb) {
+      // allow same-origin / curl / server-to-server (no Origin header)
+      if (!origin) return cb(null, true);
+      if (allowedOrigins.has(origin)) return cb(null, true);
+      console.warn('CORS blocked origin:', origin);
+      return cb(new Error('CORS: origin not allowed'), false);
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    maxAge: 600
+  })
+);
 
-/* ------------ Sanity / Health ------------ */
+// Make sure any stray OPTIONS also succeed fast
+app.options('*', (req, res) => res.sendStatus(204));
+
+/* ----------- Cookies & session ---------- */
+app.use(cookieParser());
+app.use(
+  session({
+    name: process.env.SESSION_NAME || 'tt_session',
+    secret: process.env.SESSION_SECRET || 'change_this_secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      domain: IS_PROD ? process.env.COOKIE_DOMAIN || '.toasttalent.co.za' : undefined,
+      httpOnly: true,
+      secure: IS_PROD,                 // HTTPS only in prod
+      sameSite: IS_PROD ? 'none' : 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7  // 7 days
+    }
+  })
+);
+
+/* --------- Sanity / Health / Misc ------- */
 app.get('/api/models-sanity', (req, res) => {
-  res.json({ sanity: true, commit: process.env.DEPLOY_COMMIT || 'local', env: NODE_ENV });
+  res.json({
+    sanity: true,
+    commit: process.env.DEPLOY_COMMIT || 'local',
+    env: NODE_ENV
+  });
 });
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-/* ------------ Auth helpers (for debugging UI) ------------ */
+// Silences the favicon 404 noise in dev/console
+app.get('/favicon.ico', (req, res) => res.sendStatus(204));
+
+/* -------------- Auth helpers ------------ */
 app.get('/api/whoami', (req, res) => {
   res.json({ isAdmin: !!req.session?.isAdmin, sessionID: req.sessionID || null });
 });
@@ -76,13 +97,12 @@ app.get('/api/check-auth', (req, res) => {
   return res.status(401).json({ authenticated: false });
 });
 
-/* ------------ Admin login (session-based) ------------ */
+/* ----------- Admin login/logout --------- */
 app.post('/api/admin-login', (req, res) => {
   const { password } = req.body || {};
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; // set in Render dashboard
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
   if (password && ADMIN_PASSWORD && password === ADMIN_PASSWORD) {
     req.session.isAdmin = true;
-    // ensure session is saved before responding
     return req.session.save(() => res.json({ ok: true, message: 'Login successful' }));
   }
   return res.status(401).json({ ok: false, message: 'Incorrect password' });
@@ -91,7 +111,7 @@ app.post('/api/admin-login', (req, res) => {
 app.post('/api/admin-logout', (req, res) => {
   const cookieOptions = {
     path: '/',
-    domain: IS_PROD ? (process.env.COOKIE_DOMAIN || '.toasttalent.co.za') : undefined,
+    domain: IS_PROD ? process.env.COOKIE_DOMAIN || '.toasttalent.co.za' : undefined,
     secure: IS_PROD,
     sameSite: IS_PROD ? 'none' : 'lax'
   };
@@ -101,26 +121,26 @@ app.post('/api/admin-logout', (req, res) => {
   });
 });
 
-/* ------------ Models API ------------ */
+/* --------------- Models API ------------- */
 app.use('/api/models', modelsRouter);
 
-/* ------------ Apply (email to Zoho via SendGrid, with photo attachments) ------------ */
+/* --------- Apply (SendGrid email) ------- */
 if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 } else {
   console.warn('⚠️  SENDGRID_API_KEY not set. /api/apply and /api/book emails will fail.');
 }
 
-const upload = multer({ limits: { fileSize: 8 * 1024 * 1024 } }); // 8MB/file
+const upload = multer({ limits: { fileSize: 8 * 1024 * 1024 } }); // 8MB per file
 
 app.post(
   '/api/apply',
   upload.fields([
     { name: 'headshotNeutral', maxCount: 1 },
     { name: 'headshotSmiling', maxCount: 1 },
-    { name: 'sideProfile',     maxCount: 1 },
-    { name: 'halfBody',        maxCount: 1 },
-    { name: 'fullBody',        maxCount: 1 },
+    { name: 'sideProfile', maxCount: 1 },
+    { name: 'halfBody', maxCount: 1 },
+    { name: 'fullBody', maxCount: 1 }
   ]),
   async (req, res) => {
     try {
@@ -133,7 +153,7 @@ app.post(
         content: file.buffer.toString('base64'),
         filename: file.originalname,
         type: file.mimetype,
-        disposition: 'attachment',
+        disposition: 'attachment'
       });
 
       const files = req.files || {};
@@ -146,12 +166,14 @@ app.post(
         .map(toB64);
 
       const lines = [
-        'New Model Application', '',
+        'New Model Application',
+        '',
         `Name: ${f.firstName || ''} ${f.lastName || ''}`,
         `Email: ${f.email || ''}`,
         `Phone: ${f.phone || ''}`,
         `DOB: ${f.dob || ''}`,
-        `Gender: ${f.gender || ''}`, '',
+        `Gender: ${f.gender || ''}`,
+        '',
         'Measurements:',
         `Height: ${f.height || ''}`,
         `Bust: ${f.bust || ''}`,
@@ -161,13 +183,15 @@ app.post(
         `Shirt Size: ${f.shirtSize || ''}`,
         `Shoe Size: ${f.shoeSize || ''}`,
         `Hair: ${f.hairColor || ''}`,
-        `Eyes: ${f.eyeColor || ''}`, '',
+        `Eyes: ${f.eyeColor || ''}`,
+        '',
         'Location:',
         `Address: ${f.address || ''}`,
         `City: ${f.city || ''}`,
         `Province: ${f.province || ''}`,
-        `Zip: ${f.zip || ''}`, '',
-        `Message: ${f.message || ''}`,
+        `Zip: ${f.zip || ''}`,
+        '',
+        `Message: ${f.message || ''}`
       ];
 
       await sgMail.send({
@@ -186,12 +210,14 @@ app.post(
   }
 );
 
-/* ------------ Booking Email Endpoint ------------ */
+/* -------- Booking email endpoint -------- */
 app.post('/api/book', async (req, res) => {
   try {
     const { modelId, modelName, requesterEmail, requesterWhatsapp } = req.body || {};
     if (!modelName || !requesterEmail || !requesterWhatsapp) {
-      return res.status(400).json({ error: 'modelName, requesterEmail and requesterWhatsapp are required' });
+      return res
+        .status(400)
+        .json({ error: 'modelName, requesterEmail and requesterWhatsapp are required' });
     }
     if (!process.env.SENDGRID_API_KEY) {
       return res.status(500).json({ error: 'Email service not configured' });
@@ -204,8 +230,7 @@ app.post('/api/book', async (req, res) => {
       to,
       from,
       subject: `Booking Request — ${modelName}`,
-      text:
-`A new booking request has been submitted.
+      text: `A new booking request has been submitted.
 
 Model: ${modelName}
 Model ID (if provided): ${modelId || '-'}
@@ -213,7 +238,7 @@ Model ID (if provided): ${modelId || '-'}
 Requester Email: ${requesterEmail}
 Requester WhatsApp: ${requesterWhatsapp}
 
-Please follow up with the requester to confirm details.`,
+Please follow up with the requester to confirm details.`
     };
 
     await sgMail.send(msg);
@@ -224,7 +249,7 @@ Please follow up with the requester to confirm details.`,
   }
 });
 
-/* ------------ Static assets ------------ */
+/* ------------- Static assets ------------ */
 try {
   app.use(express.static(path.join(__dirname, 'public')));
   console.log('✅ Static middleware mounted.');
@@ -232,7 +257,7 @@ try {
   console.error('⚠️ Failed to mount static middleware (non-fatal):', e);
 }
 
-/* ------------ SPA fallback (safe) ------------ */
+/* -------- SPA fallback (safe) ---------- */
 app.use((req, res, next) => {
   try {
     if (req.method !== 'GET') return next();
@@ -243,7 +268,7 @@ app.use((req, res, next) => {
 
     const indexFile = path.join(__dirname, 'public', 'index.html');
     if (fs.existsSync(indexFile)) {
-      return res.sendFile(indexFile, err => {
+      return res.sendFile(indexFile, (err) => {
         if (err) {
           console.error('Error sending index.html fallback:', err);
           return next();
@@ -257,7 +282,7 @@ app.use((req, res, next) => {
   }
 });
 
-/* ------------ Start server ------------ */
+/* --------------- Start server ----------- */
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT} (${NODE_ENV})`);
 });
