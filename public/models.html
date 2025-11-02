@@ -4,13 +4,16 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Models — Toast Talent</title>
+
+  <!-- ✅ Load your shared stylesheet (put this BEFORE any inline styles) -->
+  <link rel="stylesheet" href="/style.css?v=10">
+
   <style>
-    :root {
-      --bg:#fafafa; --text:#111; --muted:#666; --card:#fff; --line:#eee; --acc:#111;
-    }
+    :root { --bg:#fafafa; --text:#111; --muted:#666; --card:#fff; --line:#eee; --acc:#111; }
     *{box-sizing:border-box}
     body{margin:0;font-family: Inter, system-ui, -apple-system, Arial, sans-serif;background:var(--bg);color:var(--text)}
-    /* Top bar / site nav (same feel as other pages) */
+
+    /* Top bar / site nav (page-specific bits; your global navbar styles live in style.css) */
     .topbar{background:var(--acc);color:#fff}
     .topbar-inner{max-width:1100px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;gap:16px}
     .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700}
@@ -36,16 +39,16 @@
     .card h3{margin:0 0 4px;font-size:15px}
     .chip{display:inline-block;padding:2px 8px;background:#f3f3f3;border-radius:999px;font-size:12px;color:#444;margin-right:6px}
 
-    /* Modal */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}
+    /* Modal (❗light overlay so no black background) */
+    .modal{position:fixed;inset:0;background:rgba(255,255,255,.92);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}
     .modal.show{display:flex}
     .sheet{width:100%;max-width:1100px;background:#fff;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:1.2fr .9fr;min-height:70vh}
     @media (max-width:900px){.sheet{grid-template-columns:1fr}}
-    .gallery{position:relative;background:#000;display:flex;align-items:center;justify-content:center}
-    .gallery img{max-width:100%;max-height:70vh;object-fit:contain;background:#000}
+    .gallery{position:relative;background:#fff;display:flex;align-items:center;justify-content:center}
+    .gallery img{max-width:100%;max-height:70vh;object-fit:contain;background:#fff}
     .thumbs{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:6px;justify-content:center;padding:0 12px}
     .thumbs img{width:64px;height:64px;object-fit:cover;border:2px solid transparent;border-radius:6px;cursor:pointer;opacity:.9}
-    .thumbs img.active{border-color:#fff;opacity:1}
+    .thumbs img.active{border-color:#111;opacity:1}
     .navbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.9);border:none;border-radius:999px;width:40px;height:40px;cursor:pointer;font-size:18px}
     .navbtn:hover{background:#fff}
     .navbtn.prev{left:10px}
@@ -151,14 +154,12 @@
   </div>
 
   <script>
-    // -------- API base detection --------
     const API_BASE = (location.hostname.includes('toasttalent.co.za'))
       ? 'https://api.toasttalent.co.za'
       : (location.hostname.includes('onrender.com'))
       ? 'https://toast-talent-modeling-agency.onrender.com'
       : 'http://localhost:10000';
 
-    // -------- UI refs --------
     const grid = document.getElementById('grid');
     const tabs = document.querySelectorAll('.tab');
     const modal = document.getElementById('modal');
@@ -185,7 +186,7 @@
     const bookMsg = document.getElementById('bookMsg');
 
     let allModels = [];
-    let current = null; // { model, index, currentImgIdx }
+    let current = null;
 
     tabs.forEach(t => {
       t.addEventListener('click', () => {
@@ -238,7 +239,7 @@
       pantsEl.textContent = model.pants || '—';
 
       const imgs = [model.profilePicture, ...(model.galleryImages || [])].filter(Boolean);
-      if (!imgs.length) imgs.push(''); // fallback
+      if (!imgs.length) imgs.push('');
       setHero(imgs[0]);
 
       thumbs.innerHTML = imgs.map((src, i) =>
@@ -254,7 +255,6 @@
         });
       });
 
-      // reset booking box
       bookBox.classList.remove('show');
       bookMsg.textContent = '';
       reqEmail.value = ''; reqWhats.value = '';
@@ -284,7 +284,6 @@
     closeX.addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
 
-    // Share (optional)
     shareBtn.addEventListener('click', async () => {
       if (!current) return;
       const m = current.model;
@@ -295,7 +294,6 @@
       } catch { alert('Link: ' + url); }
     });
 
-    // Booking
     bookBtn.addEventListener('click', () => {
       bookBox.classList.toggle('show');
       bookMsg.textContent = '';
@@ -332,12 +330,9 @@
       }
     });
 
-    // Init
     (async function init(){
       await fetchModels();
       renderGrid('Women');
-
-      // If shared deep-link with ?model=ID, open it
       const params = new URLSearchParams(location.search);
       const pre = params.get('model');
       if (pre) {
