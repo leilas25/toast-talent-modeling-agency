@@ -401,3 +401,71 @@ footer {
   z-index: -1;
   pointer-events: none;
 }
+
+/* === FINAL HARD OVERRIDES: kill black overlay/backgrounds === */
+#modelOverlay,
+.model-overlay,
+.modal-overlay,
+.modal-backdrop,
+.viewer,
+.viewer-backdrop,
+.viewer-wrap,
+.viewer-stage,
+.lightbox,
+.lightbox__container,
+.lightbox__overlay,
+.lightbox__slide,
+.fancybox__container,
+.fancybox__backdrop,
+.fancybox__carousel,
+.fancybox__slide {
+  background: rgba(255,255,255,0.92) !important;
+  backdrop-filter: blur(4px);
+}
+
+/* The image stage itself */
+#modelOverlay .stage,
+#modelOverlay .image-stage,
+.viewer-stage,
+.viewer-wrap,
+.lightbox__slide,
+.fancybox__slide {
+  background: #fff !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+}
+
+/* Arrows & thumbs to match light theme */
+#modelOverlay .nav-arrow,
+.viewer .nav-arrow,
+.lightbox .nav,
+.fancybox__nav {
+  background: #fff !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+}
+
+#modelOverlay .thumbs-row,
+.viewer .thumbs,
+.lightbox .thumbnails,
+.fancybox__thumbs {
+  background: rgba(255,255,255,0.95) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+}
+
+/* Ensure images never inherit dark fills */
+#modelOverlay img,
+.viewer img,
+.lightbox img,
+.fancybox__slide img {
+  background: #fff !important;
+}
+
+/* Prevent body from going dark while overlay is open */
+body.modal-open,
+body.viewer-open,
+body.fancybox-active {
+  background: #fff !important;
+}
+
