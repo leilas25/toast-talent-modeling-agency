@@ -4,347 +4,402 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Models — Toast Talent</title>
+  <link rel="stylesheet" href="style.css" />
+
   <style>
-    :root {
-      --bg:#fafafa; --text:#111; --muted:#666; --card:#fff; --line:#eee; --acc:#111;
+    /* ---------- Page section ---------- */
+    .models-hero { text-align:center; margin:40px 0 10px; }
+    .models-gallery { max-width:1200px; margin:0 auto 60px; padding:0 18px; }
+    .models-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:36px; }
+
+    .model-card {
+      background: var(--white);
+      border-radius: 18px;
+      box-shadow: 0 2px 12px #e0e0e0;
+      overflow: hidden;
+      text-align: center;
+      transition: transform .18s, box-shadow .18s;
+      cursor: pointer;
     }
-    *{box-sizing:border-box}
-    body{margin:0;font-family: Inter, system-ui, -apple-system, Arial, sans-serif;background:var(--bg);color:var(--text)}
-    /* Top bar / site nav (same feel as other pages) */
-    .topbar{background:var(--acc);color:#fff}
-    .topbar-inner{max-width:1100px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;gap:16px}
-    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700}
-    .logo img{width:36px;height:36px;object-fit:cover;border-radius:6px}
-    .links{margin-left:auto;display:flex;gap:16px}
-    .links a{color:#fff;text-decoration:none;opacity:.9}
-    .links a:hover{opacity:1}
+    .model-card:hover { transform: translateY(-6px) scale(1.02); box-shadow:0 6px 28px #ddd; }
+    .model-card img { width:100%; height:350px; object-fit:cover; display:block; }
+    .model-name { padding:14px 0 16px; font-weight:700; font-size:1.05rem; color:var(--accent); }
 
-    /* Category tabs */
-    .tabs{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line)}
-    .tabs-inner{max-width:1100px;margin:0 auto;display:flex;gap:4px;padding:10px 8px}
-    .tab{appearance:none;border:none;background:none;padding:12px 16px;border-radius:8px;cursor:pointer;font-weight:600;color:#333}
-    .tab:hover{background:#f2f2f2}
-    .tab.active{background:#111;color:#fff}
+    /* ---------- Lightbox overlay (no black) ---------- */
+    .viewer {
+      position: fixed; inset: 0;
+      display: none; /* toggled to flex */
+      align-items: center; justify-content: center;
+      padding: 20px;
+      background: rgba(255,255,255,0.65);       /* bright, not dark */
+      backdrop-filter: blur(2.5px);             /* gentle blur */
+      z-index: 200;
+    }
+    .viewer.open { display:flex; }
 
-    /* Grid */
-    .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px}
-    .card{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06);cursor:pointer;transition:transform .15s}
-    .card:hover{transform:translateY(-3px)}
-    .card img{width:100%;height:240px;object-fit:cover;background:#ddd}
-    .card .meta{padding:10px 12px}
-    .card h3{margin:0 0 4px;font-size:15px}
-    .chip{display:inline-block;padding:2px 8px;background:#f3f3f3;border-radius:999px;font-size:12px;color:#444;margin-right:6px}
+    .viewer-wrap {
+      position: relative;
+      width: min(1200px, 96vw);
+      height: min(86vh, 900px);
+      display: grid;
+      grid-template-columns: 1.1fr 0.95fr;      /* image | floating card area */
+      gap: 22px;
+    }
 
-    /* Modal */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}
-    .modal.show{display:flex}
-    .sheet{width:100%;max-width:1100px;background:#fff;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:1.2fr .9fr;min-height:70vh}
-    @media (max-width:900px){.sheet{grid-template-columns:1fr}}
-    .gallery{position:relative;background:#000;display:flex;align-items:center;justify-content:center}
-    .gallery img{max-width:100%;max-height:70vh;object-fit:contain;background:#000}
-    .thumbs{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:6px;justify-content:center;padding:0 12px}
-    .thumbs img{width:64px;height:64px;object-fit:cover;border:2px solid transparent;border-radius:6px;cursor:pointer;opacity:.9}
-    .thumbs img.active{border-color:#fff;opacity:1}
-    .navbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.9);border:none;border-radius:999px;width:40px;height:40px;cursor:pointer;font-size:18px}
-    .navbtn:hover{background:#fff}
-    .navbtn.prev{left:10px}
-    .navbtn.next{right:10px}
+    /* Left: stage + thumbs */
+    .stage {
+      position: relative;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.06);
+      padding: 16px 16px 90px;                  /* space for thumbnails */
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-img {
+      max-width: 100%; max-height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
 
-    .side{padding:20px 22px;display:flex;flex-direction:column;gap:14px}
-    .side h2{margin:0;font-size:22px}
-    .profile-row{display:flex;align-items:center;gap:12px}
-    .pfp{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#ddd}
-    .rows{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .row{background:#fafafa;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-    .row b{display:block;font-size:12px;color:#666;margin-bottom:4px}
-    .row span{font-size:14px}
-    .actions{display:flex;gap:10px;margin-top:4px}
-    .btn{appearance:none;border:none;border-radius:10px;padding:12px 14px;font-weight:600;cursor:pointer}
-    .btn.primary{background:#111;color:#fff}
-    .btn.light{background:#f3f3f3;color:#111}
+    .thumbs-row {
+      position: absolute; left: 16px; right: 16px; bottom: 16px;
+      display: flex; gap: 10px;
+      padding: 10px 8px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+      overflow-x: auto; scrollbar-width: thin;
+    }
+    .thumbs-row img {
+      width: 70px; height: 70px; object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid var(--white);
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      cursor: pointer;
+      transition: transform .15s, border-color .15s, box-shadow .15s;
+      flex: 0 0 auto;
+    }
+    .thumbs-row img:hover { transform: translateY(-2px); }
+    .thumbs-row img.is-active { border-color: var(--accent); box-shadow: 0 4px 16px rgba(36,147,225,.28); }
 
-    .book{margin-top:4px;border-top:1px dashed var(--line);padding-top:12px;display:none}
-    .book.show{display:block}
-    .book label{display:block;font-size:12px;color:#666;margin:6px 0 4px}
-    .book input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:14px}
-    .note{font-size:12px;color:#666}
+    /* Right: floating card OVER the gallery */
+    .floating-card {
+      position: relative;                        /* so it can sit above stage visually */
+      background: var(--white);
+      border-radius: 18px;
+      box-shadow: 0 12px 38px rgba(0,0,0,.12);
+      padding: 18px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
 
-    .closeX{position:absolute;top:10px;right:12px;background:rgba(255,255,255,.95);border:none;border-radius:999px;width:36px;height:36px;cursor:pointer;font-size:18px}
+    .close-btn {
+      position: absolute; top: 10px; right: 10px;
+      width: 36px; height: 36px; border-radius: 999px;
+      display: grid; place-items: center;
+      border: 1px solid var(--border);
+      background: var(--white);
+      cursor: pointer;
+    }
+
+    .header {
+      display: grid; grid-template-columns: 54px 1fr; gap: 12px; align-items: center;
+      padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    }
+    .avatar { width:54px; height:54px; border-radius: 999px; object-fit: cover; border: 2px solid var(--white); box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    .title { font: 800 1.25rem/1.2 'Montserrat', Arial, sans-serif; color: var(--primary); }
+    .subtitle { color:#6b6b6b; font-weight:600; font-size:.9rem; }
+
+    .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .fact {
+      border: 1px solid var(--border); background:#fafafa; border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .fact label { display:block; color:#777; font-size:.84rem; margin-bottom:6px; }
+    .fact div { font-weight:700; }
+
+    .cta { display:flex; gap:10px; align-items:center; }
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);
+      background: #111; color: #fff; font-weight: 700; cursor: pointer;
+    }
+    .btn.secondary { background:#fff; color:#111; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; }
+
+    .book-form { display:grid; gap:10px; margin-top: 6px; }
+    .field { display:flex; flex-direction:column; gap:6px; }
+    .field label { font-weight:700; font-size:.92rem; color:#333; }
+    .field input {
+      padding:11px 12px; border:1px solid var(--border); border-radius:10px;
+      background:#f7f7f7; font-size: .98rem;
+    }
+    .note { color:#2e7d32; font-weight:700; font-size:.95rem; }
+
+    /* responsive */
+    @media (max-width: 980px) {
+      .viewer-wrap { grid-template-columns: 1fr; height: auto; max-height: none; }
+      .floating-card { order: -1; }      /* card above image on small screens */
+    }
   </style>
 </head>
 <body>
-  <!-- Topbar -->
-  <div class="topbar">
-    <div class="topbar-inner">
-      <a class="logo" href="index.html">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-content">
+      <a href="index.html" class="nav-logo">
         <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
-        <span>Toast Talent</span>
       </a>
-      <nav class="links">
-        <a href="index.html">Home</a>
-        <a href="models.html" aria-current="page" style="text-decoration:underline">Models</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="apply.html">Apply</a>
-      </nav>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="models.html" class="active">Models</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="apply.html">Apply</a></li>
+      </ul>
     </div>
-  </div>
+  </nav>
 
-  <!-- Category tabs -->
-  <div class="tabs">
-    <div class="tabs-inner">
-      <button class="tab active" data-cat="Women">Women</button>
-      <button class="tab" data-cat="Men">Men</button>
-      <button class="tab" data-cat="Kids">Kids</button>
-    </div>
-  </div>
+  <!-- Page header -->
+  <section class="models-hero">
+    <h1 class="rainbow-models">Our Models</h1>
+    <p>Tap any card to view full profile & gallery.</p>
+  </section>
 
-  <div class="wrap">
-    <div id="grid" class="grid"></div>
-  </div>
+  <!-- Grid -->
+  <section class="models-gallery">
+    <div id="grid" class="models-grid"></div>
+  </section>
 
-  <!-- Modal -->
-  <div id="modal" class="modal" aria-hidden="true">
-    <div class="sheet">
-      <div class="gallery">
-        <button class="closeX" id="closeX" aria-label="Close">✕</button>
-        <button class="navbtn prev" id="prev">‹</button>
-        <img id="hero" alt="Model image" />
-        <button class="navbtn next" id="next">›</button>
-        <div class="thumbs" id="thumbs"></div>
+  <!-- Viewer / overlay -->
+  <div id="viewer" class="viewer" aria-hidden="true">
+    <div class="viewer-wrap">
+      <!-- Left: hero image + thumbs -->
+      <div class="stage">
+        <img id="heroImg" class="hero-img" alt="" />
+        <div id="thumbs" class="thumbs-row"></div>
       </div>
-      <div class="side">
-        <div class="profile-row">
-          <img id="pfp" class="pfp" alt="">
+
+      <!-- Right: floating card -->
+      <aside class="floating-card" role="dialog" aria-modal="true" aria-label="Model details">
+        <button id="closeBtn" class="close-btn" aria-label="Close">✕</button>
+
+        <div class="header">
+          <img id="avatar" class="avatar" alt="">
           <div>
-            <h2 id="fullname">—</h2>
-            <div class="note" id="catBadge">—</div>
+            <div id="cardName" class="title"></div>
+            <div id="cardCat" class="subtitle"></div>
           </div>
-        </div>
-        <div class="rows">
-          <div class="row"><b>Age</b><span id="age">—</span></div>
-          <div class="row"><b>Height</b><span id="height">—</span></div>
-          <div class="row"><b>Shoe</b><span id="shoe">—</span></div>
-          <div class="row"><b>Shirt</b><span id="shirt">—</span></div>
-          <div class="row"><b>Pants</b><span id="pants">—</span></div>
-        </div>
-        <div class="actions">
-          <button class="btn primary" id="bookBtn">Book this model</button>
-          <button class="btn light" id="shareBtn">Share</button>
         </div>
 
-        <!-- Booking inline form -->
-        <div id="bookBox" class="book">
-          <label>Your email</label>
-          <input id="reqEmail" type="email" placeholder="you@example.com" />
-          <label>Your WhatsApp number</label>
-          <input id="reqWhats" type="tel" placeholder="+27 ..." />
-          <div class="actions" style="margin-top:10px">
-            <button class="btn primary" id="sendBook">Send booking request</button>
-            <button class="btn light" id="cancelBook" type="button">Cancel</button>
-          </div>
-          <div class="note" id="bookMsg"></div>
+        <div class="facts">
+          <div class="fact"><label>Age</label><div id="fAge">—</div></div>
+          <div class="fact"><label>Height</label><div id="fHeight">—</div></div>
+          <div class="fact"><label>Shoe size</label><div id="fShoe">—</div></div>
+          <div class="fact"><label>Shirt size</label><div id="fShirt">—</div></div>
+          <div class="fact"><label>Pants size</label><div id="fPants">—</div></div>
+          <div class="fact"><label>Category</label><div id="fCat">—</div></div>
         </div>
-      </div>
+
+        <div class="cta">
+          <button id="prefillBtn" class="btn">Request Booking</button>
+          <button id="shareBtn" class="btn secondary">Share</button>
+        </div>
+
+        <form id="bookForm" class="book-form" style="display:none;">
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="you@example.com" required>
+          </div>
+          <div class="field">
+            <label for="whatsapp">WhatsApp Number</label>
+            <input id="whatsapp" type="tel" placeholder="+27 ..." required>
+          </div>
+          <button id="sendBtn" type="submit" class="btn">Send Request</button>
+          <div id="bookMsg" class="note" style="display:none;"></div>
+        </form>
+      </aside>
     </div>
   </div>
 
   <script>
-    // -------- API base detection --------
+    // -------- API base detection
     const API_BASE = (location.hostname.includes('toasttalent.co.za'))
       ? 'https://api.toasttalent.co.za'
       : (location.hostname.includes('onrender.com'))
       ? 'https://toast-talent-modeling-agency.onrender.com'
       : 'http://localhost:10000';
 
-    // -------- UI refs --------
+    // -------- Elements
     const grid = document.getElementById('grid');
-    const tabs = document.querySelectorAll('.tab');
-    const modal = document.getElementById('modal');
-    const hero = document.getElementById('hero');
+    const viewer = document.getElementById('viewer');
+    const heroImg = document.getElementById('heroImg');
     const thumbs = document.getElementById('thumbs');
-    const pfp = document.getElementById('pfp');
-    const fullname = document.getElementById('fullname');
-    const catBadge = document.getElementById('catBadge');
-    const ageEl = document.getElementById('age');
-    const heightEl = document.getElementById('height');
-    const shoeEl = document.getElementById('shoe');
-    const shirtEl = document.getElementById('shirt');
-    const pantsEl = document.getElementById('pants');
-    const closeX = document.getElementById('closeX');
-    const prev = document.getElementById('prev');
-    const next = document.getElementById('next');
-    const bookBtn = document.getElementById('bookBtn');
+    const closeBtn = document.getElementById('closeBtn');
+
+    const avatar = document.getElementById('avatar');
+    const cardName = document.getElementById('cardName');
+    const cardCat = document.getElementById('cardCat');
+
+    const fAge = document.getElementById('fAge');
+    const fHeight = document.getElementById('fHeight');
+    const fShoe = document.getElementById('fShoe');
+    const fShirt = document.getElementById('fShirt');
+    const fPants = document.getElementById('fPants');
+    const fCat = document.getElementById('fCat');
+
+    const prefillBtn = document.getElementById('prefillBtn');
     const shareBtn = document.getElementById('shareBtn');
-    const bookBox = document.getElementById('bookBox');
-    const reqEmail = document.getElementById('reqEmail');
-    const reqWhats = document.getElementById('reqWhats');
-    const sendBook = document.getElementById('sendBook');
-    const cancelBook = document.getElementById('cancelBook');
+
+    const bookForm = document.getElementById('bookForm');
     const bookMsg = document.getElementById('bookMsg');
+    const emailEl = document.getElementById('email');
+    const waEl = document.getElementById('whatsapp');
+    const sendBtn = document.getElementById('sendBtn');
 
-    let allModels = [];
-    let current = null; // { model, index, currentImgIdx }
+    let MODELS = [];
+    let current = null;
+    let currentIndex = 0;
 
-    tabs.forEach(t => {
-      t.addEventListener('click', () => {
-        tabs.forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        renderGrid(t.dataset.cat);
-      });
-    });
-
-    async function fetchModels() {
+    // -------- Load & grid
+    async function loadModels() {
       const res = await fetch(`${API_BASE}/api/models`);
-      allModels = await res.json();
-    }
+      const data = await res.json();
+      MODELS = data;
 
-    function renderGrid(category) {
-      const items = allModels.filter(m => (m.category || 'Women') === category);
-      if (!items.length) {
-        grid.innerHTML = `<p style="color:#666;text-align:center;width:100%">No ${category} yet.</p>`;
-        return;
-      }
-      grid.innerHTML = items.map(m => `
-        <div class="card" data-id="${m._id}">
-          <img src="${m.profilePicture || ''}" alt="${(m.name||'')}" loading="lazy">
-          <div class="meta">
-            <h3>${m.name || ''} ${m.surname || ''}</h3>
-            <span class="chip">${m.height ? (m.height + ' cm') : ''}</span>
-            <span class="chip">${m.age ? ('Age ' + m.age) : ''}</span>
-          </div>
+      grid.innerHTML = data.map(m => `
+        <div class="model-card" data-id="${m._id}">
+          <img src="${m.profilePicture || (m.galleryImages?.[0] || 'images/default.jpg')}" alt="${m.name || ''}">
+          <div class="model-name">${(m.name || '')} ${(m.surname || '')}</div>
         </div>
       `).join('');
 
-      grid.querySelectorAll('.card').forEach(el => {
-        el.addEventListener('click', () => {
-          const id = el.getAttribute('data-id');
-          const model = allModels.find(x => x._id === id);
-          openModal(model);
+      grid.querySelectorAll('.model-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const id = card.getAttribute('data-id');
+          const model = MODELS.find(x => x._id === id);
+          openViewer(model);
         });
       });
     }
 
-    function openModal(model) {
-      current = { model, currentImgIdx: 0 };
-      pfp.src = model.profilePicture || '';
-      fullname.textContent = `${model.name || ''} ${model.surname || ''}`.trim();
-      catBadge.textContent = model.category || '';
-      ageEl.textContent = model.age || '—';
-      heightEl.textContent = model.height ? `${model.height} cm` : '—';
-      shoeEl.textContent = model.shoe || '—';
-      shirtEl.textContent = model.shirt || '—';
-      pantsEl.textContent = model.pants || '—';
+    // -------- Viewer helpers
+    function openViewer(m) {
+      if (!m) return;
+      current = m;
+      currentIndex = 0;
 
-      const imgs = [model.profilePicture, ...(model.galleryImages || [])].filter(Boolean);
-      if (!imgs.length) imgs.push(''); // fallback
-      setHero(imgs[0]);
+      // Header
+      avatar.src = m.profilePicture || (m.galleryImages?.[0] || '');
+      cardName.textContent = `${m.name || ''} ${m.surname || ''}`.trim();
+      cardCat.textContent = (m.category || '—');
 
-      thumbs.innerHTML = imgs.map((src, i) =>
-        `<img src="${src}" data-i="${i}" class="${i===0?'active':''}" alt="thumb">`
-      ).join('');
+      // Facts
+      fAge.textContent = m.age || '—';
+      fHeight.textContent = m.height ? `${m.height} cm` : '—';
+      fShoe.textContent = m.shoe || '—';
+      fShirt.textContent = m.shirt || '—';
+      fPants.textContent = m.pants || '—';
+      fCat.textContent = m.category || '—';
+
+      // Images
+      const imgs = [m.profilePicture, ...(m.galleryImages || [])].filter(Boolean);
+      thumbs.innerHTML = imgs.map((src, i) => `
+        <img src="${src}" alt="thumb ${i}" data-i="${i}">
+      `).join('');
       thumbs.querySelectorAll('img').forEach(img => {
-        img.addEventListener('click', () => {
-          const idx = Number(img.dataset.i);
-          current.currentImgIdx = idx;
-          setHero(imgs[idx]);
-          thumbs.querySelectorAll('img').forEach(t => t.classList.remove('active'));
-          img.classList.add('active');
-        });
+        img.addEventListener('click', () => setHero(+img.dataset.i));
       });
+      setHero(0);
 
-      // reset booking box
-      bookBox.classList.remove('show');
-      bookMsg.textContent = '';
-      reqEmail.value = ''; reqWhats.value = '';
+      // Reset booking UI
+      bookForm.style.display = 'none';
+      bookMsg.style.display = 'none';
+      emailEl.value = ''; waEl.value = '';
 
-      modal.classList.add('show');
-      modal.setAttribute('aria-hidden','false');
-
-      prev.onclick = () => stepImage(-1);
-      next.onclick = () => stepImage(1);
+      viewer.classList.add('open');
+      viewer.setAttribute('aria-hidden', 'false');
     }
 
-    function setHero(src){ hero.src = src; }
-
-    function stepImage(delta){
-      const imgs = [current.model.profilePicture, ...(current.model.galleryImages||[])].filter(Boolean);
-      current.currentImgIdx = (current.currentImgIdx + delta + imgs.length) % imgs.length;
-      setHero(imgs[current.currentImgIdx]);
-      thumbs.querySelectorAll('img').forEach((t,i)=>t.classList.toggle('active', i===current.currentImgIdx));
+    function setHero(i) {
+      currentIndex = i;
+      const imgs = [current.profilePicture, ...(current.galleryImages || [])].filter(Boolean);
+      heroImg.src = imgs[i] || '';
+      thumbs.querySelectorAll('img').forEach((el, idx) => {
+        el.classList.toggle('is-active', idx === i);
+      });
     }
 
-    function closeModal(){
-      modal.classList.remove('show');
-      modal.setAttribute('aria-hidden','true');
-      current = null;
-    }
-
-    closeX.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
-
-    // Share (optional)
-    shareBtn.addEventListener('click', async () => {
-      if (!current) return;
-      const m = current.model;
-      const url = location.origin + location.pathname + `?model=${encodeURIComponent(m._id)}`;
-      try {
-        await navigator.clipboard.writeText(url);
-        alert('Link copied to clipboard');
-      } catch { alert('Link: ' + url); }
+    // Close overlay
+    closeBtn.addEventListener('click', () => {
+      viewer.classList.remove('open');
+      viewer.setAttribute('aria-hidden', 'true');
     });
-
-    // Booking
-    bookBtn.addEventListener('click', () => {
-      bookBox.classList.toggle('show');
-      bookMsg.textContent = '';
-    });
-    cancelBook.addEventListener('click', () => {
-      bookBox.classList.remove('show');
-      bookMsg.textContent = '';
-    });
-    sendBook.addEventListener('click', async () => {
-      if (!current) return;
-      const email = reqEmail.value.trim();
-      const wa = reqWhats.value.trim();
-      if (!email || !wa) {
-        bookMsg.textContent = 'Please enter your email and WhatsApp number.'; return;
+    viewer.addEventListener('click', (e) => {
+      // click outside the card/stage closes
+      const wrap = e.target.closest('.viewer-wrap');
+      if (!wrap) {
+        viewer.classList.remove('open');
+        viewer.setAttribute('aria-hidden', 'true');
       }
-      bookMsg.textContent = 'Sending...';
+    });
+
+    // Share
+    shareBtn.addEventListener('click', async () => {
+      try {
+        const url = `${location.origin}/models.html#${current?._id || ''}`;
+        if (navigator.share) {
+          await navigator.share({ title: document.title, url });
+        } else {
+          await navigator.clipboard.writeText(url);
+          shareBtn.textContent = 'Copied!';
+          setTimeout(() => shareBtn.textContent = 'Share', 1200);
+        }
+      } catch {}
+    });
+
+    // Show booking form
+    prefillBtn.addEventListener('click', () => {
+      bookForm.style.display = (bookForm.style.display === 'none') ? 'grid' : 'none';
+      bookMsg.style.display = 'none';
+    });
+
+    // Booking submit -> /api/book
+    bookForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      sendBtn.disabled = true;
+
       try {
         const payload = {
-          modelId: current.model._id,
-          modelName: `${current.model.name||''} ${current.model.surname||''}`.trim(),
-          requesterEmail: email,
-          requesterWhatsapp: wa
+          modelId: current?._id,
+          modelName: `${current?.name || ''} ${current?.surname || ''}`.trim(),
+          requesterEmail: emailEl.value.trim(),
+          requesterWhatsapp: waEl.value.trim()
         };
+
         const res = await fetch(`${API_BASE}/api/book`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error(await res.text());
-        bookMsg.textContent = 'Booked! We will contact you shortly.';
+
+        if (!res.ok) {
+          const t = await res.text().catch(()=> '');
+          throw new Error(`Booking failed: ${res.status} ${t}`);
+        }
+        bookMsg.textContent = '✅ Thank you! Your booking request has been sent.';
+        bookMsg.style.display = 'block';
+        bookForm.reset();
       } catch (err) {
-        bookMsg.textContent = 'Failed to send booking. Please try again.';
-        console.error(err);
+        bookMsg.textContent = '❌ ' + (err?.message || 'Failed to send request.');
+        bookMsg.style.display = 'block';
+      } finally {
+        sendBtn.disabled = false;
       }
     });
 
     // Init
-    (async function init(){
-      await fetchModels();
-      renderGrid('Women');
-
-      // If shared deep-link with ?model=ID, open it
-      const params = new URLSearchParams(location.search);
-      const pre = params.get('model');
-      if (pre) {
-        const m = allModels.find(x => x._id === pre);
-        if (m) openModal(m);
-      }
-    })();
+    loadModels();
   </script>
 </body>
 </html>
