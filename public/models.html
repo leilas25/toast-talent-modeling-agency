@@ -1,264 +1,338 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Models — Toast Talent</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/style.css" />
-
   <style>
-    :root{--bg:#fafafa;--ink:#111;--muted:#666;--border:#e5e7eb;--card:#fff;--shadow:0 2px 8px rgba(0,0,0,.05);--brand:#141212}
-    body{font-family:'Montserrat',Arial,sans-serif;margin:0;background:var(--bg);color:var(--ink)}
-    .navbar{background:var(--brand);padding:12px 20px}
-    .nav-content{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
-    .nav-logo img{height:40px;border-radius:6px}
-    .nav-links{list-style:none;display:flex;gap:18px;margin:0;padding:0}
-    .nav-links a{color:#fff;text-decoration:none;font-weight:600;transition:color .2s}
-    .nav-links a:hover,.nav-links a.active{color:#abc2f0}
+    :root{
+      --bg:#fafafa;--ink:#111;--muted:#666;--card:#fff;--line:#eee;--accent:#111;
+    }
+    *{box-sizing:border-box}
+    body{font-family: 'Helvetica Neue', Arial, sans-serif; margin:0; background:var(--bg); color:var(--ink);}
+    /* Header + top nav (same vibe as other pages) */
+    .navbar{background:#fff;border-bottom:1px solid var(--line);}
+    .nav-content{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:10px 16px}
+    .nav-logo img{height:36px;width:auto;border-radius:4px}
+    .nav-links{list-style:none;display:flex;gap:14px;margin:0 0 0 auto;padding:0}
+    .nav-links a{display:block;padding:8px 10px;border-radius:6px;text-decoration:none;color:#333;font-weight:600}
+    .nav-links a.active,.nav-links a:hover{background:#f0f0f0;color:#000}
 
-    header{background:#fff;border-bottom:1px solid var(--border);text-align:center;padding:30px 10px 16px}
-    header h1{margin:0;font-size:28px;font-weight:700}
+    header{background:var(--accent);color:#fff;text-align:center;padding:16px 0}
+    header h1{margin:0;font-size:24px;letter-spacing:1px}
 
-    .category-nav{display:flex;justify-content:center;background:#fff;border-bottom:1px solid var(--border)}
-    .category-nav button{flex:1;max-width:160px;padding:14px;background:none;border:none;cursor:pointer;font-weight:600;font-size:16px;color:#333;transition:.2s}
-    .category-nav button:hover{background:#f5f5f5}
-    .category-nav button.active{border-bottom:3px solid var(--brand);color:var(--brand)}
+    /* Category tabs */
+    .tabs{display:flex;justify-content:center;background:#fff;border-bottom:1px solid var(--line)}
+    .tabs button{flex:1;max-width:220px;padding:14px;background:none;border:none;cursor:pointer;
+      font-weight:700;font-size:16px;color:#333;transition:.2s;border-bottom:3px solid transparent}
+    .tabs button:hover{background:#f5f5f5}
+    .tabs button.active{border-bottom-color:var(--accent);color:#000}
 
-    main{max-width:1100px;margin:0 auto;padding:30px 20px}
-    .models-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}
-    .model-card{background:var(--card);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);transition:transform .2s}
-    .model-card:hover{transform:translateY(-4px)}
-    .model-card img{width:100%;height:240px;object-fit:cover;display:block}
-    .model-card .info{padding:10px;text-align:center}
-    .model-card h3{margin:6px 0 2px;font-size:16px}
-    .model-card p{margin:0 0 10px;font-size:12px;color:#777}
-    .model-card .actions{display:flex;gap:8px;justify-content:center;padding:0 10px 12px}
-    .btn{padding:8px 12px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px}
-    .btn-dark{background:#111;color:#fff}
-    .btn-ghost{background:#f2f2f2;color:#111}
+    /* Grid */
+    .wrap{max-width:1100px;margin:0 auto}
+    .models{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:20px;padding:24px 16px}
+    .card{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;transition:.2s}
+    .card:hover{transform:translateY(-4px)}
+    .card img{width:100%;height:240px;object-fit:cover;display:block}
+    .card h3{margin:8px 10px 2px;font-size:16px}
+    .card p{margin:0 10px 12px;font-size:13px;color:var(--muted)}
 
-    /* Lightbox modal (existing) */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:50}
-    .modal{background:#fff;max-width:950px;width:95vw;max-height:92vh;border-radius:14px;overflow:hidden;display:grid;grid-template-columns:1.2fr 1fr}
-    .modal-left{background:#000;position:relative}
-    .modal-left img{width:100%;height:100%;object-fit:contain;background:#000}
-    .modal-right{padding:18px 18px 16px 18px;overflow:auto}
-    .modal-right h2{margin:0 0 6px 0}
-    .meta{color:#555;font-size:14px;line-height:1.6;margin:6px 0 12px}
-    .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}
-    .chip{border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;color:#333;background:#fafafa}
-    .modal-actions{display:flex;gap:10px;margin-top:10px}
-    .close-x{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.95);border:none;border-radius:999px;width:34px;height:34px;font-size:18px;cursor:pointer}
+    /* Fullscreen modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:stretch;justify-content:center;padding:20px;z-index:1000}
+    .modal.open{display:flex}
+    .sheet{background:#fff;border-radius:14px;max-width:1100px;width:100%;display:grid;grid-template-columns:1.2fr .8fr;gap:0;overflow:hidden}
+    @media (max-width:900px){ .sheet{grid-template-columns:1fr} }
 
-    /* Booking modal (new) */
-    .dialog{background:#fff;border-radius:12px;max-width:420px;width:92vw;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
-    .dialog h3{margin:0 0 10px}
-    .field{margin:10px 0}
-    .field label{display:block;font-weight:600;margin-bottom:6px}
-    .field input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px}
-    .dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+    /* Left: gallery */
+    .gallery{position:relative;background:#000}
+    .stage{height:520px;display:flex;align-items:center;justify-content:center;background:#000}
+    .stage img{max-height:100%;max-width:100%;object-fit:contain;background:#000}
+    .dots{display:flex;gap:6px;justify-content:center;padding:10px;background:#0a0a0a}
+    .dot{width:9px;height:9px;border-radius:50%;background:#777;opacity:.7}
+    .dot.active{background:#fff;opacity:1}
+    .navBtn{position:absolute;top:50%;transform:translateY(-50%);border:none;background:rgba(0,0,0,.5);color:#fff;
+      width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:20px}
+    .navBtn:hover{background:rgba(0,0,0,.7)}
+    .prev{left:12px} .next{right:12px}
 
-    @media (max-width:860px){ .modal{grid-template-columns:1fr;max-height:96vh}.modal-left{height:50vh} }
-    footer{background:#141212;color:#fff;text-align:center;font-size:13px;padding:16px;margin-top:40px}
+    /* Right: info */
+    .panel{padding:18px 18px 22px;overflow:auto}
+    .topRow{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .pfp{width:72px;height:72px;border-radius:10px;object-fit:cover;border:1px solid var(--line)}
+    .name{margin:0;font-size:20px}
+    .age{margin:2px 0 0;color:var(--muted);font-size:13px}
+
+    .specs{display:grid;grid-template-columns: repeat(2, 1fr);gap:10px;margin:14px 0}
+    .spec{background:#fafafa;border:1px solid var(--line);border-radius:8px;padding:10px}
+    .spec b{display:block;font-size:12px;color:#555}
+    .spec span{font-size:14px}
+
+    .bio{margin-top:6px;white-space:pre-wrap;color:#333;font-size:14px}
+
+    .actions{display:flex;gap:10px;margin-top:14px}
+    .btn{border:none;border-radius:10px;background:#111;color:#fff;padding:12px 14px;font-weight:700;cursor:pointer}
+    .btn.secondary{background:#f2f2f2;color:#111;border:1px solid var(--line)}
+
+    /* Booking mini-form */
+    .bookForm{display:none;margin-top:10px;gap:8px}
+    .bookForm.show{display:grid}
+    .bookForm input{padding:10px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+    .bookForm .submit{background:#111;color:#fff;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer}
+
+    /* Close */
+    .closeX{position:absolute;right:18px;top:18px;border:none;background:#fff;border-radius:999px;width:36px;height:36px;
+      box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;font-size:18px}
   </style>
 </head>
 <body>
-  <!-- NAVBAR -->
+  <!-- top nav consistent with other pages -->
   <nav class="navbar">
     <div class="nav-content">
-      <a href="/index.html" class="nav-logo">
-        <img src="/images/Toast Logo.jpeg" alt="Toast Talent Logo" />
+      <a href="index.html" class="nav-logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
       </a>
       <ul class="nav-links">
-        <li><a href="/index.html">Home</a></li>
-        <li><a href="/models.html" class="active">Models</a></li>
-        <li><a href="/about.html">About</a></li>
-        <li><a href="/contact.html">Contact</a></li>
-        <li><a href="/apply.html">Apply</a></li>
+        <li><a href="index.html">Home</a></li>
+        <li><a class="active" href="models.html">Models</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="apply.html">Apply</a></li>
       </ul>
     </div>
   </nav>
 
-  <!-- HEADER -->
   <header><h1>Our Models</h1></header>
 
-  <!-- CATEGORY TABS -->
-  <nav class="category-nav">
-    <button class="active" data-category="Women">Women</button>
-    <button data-category="Men">Men</button>
-    <button data-category="Kids">Kids</button>
-  </nav>
+  <div class="tabs">
+    <button class="active" data-category="Women" aria-pressed="true">Women</button>
+    <button data-category="Men" aria-pressed="false">Men</button>
+    <button data-category="Kids" aria-pressed="false">Kids</button>
+  </div>
 
-  <!-- GRID -->
-  <main>
-    <div id="models" class="models-container"></div>
+  <main class="wrap">
+    <div id="grid" class="models"></div>
   </main>
 
-  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
+  <!-- MODAL -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mdlTitle">
+      <button class="closeX" id="closeM" aria-label="Close">✕</button>
 
-  <!-- Booking Modal Backdrop -->
-  <div id="bookingBackdrop" class="modal-backdrop" style="display:none;">
-    <div class="dialog" role="dialog" aria-modal="true">
-      <h3 id="bookingTitle">Booking request</h3>
-      <p id="bookingModel" style="margin:0 0 10px; color:#555;"></p>
-      <div class="field">
-        <label for="reqEmail">Your Email</label>
-        <input type="email" id="reqEmail" placeholder="you@example.com" required />
-      </div>
-      <div class="field">
-        <label for="reqWhatsApp">Your WhatsApp Number</label>
-        <input type="text" id="reqWhatsApp" placeholder="+27 71 234 5678" required />
-      </div>
-      <div id="bookMsg" style="font-size:13px;color:#c0392b;margin-top:6px;"></div>
-      <div class="dialog-actions">
-        <button class="btn btn-ghost" id="cancelBooking">Cancel</button>
-        <button class="btn btn-dark" id="sendBooking">Send booking</button>
-      </div>
+      <!-- Gallery -->
+      <section class="gallery">
+        <button class="navBtn prev" id="gPrev" aria-label="Previous image">‹</button>
+        <div class="stage"><img id="gImg" src="" alt=""></div>
+        <button class="navBtn next" id="gNext" aria-label="Next image">›</button>
+        <div class="dots" id="gDots"></div>
+      </section>
+
+      <!-- Info -->
+      <aside class="panel">
+        <div class="topRow">
+          <img id="pfp" class="pfp" alt="">
+          <div>
+            <h2 id="mdlTitle" class="name"></h2>
+            <p id="mdlAge" class="age"></p>
+          </div>
+        </div>
+
+        <div class="specs">
+          <div class="spec"><b>Height</b><span id="spHeight">-</span></div>
+          <div class="spec"><b>Shoe</b><span id="spShoe">-</span></div>
+          <div class="spec"><b>Shirt</b><span id="spShirt">-</span></div>
+          <div class="spec"><b>Pants</b><span id="spPants">-</span></div>
+        </div>
+
+        <div class="bio" id="spBio"></div>
+
+        <div class="actions">
+          <button class="btn" id="bookBtn">Request Booking</button>
+          <button class="btn secondary" id="viewNext">Next Photo</button>
+        </div>
+
+        <!-- tiny booking form -->
+        <form id="bookForm" class="bookForm">
+          <input id="bkEmail" type="email" placeholder="Your email" required>
+          <input id="bkWa" type="text" placeholder="Your WhatsApp number" required>
+          <button class="submit" type="submit">Send Request</button>
+          <div id="bkMsg" style="font-size:13px;color:#111;"></div>
+        </form>
+      </aside>
     </div>
   </div>
 
-  <!-- (Existing) Lightbox Modal kept as-is if you still use it -->
-
   <script>
+    /* ----- API base autodetect ----- */
     const API_BASE = (location.hostname.includes('toasttalent.co.za'))
       ? 'https://api.toasttalent.co.za'
       : (location.hostname.includes('onrender.com'))
-      ? 'https://toast-talent-modeling-agency.onrender.com'
-      : 'http://localhost:10000';
+        ? 'https://toast-talent-modeling-agency.onrender.com'
+        : 'http://localhost:10000';
 
-    const container = document.getElementById('models');
-    const tabBtns = document.querySelectorAll('.category-nav button');
+    const grid = document.getElementById('grid');
+    const tabBtns = document.querySelectorAll('.tabs button');
 
-    tabBtns.forEach(btn => btn.addEventListener('click', () => {
-      tabBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      loadModels(btn.dataset.category);
-    }));
+    let allModels = [];
+    let currentCategory = 'Women';
 
-    // --- Booking modal logic ---
-    const bookingBackdrop = document.getElementById('bookingBackdrop');
-    const bookingTitle = document.getElementById('bookingTitle');
-    const bookingModel = document.getElementById('bookingModel');
-    const reqEmail = document.getElementById('reqEmail');
-    const reqWhatsApp = document.getElementById('reqWhatsApp');
-    const bookMsg = document.getElementById('bookMsg');
-    const cancelBooking = document.getElementById('cancelBooking');
-    const sendBooking = document.getElementById('sendBooking');
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
+        btn.classList.add('active'); btn.setAttribute('aria-pressed','true');
+        currentCategory = btn.dataset.category;
+        renderGrid();
+      });
+    });
 
-    let currentModel = null;
-
-    function openBooking(model) {
-      currentModel = model;
-      bookingTitle.textContent = 'Booking request';
-      bookingModel.textContent = `${(model.name||'') + ' ' + (model.surname||'')}`.trim();
-      reqEmail.value = '';
-      reqWhatsApp.value = '';
-      bookMsg.textContent = '';
-      bookingBackdrop.style.display = 'flex';
+    async function fetchModels(){
+      grid.innerHTML = '<p style="padding:24px;color:#777;">Loading…</p>';
+      try{
+        const res = await fetch(`${API_BASE}/api/models`);
+        allModels = await res.json();
+        renderGrid();
+      }catch(e){
+        grid.innerHTML = '<p style="padding:24px;color:#b00;">Failed to load models.</p>';
+      }
     }
-    function closeBooking() {
-      bookingBackdrop.style.display = 'none';
-      currentModel = null;
-    }
-    cancelBooking.addEventListener('click', closeBooking);
-    bookingBackdrop.addEventListener('click', (e)=>{ if (e.target === bookingBackdrop) closeBooking(); });
 
-    sendBooking.addEventListener('click', async () => {
-      if (!currentModel) return;
-      bookMsg.style.color = '#c0392b';
-      bookMsg.textContent = '';
-
-      const email = reqEmail.value.trim();
-      const wa = reqWhatsApp.value.trim();
-      if (!email || !wa) {
-        bookMsg.textContent = 'Please enter your email and WhatsApp number.';
+    function renderGrid(){
+      const list = allModels.filter(m => (m.category || 'Women') === currentCategory);
+      if(!list.length){
+        grid.innerHTML = `<p style="padding:24px;color:#777;">No ${currentCategory.toLowerCase()} models yet.</p>`;
         return;
       }
+      grid.innerHTML = list.map((m,idx)=>`
+        <article class="card" data-idx="${allModels.indexOf(m)}" tabindex="0" aria-label="Open ${m.name} ${m.surname}">
+          <img src="${m.profilePicture || ''}" alt="${m.name || ''}">
+          <h3>${m.name || ''} ${m.surname || ''}</h3>
+          <p>${m.height ? `${m.height} cm` : ''}</p>
+        </article>
+      `).join('');
 
-      try {
+      grid.querySelectorAll('.card').forEach(card=>{
+        card.addEventListener('click', ()=> openModal(+card.dataset.idx));
+        card.addEventListener('keypress', (e)=>{ if(e.key==='Enter' || e.key===' ') openModal(+card.dataset.idx); });
+      });
+    }
+
+    /* ----- Modal / Gallery ----- */
+    const modal = document.getElementById('modal');
+    const closeM = document.getElementById('closeM');
+    const gImg = document.getElementById('gImg');
+    const gDots = document.getElementById('gDots');
+    const gPrev = document.getElementById('gPrev');
+    const gNext = document.getElementById('gNext');
+    const viewNext = document.getElementById('viewNext');
+
+    const pfp = document.getElementById('pfp');
+    const mdlTitle = document.getElementById('mdlTitle');
+    const mdlAge = document.getElementById('mdlAge');
+    const spHeight = document.getElementById('spHeight');
+    const spShoe = document.getElementById('spShoe');
+    const spShirt = document.getElementById('spShirt');
+    const spPants = document.getElementById('spPants');
+    const spBio = document.getElementById('spBio');
+
+    let currentModel = null;
+    let images = [];
+    let at = 0;
+
+    function openModal(idx){
+      currentModel = allModels[idx];
+      if(!currentModel) return;
+
+      // assemble gallery list: profile first, then galleryImages
+      const g = Array.isArray(currentModel.galleryImages) ? currentModel.galleryImages : [];
+      images = [currentModel.profilePicture, ...g].filter(Boolean);
+      if(!images.length) images = [''];
+
+      // populate info
+      pfp.src = currentModel.profilePicture || '';
+      pfp.alt = (currentModel.name || '') + ' ' + (currentModel.surname || '');
+      mdlTitle.textContent = `${currentModel.name || ''} ${currentModel.surname || ''}`.trim();
+      mdlAge.textContent = currentModel.age ? `Age: ${currentModel.age}` : '';
+      spHeight.textContent = currentModel.height || '-';
+      spShoe.textContent = currentModel.shoe || '-';
+      spShirt.textContent = currentModel.shirt || '-';
+      spPants.textContent = currentModel.pants || '-';
+      spBio.textContent = currentModel.bio || '';
+
+      at = 0;
+      paintImage();
+
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+      document.body.style.overflow='hidden';
+    }
+
+    function closeModal(){
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+      document.body.style.overflow='';
+    }
+
+    function paintImage(){
+      gImg.src = images[at] || '';
+      gImg.alt = `${mdlTitle.textContent} — image ${at+1} of ${images.length}`;
+      // dots
+      gDots.innerHTML = images.map((_,i)=>`<span class="dot ${i===at?'active':''}"></span>`).join('');
+      [...gDots.children].forEach((d,i)=> d.addEventListener('click', ()=>{ at=i; paintImage(); }));
+    }
+
+    function next(){ at = (at+1) % images.length; paintImage(); }
+    function prev(){ at = (at-1+images.length) % images.length; paintImage(); }
+
+    gNext.addEventListener('click', next);
+    gPrev.addEventListener('click', prev);
+    viewNext.addEventListener('click', next);
+    closeM.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
+    window.addEventListener('keydown', (e)=>{
+      if(!modal.classList.contains('open')) return;
+      if(e.key==='Escape') closeModal();
+      if(e.key==='ArrowRight') next();
+      if(e.key==='ArrowLeft') prev();
+    });
+
+    /* ----- Booking mini-form ----- */
+    const bookBtn = document.getElementById('bookBtn');
+    const bookForm = document.getElementById('bookForm');
+    const bkEmail = document.getElementById('bkEmail');
+    const bkWa = document.getElementById('bkWa');
+    const bkMsg = document.getElementById('bkMsg');
+
+    bookBtn.addEventListener('click', ()=>{
+      bookForm.classList.toggle('show');
+      bkMsg.textContent = '';
+    });
+
+    bookForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      bkMsg.style.color = '#111';
+      bkMsg.textContent = 'Sending…';
+      try{
         const payload = {
-          modelId: currentModel._id || '',
-          modelName: `${currentModel.name||''} ${currentModel.surname||''}`.trim(),
-          requesterEmail: email,
-          requesterWhatsapp: wa
+          modelId: currentModel?._id || '',
+          modelName: `${currentModel?.name || ''} ${currentModel?.surname || ''}`.trim(),
+          requesterEmail: bkEmail.value.trim(),
+          requesterWhatsapp: bkWa.value.trim()
         };
-
-        const res = await fetch(`${API_BASE}/api/book`, {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
+        const res = await fetch(`${API_BASE}/api/book`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
           body: JSON.stringify(payload)
         });
-
-        if (res.ok) {
-          bookMsg.style.color = 'green';
-          bookMsg.textContent = 'Booking request sent. We will contact you shortly.';
-          setTimeout(closeBooking, 1200);
-        } else {
-          const txt = await res.text().catch(()=> '');
-          throw new Error(`Failed: ${res.status} ${res.statusText} ${txt}`);
-        }
-      } catch (err) {
-        console.error(err);
-        bookMsg.textContent = 'Could not send booking request. Please try again.';
+        if(!res.ok) throw new Error('Failed to send booking request');
+        bkMsg.style.color = 'green';
+        bkMsg.textContent = 'Thanks! We’ll contact you shortly.';
+        bookForm.reset();
+      }catch(err){
+        bkMsg.style.color = '#b00020';
+        bkMsg.textContent = 'Error sending request. Please try again.';
       }
     });
 
-    // --- Load models + render cards with Book button ---
-    async function loadModels(category='Women'){
-      container.innerHTML = '<p style="text-align:center;">Loading...</p>';
-      try{
-        const res = await fetch(`${API_BASE}/api/models`);
-        const data = await res.json();
-        const filtered = data.filter(m => m.category === category);
-
-        if(!filtered.length){
-          container.innerHTML = `<p style="text-align:center;color:#777;">No ${category.toLowerCase()} models yet.</p>`;
-          return;
-        }
-
-        container.innerHTML = filtered.map(m => {
-          const fullName = `${m.name||''} ${m.surname||''}`.trim();
-          const imgSrc = m.profilePicture || (m.galleryImages?.[0] || '/placeholder.jpg');
-          const heightText = m.height ? `${m.height} cm` : '';
-          return `
-            <div class="model-card" data-id="${m._id}">
-              <img src="${imgSrc}" alt="${fullName}" />
-              <div class="info">
-                <h3>${fullName}</h3>
-                <p>${heightText}</p>
-              </div>
-              <div class="actions">
-                <button class="btn btn-dark" data-action="book">Book</button>
-                <a class="btn btn-ghost" href="/contact.html?model=${encodeURIComponent(fullName)}">Contact</a>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        // Attach book handlers
-        [...container.querySelectorAll('.model-card')].forEach(card=>{
-          const id = card.getAttribute('data-id');
-          const model = filtered.find(x=>x._id===id);
-
-          const bookBtn = card.querySelector('[data-action="book"]');
-          bookBtn.addEventListener('click', (e)=>{
-            e.stopPropagation();
-            openBooking(model);
-          });
-
-          // (Optional) clicking card could open your image modal, if you still use it
-          // card.addEventListener('click', ()=> openModal(model));
-        });
-
-      }catch(e){
-        console.error(e);
-        container.innerHTML = '<p style="text-align:center;color:red;">Error loading models.</p>';
-      }
-    }
-
-    loadModels('Women');
+    fetchModels();
   </script>
 </body>
 </html>
