@@ -25,8 +25,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* tiny inline styles for admin modal only */
+    .admin-link { display: none; }
+    #adminLoginModal {
+      display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
+      background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;
+    }
+    #adminLoginForm {
+      background:#fff; padding:30px 24px; border-radius:10px; box-shadow:0 2px 18px rgba(0,0,0,0.18);
+      display:flex; flex-direction:column; gap:12px; min-width:260px; align-items:stretch;
+    }
+    #adminLoginError { color:#c0392b; font-size:0.92em; min-height:1.1em; }
+  </style>
 </head>
 <body class="with-bg">
   <!-- NAV -->
@@ -46,10 +60,11 @@
     </div>
   </nav>
 
-  <!-- ===== BTS CINEMATIC VIDEO BANNER ===== -->
+  <!-- ===== BTS CINEMATIC VIDEO BANNER (portrait-safe, no cropping) ===== -->
   <section class="bts-hero" aria-label="Behind the scenes">
+    <!-- Blurred background fill (prevents black bars) -->
     <video
-      class="bts-video"
+      class="bts-video-bg"
       autoplay
       muted
       loop
@@ -59,11 +74,26 @@
     >
       <source src="videos/bts.webm" type="video/webm" />
       <source src="videos/bts.mp4"  type="video/mp4" />
-      Your browser does not support the video tag.
     </video>
 
-    <!-- light overlay & text sit INSIDE the section -->
+    <!-- Foreground portrait video shown full-frame -->
+    <div class="bts-frame">
+      <video
+        class="bts-video-portrait"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        poster="images/bts-poster.jpg"
+      >
+        <source src="videos/bts.webm" type="video/webm" />
+        <source src="videos/bts.mp4"  type="video/mp4" />
+      </video>
+    </div>
+
     <div class="bts-overlay"></div>
+
     <div class="bts-content">
       <h1>Real moments. Real talent.</h1>
       <p>Experience the energy behind the scenes at Toast Talent Modeling Agency.</p>
@@ -72,6 +102,7 @@
   <!-- ===== END BTS BANNER ===== -->
 
   <main id="main" role="main">
+    <!-- Legacy hero (kept for SEO & brand; appears below banner) -->
     <header class="hero" role="banner">
       <div class="hero-content">
         <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" class="hero-logo">
@@ -116,18 +147,16 @@
   </div>
 
   <script>
-    // Ensure autoplay (muted) on strict browsers
-    (function ensureVideoPlays(){
-      const v = document.querySelector('.bts-video');
-      if (!v) return;
-      const tryPlay = () => v.play().catch(()=>{});
-      v.muted = true;
-      if (v.readyState >= 2) tryPlay();
-      else v.addEventListener('canplay', tryPlay, { once: true });
-    })();
+    // Ensure banner videos play (muted required for autoplay)
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.bts-hero video').forEach(v => {
+        v.muted = true;
+        v.play().catch(()=>{});
+      });
+    });
 
-    // Admin modal keyboard shortcut: Ctrl/Cmd + Shift + P
-    document.addEventListener('DOMContentLoaded', function () {
+    // Quick keyboard shortcut to open admin modal (Ctrl/Cmd + Shift + P)
+    (function adminModal(){
       const modal = document.getElementById('adminLoginModal');
       const form = document.getElementById('adminLoginForm');
       const passwordInput = document.getElementById('adminPassword');
@@ -142,9 +171,7 @@
         }
       });
 
-      modal.addEventListener('click', function(e) {
-        if (e.target === modal) closeModal();
-      });
+      modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
       cancelBtn.addEventListener('click', closeModal);
 
       function closeModal(){
@@ -158,6 +185,7 @@
         e.preventDefault();
         errorBox.textContent = '';
         const pw = passwordInput.value;
+
         try {
           const res = await fetch(form.action, {
             method: 'POST',
@@ -172,11 +200,11 @@
             passwordInput.value = '';
             passwordInput.focus();
           }
-        } catch {
+        } catch (err) {
           errorBox.textContent = 'Login failed. Please try again later.';
         }
       });
-    });
+    })();
   </script>
 </body>
 </html>
