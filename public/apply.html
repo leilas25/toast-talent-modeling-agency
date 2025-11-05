@@ -186,7 +186,12 @@
           <div class="row cols-3">
             <div>
               <label for="province">Province *</label>
-              <input id="province" name="province" type="text" required />
+              <!-- DROPDOWN: Johannesburg / Cape Town -->
+              <select id="province" name="province" required>
+                <option value="" disabled selected>Select location</option>
+                <option value="Johannesburg">Johannesburg</option>
+                <option value="Cape Town">Cape Town</option>
+              </select>
             </div>
             <div>
               <label for="zip">Zip</label>
