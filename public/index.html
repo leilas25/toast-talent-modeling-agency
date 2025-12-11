@@ -57,12 +57,15 @@
       background: #f5f5f5;
     }
 
-    /* fixed collage grid behind content */
+    /* collage grid that scrolls with the page (positioned inside the hero) */
     .bts-collage {
-      position: fixed; /* stays fixed to viewport */
-      inset: 0;
+      position: absolute; /* now scrolls with page as part of the section */
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(3, 1fr); /* 3 per row on desktop */
       grid-auto-rows: 1fr;
       gap: 12px;
       padding: 48px;
@@ -72,7 +75,8 @@
       z-index: 0;
       opacity: 0.30; /* light opacity so text remains dominant */
       transform-origin: center;
-      background-color: #fff; /* fallback */
+      background-color: transparent;
+      animation: collagePan 28s linear infinite;
     }
 
     .bts-collage img {
@@ -82,16 +86,20 @@
       border-radius: 10px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.06);
       display: block;
+      transform: translateZ(0);
     }
 
-    /* For mobile reduce columns and padding */
-    @media (max-width: 1000px) {
-      .bts-collage { grid-template-columns: repeat(3, 1fr); padding: 20px; opacity: 0.28; }
+    /* For smaller screens change columns & padding */
+    @media (max-width: 1100px) {
+      .bts-collage { grid-template-columns: repeat(3, 1fr); padding: 28px; opacity: 0.30; }
       .bts-hero { height: 56vh; min-height: 360px; }
     }
-    @media (max-width: 700px) {
-      .bts-collage { grid-template-columns: repeat(2, 1fr); padding: 12px; opacity: 0.26; }
+    @media (max-width: 900px) {
+      .bts-collage { grid-template-columns: repeat(2, 1fr); padding: 20px; opacity: 0.32; }
       .bts-hero { height: 50vh; min-height: 300px; }
+    }
+    @media (max-width: 600px) {
+      .bts-collage { grid-template-columns: repeat(1, 1fr); padding: 12px; opacity: 0.36; gap: 12px; }
     }
 
     /* overlay to soften collage for readable text */
@@ -148,6 +156,15 @@
       transition: transform .15s ease, filter .2s ease;
     }
     .bts-cta:hover{ filter: brightness(.95); transform: translateY(-1px); }
+
+    /* slow auto-pan (luxury effect) */
+    @keyframes collagePan {
+      0%   { transform: translate3d(0px, 0px, 0) scale(1); }
+      25%  { transform: translate3d(-4%, -2%, 0) scale(1.02); }
+      50%  { transform: translate3d(-2%, -4%, 0) scale(1.01); }
+      75%  { transform: translate3d(3%, -1%, 0) scale(1.015); }
+      100% { transform: translate3d(0%, 0%, 0) scale(1); }
+    }
   </style>
 </head>
 <body class="with-bg">
@@ -168,9 +185,9 @@
     </div>
   </nav>
 
-  <!-- ===== BTS COLLAGE BANNER (multi-image fixed collage background) ===== -->
+  <!-- ===== BTS COLLAGE BANNER (multi-image collage that scrolls with the page) ===== -->
   <section class="bts-hero" aria-label="Behind the scenes">
-    <!-- Collage grid (fixed to viewport) -->
+    <!-- Collage grid (now positioned inside the section so it scrolls) -->
     <div class="bts-collage" aria-hidden="true">
       <img src="images/hero/hero-3.jpg" alt="">
       <img src="images/hero/hero-1.jpg" alt="">
@@ -178,6 +195,7 @@
       <img src="images/hero/hero-4.jpg" alt="">
       <img src="images/hero/hero-6.jpg" alt="">
       <img src="images/hero/hero-5.jpg" alt="">
+      <!-- add more <img> lines here if you put more files in images/hero/ -->
     </div>
 
     <div class="bts-overlay"></div>
@@ -236,7 +254,7 @@
   </div>
 
   <script>
-    // nothing special needed for images — just allow scrolling
+    // nothing special needed for images — they now scroll with the page
     // keyboard shortcut to open admin modal (Ctrl/Cmd + Shift + P)
     (function adminModal(){
       const modal = document.getElementById('adminLoginModal');
