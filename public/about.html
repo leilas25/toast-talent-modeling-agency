@@ -34,6 +34,86 @@
       background:#fff; padding:30px 24px; border-radius:10px; box-shadow:0 2px 18px rgba(0,0,0,0.18);
       display:flex; flex-direction:column; gap:16px; min-width:220px; align-items:center;
     }
+
+    /* === Page-scoped: scrolling collage (same behavior as index) === */
+    .bts-hero {
+      position: relative;
+      width: 100%;
+      padding: 36px 0;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bts-collage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 1fr;
+      gap: 12px;
+      padding: 40px;
+      align-items: center;
+      justify-items: center;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.28;
+      transform-origin: center;
+      background-color: transparent;
+      animation: collagePan 28s linear infinite;
+    }
+
+    .bts-collage img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      display: block;
+      transform: translateZ(0);
+    }
+
+    @media (max-width: 1100px) {
+      .bts-collage { grid-template-columns: repeat(3, 1fr); padding: 28px; opacity: 0.30; }
+    }
+    @media (max-width: 900px) {
+      .bts-collage { grid-template-columns: repeat(2, 1fr); padding: 20px; opacity: 0.34; }
+    }
+    @media (max-width: 600px) {
+      .bts-collage { grid-template-columns: repeat(1, 1fr); padding: 12px; opacity: 0.38; gap: 12px; }
+    }
+
+    .bts-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.24) 0%,
+        rgba(255,255,255,0.12) 40%,
+        rgba(255,255,255,0.02) 70%,
+        rgba(255,255,255,0.36) 100%
+      );
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    @keyframes collagePan {
+      0%   { transform: translate3d(0px, 0px, 0) scale(1); }
+      25%  { transform: translate3d(-4%, -2%, 0) scale(1.02); }
+      50%  { transform: translate3d(-2%, -4%, 0) scale(1.01); }
+      75%  { transform: translate3d(3%, -1%, 0) scale(1.015); }
+      100% { transform: translate3d(0%, 0%, 0) scale(1); }
+    }
+
+    /* ensure your about-hero content stays visible above collage */
+    .about-hero { position: relative; z-index: 2; background: rgba(255,255,255,0.88); padding: 48px; border-radius: 12px; max-width:1100px; margin: 28px auto; box-shadow:0 8px 30px rgba(0,0,0,0.04); }
+    .about-hero p{ color: #333; line-height:1.6; }
   </style>
 </head>
 
@@ -52,21 +132,39 @@
       </ul>
     </div>
   </nav>
-  <main>
-    <section class="about-hero">
-      <h1 class="rainbow-models" style="text-align: center;">About Toast Talent</h1>
-      <p>
-        Toast Talent Modeling Agency is a premier modeling agency dedicated to discovering and nurturing the next generation of talent. 
-        We specialize in connecting aspiring models with top brands and fashion houses, providing them with the platform they need to shine in the competitive world of modeling.
-      </p>
-      <p>
-        Founded by industry veterans, Toast Talent is committed to excellence and professionalism. Our team works tirelessly to ensure that our models receive the best opportunities and support in their careers.
-      </p>
-      <p>
-        Whether you are an aspiring model or a brand looking for fresh talent, Toast Talent is here to help you achieve your goals.
-      </p>
-    </section>
-  </main>
+
+  <!-- Collage section inserted (scrolls with page) -->
+  <section class="bts-hero" aria-label="Behind the scenes collage">
+    <div class="bts-collage" aria-hidden="true">
+      <img src="images/hero/hero-1.jpg" alt="">
+      <img src="images/hero/hero-2.jpg" alt="">
+      <img src="images/hero/hero-3.jpg" alt="">
+      <img src="images/hero/hero-4.jpg" alt="">
+      <img src="images/hero/hero-5.jpg" alt="">
+      <img src="images/hero/hero-6.jpg" alt="">
+      <!-- add more images here as needed -->
+    </div>
+
+    <div class="bts-overlay"></div>
+
+    <!-- your existing about copy - left intact -->
+    <main>
+      <section class="about-hero">
+        <h1 class="rainbow-models" style="text-align: center;">About Toast Talent</h1>
+        <p>
+          Toast Talent Modeling Agency is a premier modeling agency dedicated to discovering and nurturing the next generation of talent. 
+          We specialize in connecting aspiring models with top brands and fashion houses, providing them with the platform they need to shine in the competitive world of modeling.
+        </p>
+        <p>
+          Founded by industry veterans, Toast Talent is committed to excellence and professionalism. Our team works tirelessly to ensure that our models receive the best opportunities and support in their careers.
+        </p>
+        <p>
+          Whether you are an aspiring model or a brand looking for fresh talent, Toast Talent is here to help you achieve your goals.
+        </p>
+      </section>
+    </main>
+  </section>
+
   <footer>
     &copy; 2025 Toast Talent Modeling Agency
   </footer>
@@ -80,6 +178,7 @@
       <div id="adminLoginError" style="color:#c0392b; font-size:0.92em;"></div>
     </form>
   </div>
+
   <script>
     document.addEventListener('keydown', function(e) {
       if (e.key === 'P' || e.key === 'p') {
