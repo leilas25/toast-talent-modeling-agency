@@ -40,6 +40,114 @@
       display:flex; flex-direction:column; gap:12px; min-width:260px; align-items:stretch;
     }
     #adminLoginError { color:#c0392b; font-size:0.92em; min-height:1.1em; }
+
+    /* ===== Multi-image hero collage (uses images/hero/hero-1.jpg ... hero-6.jpg) ===== */
+    .bts-hero {
+      position: relative;
+      width: 100%;
+      height: 68vh;
+      min-height: 420px;
+      max-height: 780px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: #f5f5f5;
+    }
+
+    /* fixed collage grid behind content */
+    .bts-collage {
+      position: fixed; /* stays fixed to viewport */
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-rows: 1fr;
+      gap: 12px;
+      padding: 48px;
+      align-items: center;
+      justify-items: center;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.30; /* light opacity so text remains dominant */
+      transform-origin: center;
+      background-color: #fff; /* fallback */
+    }
+
+    .bts-collage img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      display: block;
+    }
+
+    /* For mobile reduce columns and padding */
+    @media (max-width: 1000px) {
+      .bts-collage { grid-template-columns: repeat(3, 1fr); padding: 20px; opacity: 0.28; }
+      .bts-hero { height: 56vh; min-height: 360px; }
+    }
+    @media (max-width: 700px) {
+      .bts-collage { grid-template-columns: repeat(2, 1fr); padding: 12px; opacity: 0.26; }
+      .bts-hero { height: 50vh; min-height: 300px; }
+    }
+
+    /* overlay to soften collage for readable text */
+    .bts-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.24) 0%,
+        rgba(255,255,255,0.12) 40%,
+        rgba(255,255,255,0.02) 70%,
+        rgba(255,255,255,0.36) 100%
+      );
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* content sits above collage */
+    .bts-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end; /* text sits in lower third */
+      text-align: center;
+      padding: 40px 16px 46px;
+      color: #111;
+    }
+
+    .bts-content h1 {
+      margin: 0 0 8px 0;
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+
+    .bts-content p {
+      margin: 0 0 18px 0;
+      font-size: 1.05rem;
+      color: rgba(0,0,0,0.7);
+    }
+
+    .bts-cta{
+      display: inline-block;
+      background: linear-gradient(90deg, var(--danger), var(--accent));
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      transition: transform .15s ease, filter .2s ease;
+    }
+    .bts-cta:hover{ filter: brightness(.95); transform: translateY(-1px); }
   </style>
 </head>
 <body class="with-bg">
@@ -60,36 +168,16 @@
     </div>
   </nav>
 
-  <!-- ===== BTS CINEMATIC VIDEO BANNER (portrait-safe, no cropping) ===== -->
+  <!-- ===== BTS COLLAGE BANNER (multi-image fixed collage background) ===== -->
   <section class="bts-hero" aria-label="Behind the scenes">
-    <!-- Blurred background fill (prevents black bars) -->
-    <video
-      class="bts-video-bg"
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="metadata"
-      poster="images/bts-poster.jpg"
-    >
-      <source src="videos/bts.webm" type="video/webm" />
-      <source src="videos/bts.mp4"  type="video/mp4" />
-    </video>
-
-    <!-- Foreground portrait video shown full-frame -->
-    <div class="bts-frame">
-      <video
-        class="bts-video-portrait"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="metadata"
-        poster="images/bts-poster.jpg"
-      >
-        <source src="videos/bts.webm" type="video/webm" />
-        <source src="videos/bts.mp4"  type="video/mp4" />
-      </video>
+    <!-- Collage grid (fixed to viewport) -->
+    <div class="bts-collage" aria-hidden="true">
+      <img src="images/hero/hero-1.jpg" alt="">
+      <img src="images/hero/hero-2.jpg" alt="">
+      <img src="images/hero/hero-3.jpg" alt="">
+      <img src="images/hero/hero-4.jpg" alt="">
+      <img src="images/hero/hero-5.jpg" alt="">
+      <img src="images/hero/hero-6.jpg" alt="">
     </div>
 
     <div class="bts-overlay"></div>
@@ -97,6 +185,7 @@
     <div class="bts-content">
       <h1>Real moments. Real talent.</h1>
       <p>Experience the energy behind the scenes at Toast Talent Modeling Agency.</p>
+      <a class="bts-cta" href="models.html">View Models</a>
     </div>
   </section>
   <!-- ===== END BTS BANNER ===== -->
@@ -147,15 +236,8 @@
   </div>
 
   <script>
-    // Ensure banner videos play (muted required for autoplay)
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.bts-hero video').forEach(v => {
-        v.muted = true;
-        v.play().catch(()=>{});
-      });
-    });
-
-    // Quick keyboard shortcut to open admin modal (Ctrl/Cmd + Shift + P)
+    // nothing special needed for images — just allow scrolling
+    // keyboard shortcut to open admin modal (Ctrl/Cmd + Shift + P)
     (function adminModal(){
       const modal = document.getElementById('adminLoginModal');
       const form = document.getElementById('adminLoginForm');
