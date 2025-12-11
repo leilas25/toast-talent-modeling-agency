@@ -21,7 +21,7 @@
 
   <link rel="icon" type="image/png" href="images/favicon.png" />
 
-  <!-- Fonts & CSS -->
+  <!-- Fonts & main CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
@@ -29,19 +29,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    /* tiny inline styles for admin modal only */
-    .admin-link { display: none; }
-    #adminLoginModal {
-      display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
-      background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;
-    }
-    #adminLoginForm {
-      background:#fff; padding:30px 24px; border-radius:10px; box-shadow:0 2px 18px rgba(0,0,0,0.18);
-      display:flex; flex-direction:column; gap:12px; min-width:260px; align-items:stretch;
-    }
-    #adminLoginError { color:#c0392b; font-size:0.92em; min-height:1.1em; }
+    /* ===== Collage + auto-pan overrides (keeps rest of style.css intact) ===== */
 
-    /* ===== Multi-image hero collage (uses images/hero/hero-1.jpg ... hero-6.jpg) ===== */
+    /* Container for the collage banner */
     .bts-hero {
       position: relative;
       width: 100%;
@@ -54,62 +44,57 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      background: #f5f5f5;
+      background: #fff;
     }
 
-    /* fixed collage grid behind content */
+    /* Grid of images placed behind content */
     .bts-collage {
-      position: fixed; /* stays fixed to viewport */
+      position: absolute;
       inset: 0;
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       grid-auto-rows: 1fr;
-      gap: 12px;
+      gap: 18px;
       padding: 48px;
       align-items: center;
       justify-items: center;
       pointer-events: none;
       z-index: 0;
-      opacity: 0.30; /* light opacity so text remains dominant */
-      transform-origin: center;
-      background-color: #fff; /* fallback */
+      opacity: 0.40; /* visible but soft */
+      transition: opacity .3s ease;
+      /* Auto-pan: translate the whole grid slowly (luxury effect) */
+      will-change: transform;
+      animation: collage-pan 40s ease-in-out infinite alternate;
     }
 
+    /* Individual images */
     .bts-collage img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 14px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-      display: block;
+      transform-origin: center center;
+      /* tiny subtle scale to add life */
+      transform: scale(1.02);
+      transition: transform .6s ease;
     }
 
-    /* For mobile reduce columns and padding */
-    @media (max-width: 1000px) {
-      .bts-collage { grid-template-columns: repeat(3, 1fr); padding: 20px; opacity: 0.28; }
-      .bts-hero { height: 56vh; min-height: 360px; }
-    }
-    @media (max-width: 700px) {
-      .bts-collage { grid-template-columns: repeat(2, 1fr); padding: 12px; opacity: 0.26; }
-      .bts-hero { height: 50vh; min-height: 300px; }
-    }
+    /* Slightly different movement per column for depth (subtle parallax) */
+    .bts-collage img:nth-child(3n+1) { animation: img-drift-1 30s ease-in-out infinite alternate; }
+    .bts-collage img:nth-child(3n+2) { animation: img-drift-2 36s ease-in-out infinite alternate; }
+    .bts-collage img:nth-child(3n+3) { animation: img-drift-3 42s ease-in-out infinite alternate; }
 
-    /* overlay to soften collage for readable text */
+    /* overlay to ensure text legibility but keep images visible */
     .bts-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.24) 0%,
-        rgba(255,255,255,0.12) 40%,
-        rgba(255,255,255,0.02) 70%,
-        rgba(255,255,255,0.36) 100%
-      );
+      background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.28) 45%, rgba(255,255,255,0.60) 100%);
       z-index: 1;
       pointer-events: none;
     }
 
-    /* content sits above collage */
+    /* Foreground content — solid, non-transparent card */
     .bts-content {
       position: relative;
       z-index: 2;
@@ -117,10 +102,18 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-end; /* text sits in lower third */
-      text-align: center;
+      justify-content: flex-end;
       padding: 40px 16px 46px;
       color: #111;
+
+      background: rgba(255,255,255,0.96); /* solid-looking card */
+      backdrop-filter: blur(3px);
+      border-radius: 18px;
+      padding: 28px 20px;
+      margin: 0 12px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+      max-width: 920px;
+      width: calc(100% - 48px);
     }
 
     .bts-content h1 {
@@ -133,10 +126,10 @@
     .bts-content p {
       margin: 0 0 18px 0;
       font-size: 1.05rem;
-      color: rgba(0,0,0,0.7);
+      color: rgba(0,0,0,0.75);
     }
 
-    .bts-cta{
+    .bts-cta {
       display: inline-block;
       background: linear-gradient(90deg, var(--danger), var(--accent));
       color: #fff;
@@ -145,9 +138,52 @@
       border-radius: 999px;
       font-weight: 700;
       box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-      transition: transform .15s ease, filter .2s ease;
     }
-    .bts-cta:hover{ filter: brightness(.95); transform: translateY(-1px); }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .bts-collage { grid-template-columns: repeat(2, 1fr); padding: 28px; opacity: 0.36; }
+      .bts-hero { height: 56vh; min-height: 360px; }
+      .bts-content { padding: 20px; width: calc(100% - 28px); }
+    }
+    @media (max-width: 600px) {
+      .bts-collage { grid-template-columns: repeat(1, 1fr); padding: 12px; opacity: 0.32; gap: 12px; }
+      .bts-content h1 { font-size: 1.6rem; }
+    }
+
+    /* === Animations === */
+    @keyframes collage-pan {
+      0%   { transform: translateX(0) translateY(0) scale(1); }
+      50%  { transform: translateX(-6%) translateY(-2%) scale(1.02); }
+      100% { transform: translateX(6%) translateY(0) scale(1); }
+    }
+
+    @keyframes img-drift-1 {
+      0% { transform: translateY(0) scale(1.02); }
+      100% { transform: translateY(-3%) scale(1.03); }
+    }
+    @keyframes img-drift-2 {
+      0% { transform: translateY(0) scale(1.02); }
+      100% { transform: translateY(2%) scale(1.01); }
+    }
+    @keyframes img-drift-3 {
+      0% { transform: translateY(0) scale(1.02); }
+      100% { transform: translateY(-1%) scale(1.025); }
+    }
+
+    /* Respect user preference for reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .bts-collage,
+      .bts-collage img {
+        animation: none !important;
+        transform: none !important;
+      }
+    }
+
+    /* Slight fade-in for polish */
+    .bts-hero, .bts-collage, .bts-content { opacity: 0; transform: translateY(6px); transition: opacity .6s ease, transform .6s ease; }
+    .bts-loaded .bts-hero, .bts-loaded .bts-collage, .bts-loaded .bts-content { opacity: 1; transform: none; }
+
   </style>
 </head>
 <body class="with-bg">
@@ -168,9 +204,9 @@
     </div>
   </nav>
 
-  <!-- ===== BTS COLLAGE BANNER (multi-image fixed collage background) ===== -->
+  <!-- ===== BTS COLLAGE HERO (3-per-row with luxury auto-pan) ===== -->
   <section class="bts-hero" aria-label="Behind the scenes">
-    <!-- Collage grid (fixed to viewport) -->
+    <!-- Grid of images (3 columns). Edit these src paths if you store images elsewhere -->
     <div class="bts-collage" aria-hidden="true">
       <img src="images/hero/hero-1.jpg" alt="">
       <img src="images/hero/hero-2.jpg" alt="">
@@ -180,37 +216,25 @@
       <img src="images/hero/hero-6.jpg" alt="">
     </div>
 
-    <div class="bts-overlay"></div>
+    <div class="bts-overlay" aria-hidden="true"></div>
 
-    <div class="bts-content">
+    <div class="bts-content" role="region" aria-label="Hero introduction">
       <h1>Real moments. Real talent.</h1>
       <p>Experience the energy behind the scenes at Toast Talent Modeling Agency.</p>
-      <a class="bts-cta" href="models.html">View Models</a>
+      <a class="bts-cta" href="models.html">View the Gallery</a>
     </div>
   </section>
-  <!-- ===== END BTS BANNER ===== -->
+  <!-- ===== END BTS COLLAGE HERO ===== -->
 
   <main id="main" role="main">
-    <!-- Legacy hero (kept for SEO & brand; appears below banner) -->
     <header class="hero" role="banner">
-      <div class="hero-content">
+      <div class="hero-content" style="display:none"> <!-- kept for SEO but hidden (brand kept in hero card) -->
         <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" class="hero-logo">
         <h1 class="rainbow-title">Toast Talent Modeling Agency</h1>
         <p class="hero-subtitle">
           Elevating new faces.<br>
           Connecting talent with opportunity.
         </p>
-        <div class="hero-socials" aria-label="Social links">
-          <a href="https://instagram.com/toastalent_models" target="_blank" class="hero-icon" title="Instagram" rel="noopener noreferrer">
-            <i class="fab fa-instagram" aria-hidden="true"></i><span class="sr-only">Instagram</span>
-          </a>
-          <a href="mailto:toastalent@gmail.com" class="hero-icon" title="Email">
-            <i class="fas fa-envelope" aria-hidden="true"></i><span class="sr-only">Email</span>
-          </a>
-          <a href="https://tiktok.com/@toast.talentmodels" target="_blank" class="hero-icon" title="TikTok" rel="noopener noreferrer">
-            <i class="fab fa-tiktok" aria-hidden="true"></i><span class="sr-only">TikTok</span>
-          </a>
-        </div>
       </div>
     </header>
 
@@ -223,8 +247,8 @@
 
   <footer role="contentinfo">&copy; 2025 Toast Talent Modeling Agency</footer>
 
-  <!-- Admin Login Modal -->
-  <div id="adminLoginModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle">
+  <!-- Admin Login Modal (hidden normally) -->
+  <div id="adminLoginModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle" style="display:none">
     <form id="adminLoginForm" method="post" action="/api/admin-login" aria-describedby="adminLoginError">
       <h3 id="adminLoginTitle" style="margin:0 0 6px 0;">Admin Login</h3>
       <label for="adminPassword">Enter Admin Password:</label>
@@ -236,57 +260,33 @@
   </div>
 
   <script>
-    // nothing special needed for images — just allow scrolling
-    // keyboard shortcut to open admin modal (Ctrl/Cmd + Shift + P)
-    (function adminModal(){
-      const modal = document.getElementById('adminLoginModal');
-      const form = document.getElementById('adminLoginForm');
-      const passwordInput = document.getElementById('adminPassword');
-      const errorBox = document.getElementById('adminLoginError');
-      const cancelBtn = document.getElementById('adminCancel');
+    // Fade-in once DOM and visuals load
+    window.addEventListener('load', () => {
+      document.documentElement.classList.add('bts-loaded');
+    });
 
-      document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
-          modal.style.display = 'flex';
-          modal.setAttribute('aria-hidden', 'false');
-          passwordInput.focus();
-        }
-      });
+    // Respect reduced-motion: if user prefers reduced motion we keep things static
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.bts-collage, .bts-collage img').forEach(el => el.style.animation = 'none');
+    }
 
-      modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
-      cancelBtn.addEventListener('click', closeModal);
+    // Optional: Slight pause movement when user hovers or focuses hero for accessibility
+    const collage = document.querySelector('.bts-collage');
+    if (collage) {
+      ['mouseenter','focusin'].forEach(ev => collage.addEventListener(ev, () => collage.style.animationPlayState = 'paused'));
+      ['mouseleave','focusout'].forEach(ev => collage.addEventListener(ev, () => collage.style.animationPlayState = 'running'));
+    }
 
-      function closeModal(){
-        modal.style.display = 'none';
-        modal.setAttribute('aria-hidden', 'true');
-        errorBox.textContent = '';
-        form.reset();
+    // Keyboard shortcut for admin modal (Ctrl/Cmd + Shift + P)
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
+        const modal = document.getElementById('adminLoginModal');
+        if (!modal) return;
+        modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        modal.setAttribute('aria-hidden', modal.style.display === 'flex' ? 'false' : 'true');
+        if (modal.style.display === 'flex') document.getElementById('adminPassword')?.focus();
       }
-
-      form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        errorBox.textContent = '';
-        const pw = passwordInput.value;
-
-        try {
-          const res = await fetch(form.action, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: pw })
-          });
-          const json = await res.json();
-          if (res.ok && json.ok && json.redirect) {
-            window.location.href = json.redirect;
-          } else {
-            errorBox.textContent = json.message || 'Incorrect password. Try again.';
-            passwordInput.value = '';
-            passwordInput.focus();
-          }
-        } catch (err) {
-          errorBox.textContent = 'Login failed. Please try again later.';
-        }
-      });
-    })();
+    });
   </script>
 </body>
 </html>
