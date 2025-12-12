@@ -10,7 +10,7 @@
   <meta name="keywords" content="modeling agency, talent agency, models, fashion, Toast Talent, modeling careers" />
   <meta name="author" content="Toast Talent Modeling Agency" />
 
-  <!-- Open Graph for Social Media -->
+  <!-- Open Graph -->
   <meta property="og:title" content="About Toast Talent Modeling Agency" />
   <meta property="og:description" content="Learn more about Toast Talent, a premier modeling agency dedicated to nurturing the next generation of modeling talent." />
   <meta property="og:image" content="https://toasttalent.co.za/images/og-image.jpg" />
@@ -20,14 +20,14 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="images/favicon.png" />
 
-  <!-- Styles and Fonts -->
+  <!-- Styles & Fonts -->
   <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
 
   <style>
     .admin-link { display: none; }
 
-    /* ===== COLLAGE BACKGROUND (same as index.html) ===== */
+    /* ===== COLLAGE BACKGROUND ===== */
     .collage-bg {
       position: fixed;
       inset: 0;
@@ -40,6 +40,7 @@
       padding: 48px;
       opacity: 0.30;
     }
+
     .collage-bg img {
       width: 100%;
       height: 100%;
@@ -49,28 +50,37 @@
     }
 
     @media (max-width:1000px){
-      .collage-bg { grid-template-columns: repeat(3, 1fr); padding: 20px; }
-    }
-    @media (max-width:700px){
-      .collage-bg { grid-template-columns: repeat(2, 1fr); padding: 14px; }
+      .collage-bg {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 20px;
+      }
     }
 
-    /* ===== ABOUT BLOCK WITH 0.72 OPACITY ===== */
+    @media (max-width:700px){
+      .collage-bg {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 14px;
+      }
+    }
+
+    /* ===== ABOUT CONTENT (READABLE 0.72) ===== */
     .about-hero {
       position: relative;
       z-index: 2;
-      background: rgba(255,255,255,0.72); /* <<< readable transparency */
+      background: rgba(255,255,255,0.72);
       padding: 48px;
       border-radius: 14px;
       max-width: 1100px;
       margin: 70px auto;
       box-shadow: 0 8px 30px rgba(0,0,0,0.05);
     }
+
     .about-hero h1 {
       text-align: center;
       font-size: 2.2rem;
       margin-bottom: 18px;
     }
+
     .about-hero p {
       font-size: 1.08rem;
       color: #333;
@@ -78,29 +88,41 @@
       margin-bottom: 18px;
     }
 
-    /* Admin modal base */
+    /* Admin modal */
     #adminLoginModal {
-      display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
-      background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100vw; height:100vh;
+      background:rgba(0,0,0,0.5);
+      z-index:9999;
+      align-items:center;
+      justify-content:center;
     }
+
     #adminLoginForm {
-      background:#fff; padding:30px 24px; border-radius:10px; box-shadow:0 2px 18px rgba(0,0,0,0.18);
-      display:flex; flex-direction:column; gap:16px; min-width:220px;
+      background:#fff;
+      padding:30px 24px;
+      border-radius:10px;
+      box-shadow:0 2px 18px rgba(0,0,0,0.18);
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      min-width:220px;
     }
   </style>
-
 </head>
 
 <body class="with-bg">
 
-  <!-- COLLAGE (background) -->
+  <!-- COLLAGE BACKGROUND -->
   <div class="collage-bg" aria-hidden="true">
-    <img src="images/hero/hero-1.jpg" alt="">
-    <img src="images/hero/hero-2.jpg" alt="">
-    <img src="images/hero/hero-3.jpg" alt="">
-    <img src="images/hero/hero-4.jpg" alt="">
-    <img src="images/hero/hero-5.jpg" alt="">
-    <img src="images/hero/hero-6.jpg" alt="">
+    <img src="images/hero/hero-7.jpg" alt="">
+    <img src="images/hero/hero-8.jpg" alt="">
+    <img src="images/hero/hero-9.jpg" alt="">
+    <img src="images/hero/hero-7.jpg" alt="">
+    <img src="images/hero/hero-8.jpg" alt="">
+    <img src="images/hero/hero-9.jpg" alt="">
   </div>
 
   <!-- NAV -->
@@ -122,15 +144,20 @@
   <main>
     <section class="about-hero">
       <h1 class="rainbow-models">About Toast Talent</h1>
+
       <p>
-        Toast Talent Modeling Agency is a premier modeling agency dedicated to discovering and nurturing the next generation of talent. 
-        We specialize in connecting aspiring models with top brands and fashion houses, providing them with the platform they need to shine in the competitive world of modeling.
+        Toast Talent Modeling Agency is a premier modeling agency dedicated to discovering and nurturing the next generation of talent.
+        We connect exceptional faces with leading brands and fashion houses, creating opportunities that elevate careers.
       </p>
+
       <p>
-        Founded by industry veterans, Toast Talent is committed to excellence and professionalism. Our team works tirelessly to ensure that our models receive the best opportunities and support in their careers.
+        Founded with a focus on excellence, professionalism, and long-term growth, Toast Talent offers hands-on guidance and
+        carefully curated opportunities within the fashion, commercial, and creative industries.
       </p>
+
       <p>
-        Whether you are an aspiring model or a brand looking for fresh talent, Toast Talent is here to help you achieve your goals.
+        Whether you are an aspiring model or a brand seeking refined, versatile talent, Toast Talent is your trusted partner
+        in building impactful presence and lasting success.
       </p>
     </section>
   </main>
@@ -150,26 +177,24 @@
   </div>
 
   <script>
-    // Toggle modal
     document.addEventListener('keydown', function(e) {
       if (e.key === 'P' || e.key === 'p') {
         document.getElementById('adminLoginModal').style.display = 'flex';
         document.getElementById('adminPassword').focus();
       }
     });
+
     document.getElementById('adminLoginModal').addEventListener('click', function(e) {
       if (e.target === this) this.style.display = 'none';
     });
+
     document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const password = document.getElementById('adminPassword').value;
       if (password === 'YumnaGugu1980') {
-        document.getElementById('adminLoginError').textContent = '';
         window.location.href = 'admin.html';
       } else {
         document.getElementById('adminLoginError').textContent = 'Incorrect password. Try again.';
-        document.getElementById('adminPassword').value = '';
-        document.getElementById('adminPassword').focus();
       }
     });
   </script>
