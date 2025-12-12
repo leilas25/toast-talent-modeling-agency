@@ -32,15 +32,35 @@
     .admin-link { display: none; }
 
     #adminLoginModal {
-      display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
-      background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width:100vw;
+      height:100vh;
+      background:rgba(0,0,0,0.5);
+      z-index:9999;
+      align-items:center;
+      justify-content:center;
     }
+
     #adminLoginForm {
-      background:#fff; padding:30px 24px; border-radius:10px;
+      background:#fff;
+      padding:30px 24px;
+      border-radius:10px;
       box-shadow:0 2px 18px rgba(0,0,0,0.18);
-      display:flex; flex-direction:column; gap:12px; min-width:260px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-width:260px;
+      align-items:stretch;
     }
-    #adminLoginError { color:#c0392b; font-size:0.92em; min-height:1.1em; }
+
+    #adminLoginError {
+      color:#c0392b;
+      font-size:0.92em;
+      min-height:1.1em;
+    }
 
     /* ===== COLLAGE HERO ===== */
     .bts-hero {
@@ -63,15 +83,11 @@
       inset: 0;
       display: grid;
       grid-template-columns: repeat(5, 1fr); /* ✅ 5 IMAGES */
-      grid-auto-rows: 1fr;
       gap: 12px;
       padding: 48px;
-      align-items: center;
-      justify-items: center;
       pointer-events: none;
       z-index: 0;
       opacity: 0.30;
-      background-color: #fff;
     }
 
     .bts-collage img {
@@ -83,12 +99,17 @@
     }
 
     @media (max-width: 1000px) {
-      .bts-collage { grid-template-columns: repeat(3, 1fr); padding: 20px; }
-      .bts-hero { height: 56vh; }
+      .bts-collage {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 20px;
+      }
     }
+
     @media (max-width: 700px) {
-      .bts-collage { grid-template-columns: repeat(2, 1fr); padding: 12px; }
-      .bts-hero { height: 50vh; }
+      .bts-collage {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 12px;
+      }
     }
 
     .bts-overlay {
@@ -123,7 +144,7 @@
     }
 
     .bts-content p {
-      margin: 0 0 18px;
+      margin-bottom: 18px;
       font-size: 1.05rem;
       color: rgba(0,0,0,0.7);
     }
@@ -152,13 +173,12 @@
         <li><a href="models.html">Models</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="contact.html">Contact</a></li>
-        <li><a href="admin.html" class="admin-link">Admin</a></li>
         <li><a href="apply.html">Apply</a></li>
       </ul>
     </div>
   </nav>
 
-  <!-- COLLAGE -->
+  <!-- HERO COLLAGE -->
   <section class="bts-hero">
     <div class="bts-collage">
       <img src="images/hero/hero-3.jpg" alt="">
@@ -171,13 +191,12 @@
     <div class="bts-overlay"></div>
 
     <div class="bts-content">
-      <h1>Talent with presence. Style with intention.</h1>
-      <p>Where refined faces meet global opportunity.</p>
-      <a class="bts-cta" href="models.html">View Models</a>
+      <h1>Talent with presence.</h1>
+      <p>Refined. Confident. Represented.</p>
+      <a href="models.html" class="bts-cta">View Models</a>
     </div>
   </section>
 
-  <!-- MAIN CONTENT (UNCHANGED) -->
   <main>
     <header class="hero">
       <div class="hero-content">
@@ -187,6 +206,19 @@
           Elevating new faces.<br>
           Connecting talent with opportunity.
         </p>
+
+        <!-- ✅ SOCIALS KEPT -->
+        <div class="hero-socials">
+          <a href="https://instagram.com/toastalent_models" target="_blank" class="hero-icon">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="mailto:toastalent@gmail.com" class="hero-icon">
+            <i class="fas fa-envelope"></i>
+          </a>
+          <a href="https://tiktok.com/@toast.talentmodels" target="_blank" class="hero-icon">
+            <i class="fab fa-tiktok"></i>
+          </a>
+        </div>
       </div>
     </header>
 
@@ -197,7 +229,9 @@
     </section>
   </main>
 
-  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
+  <footer>
+    &copy; 2025 Toast Talent Modeling Agency
+  </footer>
 
 </body>
 </html>
