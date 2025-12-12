@@ -31,6 +31,17 @@
   <style>
     .admin-link { display: none; }
 
+    #adminLoginModal {
+      display:none; position:fixed; top:0; left:0; width:100vw; height:100vh;
+      background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;
+    }
+    #adminLoginForm {
+      background:#fff; padding:30px 24px; border-radius:10px;
+      box-shadow:0 2px 18px rgba(0,0,0,0.18);
+      display:flex; flex-direction:column; gap:12px; min-width:260px;
+    }
+    #adminLoginError { color:#c0392b; font-size:0.92em; min-height:1.1em; }
+
     /* ===== COLLAGE HERO ===== */
     .bts-hero {
       position: relative;
@@ -39,6 +50,7 @@
       min-height: 420px;
       max-height: 780px;
       overflow: hidden;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -46,12 +58,11 @@
       background: #f5f5f5;
     }
 
-    /* COLLAGE — NOW 5 IMAGES */
     .bts-collage {
       position: fixed;
       inset: 0;
       display: grid;
-      grid-template-columns: repeat(5, 1fr); /* ⬅️ changed from 6 */
+      grid-template-columns: repeat(5, 1fr); /* ✅ 5 IMAGES */
       grid-auto-rows: 1fr;
       gap: 12px;
       padding: 48px;
@@ -69,31 +80,15 @@
       object-fit: cover;
       border-radius: 10px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-      display: block;
     }
 
     @media (max-width: 1000px) {
-      .bts-collage {
-        grid-template-columns: repeat(3, 1fr);
-        padding: 20px;
-        opacity: 0.28;
-      }
-      .bts-hero {
-        height: 56vh;
-        min-height: 360px;
-      }
+      .bts-collage { grid-template-columns: repeat(3, 1fr); padding: 20px; }
+      .bts-hero { height: 56vh; }
     }
-
     @media (max-width: 700px) {
-      .bts-collage {
-        grid-template-columns: repeat(2, 1fr);
-        padding: 12px;
-        opacity: 0.26;
-      }
-      .bts-hero {
-        height: 50vh;
-        min-height: 300px;
-      }
+      .bts-collage { grid-template-columns: repeat(2, 1fr); padding: 12px; }
+      .bts-hero { height: 50vh; }
     }
 
     .bts-overlay {
@@ -107,7 +102,6 @@
         rgba(255,255,255,0.36) 100%
       );
       z-index: 1;
-      pointer-events: none;
     }
 
     .bts-content {
@@ -123,27 +117,24 @@
     }
 
     .bts-content h1 {
-      margin: 0 0 8px 0;
+      margin: 0 0 8px;
       font-size: clamp(28px, 5vw, 48px);
       font-weight: 800;
-      letter-spacing: .5px;
     }
 
     .bts-content p {
-      margin: 0 0 18px 0;
+      margin: 0 0 18px;
       font-size: 1.05rem;
       color: rgba(0,0,0,0.7);
     }
 
     .bts-cta {
-      display: inline-block;
       background: linear-gradient(90deg, var(--danger), var(--accent));
       color: #fff;
-      text-decoration: none;
       padding: 12px 22px;
       border-radius: 999px;
       font-weight: 700;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      text-decoration: none;
     }
   </style>
 </head>
@@ -161,6 +152,7 @@
         <li><a href="models.html">Models</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="contact.html">Contact</a></li>
+        <li><a href="admin.html" class="admin-link">Admin</a></li>
         <li><a href="apply.html">Apply</a></li>
       </ul>
     </div>
@@ -168,7 +160,7 @@
 
   <!-- COLLAGE -->
   <section class="bts-hero">
-    <div class="bts-collage" aria-hidden="true">
+    <div class="bts-collage">
       <img src="images/hero/hero-3.jpg" alt="">
       <img src="images/hero/hero-1.jpg" alt="">
       <img src="images/hero/hero-8.jpg" alt="">
@@ -179,15 +171,33 @@
     <div class="bts-overlay"></div>
 
     <div class="bts-content">
-      <h1>Real moments. Real talent.</h1>
-      <p>Talent with presence, poise, and purpose.</p>
+      <h1>Talent with presence. Style with intention.</h1>
+      <p>Where refined faces meet global opportunity.</p>
       <a class="bts-cta" href="models.html">View Models</a>
     </div>
   </section>
 
-  <footer>
-    &copy; 2025 Toast Talent Modeling Agency
-  </footer>
+  <!-- MAIN CONTENT (UNCHANGED) -->
+  <main>
+    <header class="hero">
+      <div class="hero-content">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" class="hero-logo">
+        <h1 class="rainbow-title">Toast Talent Modeling Agency</h1>
+        <p class="hero-subtitle">
+          Elevating new faces.<br>
+          Connecting talent with opportunity.
+        </p>
+      </div>
+    </header>
+
+    <section class="home-feature">
+      <h2 class="rainbow-word">Discover Our Talent</h2>
+      <p>Toast Talent showcases exceptional models ready for runway, print, and commercial work.</p>
+      <a href="models.html" class="feature-link">View Model Gallery →</a>
+    </section>
+  </main>
+
+  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
 
 </body>
 </html>
