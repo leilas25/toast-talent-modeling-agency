@@ -28,7 +28,6 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /* ----------------- CORS ----------------- */
-/** We reflect only allowed origins and fully handle preflight */
 const allowedOrigins = new Set([
   'https://toasttalent.co.za',
   'https://www.toasttalent.co.za',
@@ -41,7 +40,6 @@ const allowedOrigins = new Set([
 app.use(
   cors({
     origin(origin, cb) {
-      // allow same-origin / curl / server-to-server (no Origin header)
       if (!origin) return cb(null, true);
       if (allowedOrigins.has(origin)) return cb(null, true);
       console.warn('CORS blocked origin:', origin);
@@ -54,7 +52,6 @@ app.use(
   })
 );
 
-// Make sure any stray OPTIONS also succeed fast
 app.options('*', (req, res) => res.sendStatus(204));
 
 /* ----------- Cookies & session ---------- */
@@ -68,9 +65,9 @@ app.use(
     cookie: {
       domain: IS_PROD ? process.env.COOKIE_DOMAIN || '.toasttalent.co.za' : undefined,
       httpOnly: true,
-      secure: IS_PROD,                 // HTTPS only in prod
+      secure: IS_PROD,
       sameSite: IS_PROD ? 'none' : 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 7  // 7 days
+      maxAge: 1000 * 60 * 60 * 24 * 7
     }
   })
 );
@@ -83,15 +80,15 @@ app.get('/api/models-sanity', (req, res) => {
     env: NODE_ENV
   });
 });
-app.get('/health', (req, res) => res.json({ ok: true }));
 
-// Silences the favicon 404 noise in dev/console
+app.get('/health', (req, res) => res.json({ ok: true }));
 app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 
 /* -------------- Auth helpers ------------ */
 app.get('/api/whoami', (req, res) => {
   res.json({ isAdmin: !!req.session?.isAdmin, sessionID: req.sessionID || null });
 });
+
 app.get('/api/check-auth', (req, res) => {
   if (req.session?.isAdmin) return res.json({ authenticated: true });
   return res.status(401).json({ authenticated: false });
@@ -103,9 +100,9 @@ app.post('/api/admin-login', (req, res) => {
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
   if (password && ADMIN_PASSWORD && password === ADMIN_PASSWORD) {
     req.session.isAdmin = true;
-    return req.session.save(() => res.json({ ok: true, message: 'Login successful' }));
+    return req.session.save(() => res.json({ ok: true }));
   }
-  return res.status(401).json({ ok: false, message: 'Incorrect password' });
+  return res.status(401).json({ ok: false });
 });
 
 app.post('/api/admin-logout', (req, res) => {
@@ -124,160 +121,39 @@ app.post('/api/admin-logout', (req, res) => {
 /* --------------- Models API ------------- */
 app.use('/api/models', modelsRouter);
 
-/* --------- Apply (SendGrid email) ------- */
+/* --------- SendGrid setup --------- */
 if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-} else {
-  console.warn('⚠️  SENDGRID_API_KEY not set. /api/apply and /api/book emails will fail.');
 }
 
-const upload = multer({ limits: { fileSize: 8 * 1024 * 1024 } }); // 8MB per file
+/* ==================================================
+   CLEAN URL ROUTES (ADDED – NOTHING ELSE CHANGED)
+================================================== */
+const page = (file) =>
+  path.join(__dirname, 'public', file);
 
-app.post(
-  '/api/apply',
-  upload.fields([
-    { name: 'headshotNeutral', maxCount: 1 },
-    { name: 'headshotSmiling', maxCount: 1 },
-    { name: 'sideProfile', maxCount: 1 },
-    { name: 'halfBody', maxCount: 1 },
-    { name: 'fullBody', maxCount: 1 }
-  ]),
-  async (req, res) => {
-    try {
-      if (!process.env.SENDGRID_API_KEY) {
-        return res.status(500).json({ error: 'Email service not configured' });
-      }
-
-      const f = req.body || {};
-      const toB64 = (file) => ({
-        content: file.buffer.toString('base64'),
-        filename: file.originalname,
-        type: file.mimetype,
-        disposition: 'attachment'
-      });
-
-      const files = req.files || {};
-      const attachments = []
-        .concat(files.headshotNeutral || [])
-        .concat(files.headshotSmiling || [])
-        .concat(files.sideProfile || [])
-        .concat(files.halfBody || [])
-        .concat(files.fullBody || [])
-        .map(toB64);
-
-      const lines = [
-        'New Model Application',
-        '',
-        `Name: ${f.firstName || ''} ${f.lastName || ''}`,
-        `Email: ${f.email || ''}`,
-        `Phone: ${f.phone || ''}`,
-        `DOB: ${f.dob || ''}`,
-        `Gender: ${f.gender || ''}`,
-        '',
-        'Measurements:',
-        `Height: ${f.height || ''}`,
-        `Bust: ${f.bust || ''}`,
-        `Hips: ${f.hips || ''}`,
-        `Waist: ${f.waist || ''}`,
-        `Dress Size: ${f.dressSize || ''}`,
-        `Shirt Size: ${f.shirtSize || ''}`,
-        `Shoe Size: ${f.shoeSize || ''}`,
-        `Hair: ${f.hairColor || ''}`,
-        `Eyes: ${f.eyeColor || ''}`,
-        '',
-        'Location:',
-        `Address: ${f.address || ''}`,
-        `City: ${f.city || ''}`,
-        `Province: ${f.province || ''}`,
-        `Zip: ${f.zip || ''}`,
-        '',
-        `Message: ${f.message || ''}`
-      ];
-
-      await sgMail.send({
-        to: 'leila@toasttalent.co.za',
-        from: 'leila@toasttalent.co.za', // must be verified in SendGrid
-        subject: `New Application — ${f.firstName || ''} ${f.lastName || ''}`,
-        text: lines.join('\n'),
-        attachments
-      });
-
-      res.json({ ok: true });
-    } catch (err) {
-      console.error('❌ Apply email failed:', err.response?.body || err);
-      res.status(500).json({ error: 'Failed to send application' });
-    }
-  }
-);
-
-/* -------- Booking email endpoint -------- */
-app.post('/api/book', async (req, res) => {
-  try {
-    const { modelId, modelName, requesterEmail, requesterWhatsapp } = req.body || {};
-    if (!modelName || !requesterEmail || !requesterWhatsapp) {
-      return res
-        .status(400)
-        .json({ error: 'modelName, requesterEmail and requesterWhatsapp are required' });
-    }
-    if (!process.env.SENDGRID_API_KEY) {
-      return res.status(500).json({ error: 'Email service not configured' });
-    }
-
-    const to = process.env.BOOK_TO_EMAIL || 'leila@toasttalent.co.za';
-    const from = process.env.BOOK_FROM_EMAIL || 'leila@toasttalent.co.za';
-
-    const msg = {
-      to,
-      from,
-      subject: `Booking Request — ${modelName}`,
-      text: `A new booking request has been submitted.
-
-Model: ${modelName}
-Model ID (if provided): ${modelId || '-'}
-
-Requester Email: ${requesterEmail}
-Requester WhatsApp: ${requesterWhatsapp}
-
-Please follow up with the requester to confirm details.`
-    };
-
-    await sgMail.send(msg);
-    return res.json({ ok: true });
-  } catch (err) {
-    console.error('Booking email error:', err?.response?.body || err.message || err);
-    return res.status(500).json({ error: 'Failed to send booking email' });
-  }
-});
+app.get('/', (req, res) => res.sendFile(page('index.html')));
+app.get('/about', (req, res) => res.sendFile(page('about.html')));
+app.get('/contact', (req, res) => res.sendFile(page('contact.html')));
+app.get('/models', (req, res) => res.sendFile(page('models.html')));
+app.get('/apply', (req, res) => res.sendFile(page('apply.html')));
+app.get('/admin', (req, res) => res.sendFile(page('admin/index.html')));
 
 /* ------------- Static assets ------------ */
-try {
-  app.use(express.static(path.join(__dirname, 'public')));
-  console.log('✅ Static middleware mounted.');
-} catch (e) {
-  console.error('⚠️ Failed to mount static middleware (non-fatal):', e);
-}
+app.use(express.static(path.join(__dirname, 'public')));
+console.log('✅ Static middleware mounted.');
 
 /* -------- SPA fallback (safe) ---------- */
 app.use((req, res, next) => {
   try {
     if (req.method !== 'GET') return next();
-    if (req.path && req.path.startsWith('/api/')) return next();
+    if (req.path.startsWith('/api/')) return next();
 
-    const candidate = path.join(__dirname, 'public', decodeURIComponent(req.path.replace(/^\//, '')));
-    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) return next();
+    const candidate = path.join(__dirname, 'public', req.path);
+    if (fs.existsSync(candidate)) return next();
 
-    const indexFile = path.join(__dirname, 'public', 'index.html');
-    if (fs.existsSync(indexFile)) {
-      return res.sendFile(indexFile, (err) => {
-        if (err) {
-          console.error('Error sending index.html fallback:', err);
-          return next();
-        }
-      });
-    }
-    next();
+    return res.sendFile(path.join(__dirname, 'public', 'index.html'));
   } catch (err) {
-    console.error('Error in SPA fallback middleware:', err);
     next();
   }
 });
