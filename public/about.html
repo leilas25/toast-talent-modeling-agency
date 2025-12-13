@@ -19,7 +19,7 @@
   <style>
     .admin-link { display:none; }
 
-    /* ===== LUXURY 3-PERSON COLLAGE (OPTION A) ===== */
+    /* ===== LUXURY 3-PERSON COLLAGE ===== */
     .triptych-bg {
       position: fixed;
       inset: 0;
@@ -40,16 +40,21 @@
       box-shadow: 0 18px 40px rgba(0,0,0,0.08);
     }
 
-    /* Responsive refinement */
+    /* Mobile collage refinement */
     @media (max-width: 900px) {
       .triptych-bg {
         grid-template-columns: 1fr;
-        padding: 24px;
-        gap: 14px;
+        padding: 22px;
+        gap: 16px;
+        opacity: 0.30;
+      }
+
+      .triptych-bg img {
+        height: 42vh;
       }
     }
 
-    /* ===== ABOUT CONTENT (READABLE OVERLAY) ===== */
+    /* ===== ABOUT CONTENT ===== */
     .about-hero {
       position: relative;
       z-index: 2;
@@ -76,10 +81,28 @@
       margin-bottom: 18px;
     }
 
+    /* Mobile typography & spacing */
     @media (max-width: 700px) {
       .about-hero {
         padding: 32px 22px;
-        margin: 60px 16px;
+        margin: 56px 14px;
+      }
+
+      .about-hero h1 {
+        font-size: 1.9rem;
+      }
+
+      .about-hero p {
+        font-size: 1.02rem;
+      }
+    }
+
+    /* Mobile nav safety (no desktop impact) */
+    @media (max-width: 700px) {
+      .nav-links {
+        flex-wrap: wrap;
+        gap: 14px;
+        justify-content: center;
       }
     }
   </style>
