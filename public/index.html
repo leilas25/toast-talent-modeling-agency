@@ -48,7 +48,7 @@
     }
 
     .bts-collage {
-      position: fixed;
+      position: absolute;
       inset: 0;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -80,21 +80,17 @@
       }
     }
 
-    /* ✅ MOBILE ONLY – SCROLLING, TALL, EDITORIAL */
+    /* Mobile collage layout */
     @media (max-width: 700px) {
       .bts-collage {
-        position: absolute;              /* 👈 scrolls with page */
-        grid-template-columns: 1fr;      /* one image per row */
-        padding: 20px 16px;
-        gap: 22px;
-        opacity: 0.38;
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 18px;
+        opacity: 0.35;
       }
-
       .bts-collage img {
-        height: 72vh;                    /* tall, luxury feel */
-        max-height: 520px;
-        object-position: center top;     /* faces stay visible */
-        border-radius: 14px;
+        min-height: 320px;
+        object-position: center center;
       }
     }
 
@@ -142,6 +138,23 @@
       border-radius: 999px;
       font-weight: 700;
       text-decoration: none;
+    }
+
+    /* ======================================================
+       ✅ MOBILE TRANSPARENCY FIX (ONLY NEW ADDITION)
+       Allows collage to show behind rest of page on mobile
+    ======================================================= */
+    @media (max-width: 700px) {
+      body.with-bg {
+        background: transparent;
+      }
+
+      main,
+      header.hero,
+      section.home-feature {
+        background: rgba(255,255,255,0.72);
+        backdrop-filter: blur(6px);
+      }
     }
   </style>
 </head>
