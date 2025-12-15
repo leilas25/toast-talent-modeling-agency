@@ -31,7 +31,7 @@
   <style>
     .admin-link { display: none; }
 
-    /* ===== DESKTOP / TABLET COLLAGE (UNCHANGED) ===== */
+    /* ===== COLLAGE HERO (DESKTOP + TABLET UNCHANGED) ===== */
     .bts-hero {
       position: relative;
       width: 100%;
@@ -76,7 +76,9 @@
 
     @media (max-width: 700px) {
       .bts-collage {
-        display: none; /* hide desktop collage on mobile */
+        grid-template-columns: repeat(2, 1fr);
+        padding: 14px;
+        opacity: 0.35;
       }
     }
 
@@ -127,34 +129,20 @@
     }
 
     /* ==================================================
-       ✅ MOBILE-ONLY COLLAGE BACKGROUND (NEW)
+       MOBILE-ONLY TRANSPARENCY FIX
+       (NO DESKTOP IMPACT — SAFE)
     ================================================== */
     @media (max-width: 700px) {
 
       body.with-bg {
-        background: none !important;
+        background: transparent !important;
       }
 
-      .mobile-collage-bg {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        background-image: url("images/hero/mobile-collage.jpg");
-        background-size: cover;
-        background-position: center;
-        opacity: 0.35;
-        pointer-events: none;
-      }
-
-      nav,
       main,
       header.hero,
       .hero-content,
-      section.home-feature,
-      footer {
-        position: relative;
-        z-index: 1;
-        background: rgba(255,255,255,0.55);
+      section.home-feature {
+        background: rgba(255,255,255,0.55) !important;
         backdrop-filter: blur(3px);
       }
 
@@ -163,14 +151,12 @@
         border-radius: 16px;
         padding: 12px 16px;
       }
+
     }
   </style>
 </head>
 
 <body class="with-bg">
-
-  <!-- MOBILE COLLAGE BACKGROUND -->
-  <div class="mobile-collage-bg"></div>
 
   <!-- NAV -->
   <nav class="navbar">
@@ -188,7 +174,7 @@
     </div>
   </nav>
 
-  <!-- HERO -->
+  <!-- HERO COLLAGE -->
   <section class="bts-hero">
     <div class="bts-collage">
       <img src="images/hero/hero-3.jpg" alt="">
