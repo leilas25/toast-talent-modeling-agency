@@ -31,7 +31,38 @@
   <style>
     .admin-link { display: none; }
 
-    /* ===== COLLAGE HERO (DESKTOP UNCHANGED) ===== */
+    #adminLoginModal {
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width:100vw;
+      height:100vh;
+      background:rgba(0,0,0,0.5);
+      z-index:9999;
+      align-items:center;
+      justify-content:center;
+    }
+
+    #adminLoginForm {
+      background:#fff;
+      padding:30px 24px;
+      border-radius:10px;
+      box-shadow:0 2px 18px rgba(0,0,0,0.18);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-width:260px;
+      align-items:stretch;
+    }
+
+    #adminLoginError {
+      color:#c0392b;
+      font-size:0.92em;
+      min-height:1.1em;
+    }
+
+    /* ===== COLLAGE HERO ===== */
     .bts-hero {
       position: relative;
       width: 100%;
@@ -51,7 +82,7 @@
       position: fixed;
       inset: 0;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(5, 1fr); /* ✅ 5 IMAGES */
       gap: 12px;
       padding: 48px;
       pointer-events: none;
@@ -65,6 +96,20 @@
       object-fit: cover;
       border-radius: 10px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+
+    @media (max-width: 1000px) {
+      .bts-collage {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .bts-collage {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 12px;
+      }
     }
 
     .bts-overlay {
@@ -112,52 +157,6 @@
       font-weight: 700;
       text-decoration: none;
     }
-
-    /* ===== MOBILE ONLY: OPTION A (LUXURY FIX) ===== */
-    @media (max-width: 700px) {
-
-      /* Show ONE strong hero image */
-      .bts-collage {
-        position: absolute;
-        inset: 0;
-        grid-template-columns: 1fr;
-        padding: 0;
-      }
-
-      .bts-collage img {
-        display: none;
-      }
-
-      .bts-collage img:first-child {
-        display: block;
-        height: 100%;
-        border-radius: 0;
-      }
-
-      /* Mobile scroll reveal section */
-      .mobile-collage-stack {
-        display: grid;
-        gap: 18px;
-        padding: 22px 16px;
-        background: transparent;
-      }
-
-      .mobile-collage-stack img {
-        width: 100%;
-        height: 340px;
-        object-fit: cover;
-        border-radius: 14px;
-        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-      }
-
-      /* Transparency so collage shows through */
-      main,
-      header.hero,
-      section.home-feature {
-        background: rgba(255,255,255,0.55);
-        backdrop-filter: blur(2px);
-      }
-    }
   </style>
 </head>
 
@@ -179,7 +178,7 @@
     </div>
   </nav>
 
-  <!-- HERO -->
+  <!-- HERO COLLAGE -->
   <section class="bts-hero">
     <div class="bts-collage">
       <img src="images/hero/hero-3.jpg" alt="">
@@ -194,16 +193,8 @@
     <div class="bts-content">
       <h1>Talent with presence.</h1>
       <p>Refined. Confident. Represented.</p>
-      <a href="/models" class="bts-cta">View Models</a>
+      <a href="models.html" class="bts-cta">View Models</a>
     </div>
-  </section>
-
-  <!-- MOBILE SCROLL REVEAL -->
-  <section class="mobile-collage-stack">
-    <img src="images/hero/hero-1.jpg" alt="">
-    <img src="images/hero/hero-8.jpg" alt="">
-    <img src="images/hero/hero-9.jpg" alt="">
-    <img src="images/hero/hero-10.jpg" alt="">
   </section>
 
   <main>
@@ -216,6 +207,7 @@
           Connecting talent with opportunity.
         </p>
 
+        <!-- ✅ SOCIALS KEPT -->
         <div class="hero-socials">
           <a href="https://instagram.com/toastalent_models" target="_blank" class="hero-icon">
             <i class="fab fa-instagram"></i>
@@ -233,7 +225,7 @@
     <section class="home-feature">
       <h2 class="rainbow-word">Discover Our Talent</h2>
       <p>Toast Talent showcases exceptional models ready for runway, print, and commercial work.</p>
-      <a href="/models" class="feature-link">View Model Gallery →</a>
+      <a href="models.html" class="feature-link">View Model Gallery →</a>
     </section>
   </main>
 
