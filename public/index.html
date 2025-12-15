@@ -6,23 +6,35 @@
   <title>Toast Talent Modeling Agency</title>
 
   <!-- SEO -->
-  <meta name="description" content="Toast Talent Modeling Agency connects fresh faces with top opportunities in the modeling industry." />
+  <meta name="description" content="Toast Talent Modeling Agency connects fresh faces with top opportunities in the modeling industry. Bookings, collaborations, and inquiries welcome." />
+  <meta name="keywords" content="Toast Talent, modeling agency, models, fashion, bookings, collaborations" />
+  <meta name="author" content="Toast Talent Modeling Agency" />
   <link rel="canonical" href="https://toasttalent.co.za/" />
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Toast Talent Modeling Agency" />
+  <meta property="og:description" content="Elevating new faces. Connecting talent with opportunity." />
+  <meta property="og:image" content="https://toasttalent.co.za/images/og-image.jpg" />
+  <meta property="og:url" content="https://toasttalent.co.za/" />
+  <meta property="og:type" content="website" />
 
   <link rel="icon" type="image/png" href="images/favicon.png" />
+
+  <!-- Fonts & CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    .admin-link { display:none; }
+    .admin-link { display: none; }
 
-    /* ===============================
-       DESKTOP / GLOBAL (UNCHANGED)
-       =============================== */
-
+    /* ===== COLLAGE HERO (DESKTOP + TABLET UNCHANGED) ===== */
     .bts-hero {
       position: relative;
+      width: 100%;
       height: 68vh;
       min-height: 420px;
       max-height: 780px;
@@ -31,6 +43,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      text-align: center;
       background: #f5f5f5;
     }
 
@@ -43,7 +56,7 @@
       padding: 48px;
       pointer-events: none;
       z-index: 0;
-      opacity: 0.3;
+      opacity: 0.30;
     }
 
     .bts-collage img {
@@ -51,6 +64,22 @@
       height: 100%;
       object-fit: cover;
       border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+
+    @media (max-width: 1000px) {
+      .bts-collage {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .bts-collage {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 14px;
+        opacity: 0.35;
+      }
     }
 
     .bts-overlay {
@@ -58,8 +87,10 @@
       inset: 0;
       background: linear-gradient(
         to bottom,
-        rgba(255,255,255,0.24),
-        rgba(255,255,255,0.36)
+        rgba(255,255,255,0.24) 0%,
+        rgba(255,255,255,0.12) 40%,
+        rgba(255,255,255,0.02) 70%,
+        rgba(255,255,255,0.36) 100%
       );
       z-index: 1;
     }
@@ -67,18 +98,28 @@
     .bts-content {
       position: relative;
       z-index: 2;
-      text-align: center;
-      padding-bottom: 46px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 40px 16px 46px;
+      color: #111;
     }
 
     .bts-content h1 {
+      margin: 0 0 8px;
       font-size: clamp(28px, 5vw, 48px);
       font-weight: 800;
     }
 
+    .bts-content p {
+      margin-bottom: 18px;
+      font-size: 1.05rem;
+      color: rgba(0,0,0,0.7);
+    }
+
     .bts-cta {
-      display: inline-block;
-      margin-top: 14px;
       background: linear-gradient(90deg, var(--danger), var(--accent));
       color: #fff;
       padding: 12px 22px;
@@ -87,68 +128,31 @@
       text-decoration: none;
     }
 
-    /* ===============================
-       MOBILE FIXES ONLY
-       =============================== */
-    @media (max-width: 768px) {
+    /* ==================================================
+       MOBILE-ONLY TRANSPARENCY FIX
+       (NO DESKTOP IMPACT — SAFE)
+    ================================================== */
+    @media (max-width: 700px) {
 
-      /* Allow collage to scroll naturally */
-      .bts-collage {
-        position: absolute;
-        grid-template-columns: 1fr;
-        padding: 16px;
-        gap: 20px;
-        opacity: 0.4;
+      body.with-bg {
+        background: transparent !important;
       }
 
-      /* Glass panels instead of white blocks */
+      main,
       header.hero,
+      .hero-content,
       section.home-feature {
-        background: rgba(255,255,255,0.6);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        border-radius: 20px;
-        margin: 24px 16px;
+        background: rgba(255,255,255,0.55) !important;
+        backdrop-filter: blur(3px);
       }
 
-      header.hero {
-        padding: 32px 16px;
+      .hero-socials {
+        background: rgba(255,255,255,0.45);
+        border-radius: 16px;
+        padding: 12px 16px;
       }
 
-      section.home-feature {
-        padding: 28px 16px;
-      }
     }
-
-    /* ===============================
-   MOBILE TRANSPARENCY LAYER FIX
-   (does NOT affect desktop)
-================================ */
-@media (max-width: 700px) {
-
-  /* Allow collage to show through */
-  body.with-bg {
-    background: transparent !important;
-  }
-
-  /* Sections that should be semi-transparent */
-  main,
-  header.hero,
-  .hero-content,
-  section.home-feature {
-    background: rgba(255,255,255,0.55) !important;
-    backdrop-filter: blur(3px);
-  }
-
-  /* Social icons row */
-  .hero-socials {
-    background: rgba(255,255,255,0.45);
-    border-radius: 16px;
-    padding: 12px 16px;
-  }
-
-}
-
   </style>
 </head>
 
@@ -170,7 +174,7 @@
     </div>
   </nav>
 
-  <!-- HERO -->
+  <!-- HERO COLLAGE -->
   <section class="bts-hero">
     <div class="bts-collage">
       <img src="images/hero/hero-3.jpg" alt="">
@@ -179,7 +183,9 @@
       <img src="images/hero/hero-9.jpg" alt="">
       <img src="images/hero/hero-10.jpg" alt="">
     </div>
+
     <div class="bts-overlay"></div>
+
     <div class="bts-content">
       <h1>Talent with presence.</h1>
       <p>Refined. Confident. Represented.</p>
@@ -190,14 +196,23 @@
   <main>
     <header class="hero">
       <div class="hero-content">
-        <img src="images/Toast Logo.jpeg" class="hero-logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" class="hero-logo">
         <h1 class="rainbow-title">Toast Talent Modeling Agency</h1>
-        <p class="hero-subtitle">Elevating new faces.<br>Connecting talent with opportunity.</p>
+        <p class="hero-subtitle">
+          Elevating new faces.<br>
+          Connecting talent with opportunity.
+        </p>
 
         <div class="hero-socials">
-          <a href="https://instagram.com/toastalent_models"><i class="fab fa-instagram"></i></a>
-          <a href="mailto:toastalent@gmail.com"><i class="fas fa-envelope"></i></a>
-          <a href="https://tiktok.com/@toast.talentmodels"><i class="fab fa-tiktok"></i></a>
+          <a href="https://instagram.com/toastalent_models" target="_blank" class="hero-icon">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="mailto:toastalent@gmail.com" class="hero-icon">
+            <i class="fas fa-envelope"></i>
+          </a>
+          <a href="https://tiktok.com/@toast.talentmodels" target="_blank" class="hero-icon">
+            <i class="fab fa-tiktok"></i>
+          </a>
         </div>
       </div>
     </header>
@@ -209,7 +224,9 @@
     </section>
   </main>
 
-  <footer>&copy; 2025 Toast Talent Modeling Agency</footer>
+  <footer>
+    &copy; 2025 Toast Talent Modeling Agency
+  </footer>
 
 </body>
 </html>
