@@ -31,9 +31,7 @@
   <style>
     .admin-link { display: none; }
 
-    /* ==================================================
-       HERO COLLAGE — DESKTOP / TABLET (UNCHANGED)
-    ================================================== */
+    /* ===== COLLAGE HERO (DESKTOP + TABLET UNCHANGED) ===== */
     .bts-hero {
       position: relative;
       width: 100%;
@@ -41,6 +39,7 @@
       min-height: 420px;
       max-height: 780px;
       overflow: hidden;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -77,7 +76,9 @@
 
     @media (max-width: 700px) {
       .bts-collage {
-        display: none; /* hide desktop collage on mobile */
+        grid-template-columns: repeat(2, 1fr);
+        padding: 14px;
+        opacity: 0.35;
       }
     }
 
@@ -86,10 +87,10 @@
       inset: 0;
       background: linear-gradient(
         to bottom,
-        rgba(255,255,255,0.25) 0%,
-        rgba(255,255,255,0.15) 40%,
-        rgba(255,255,255,0.05) 70%,
-        rgba(255,255,255,0.45) 100%
+        rgba(255,255,255,0.24) 0%,
+        rgba(255,255,255,0.12) 40%,
+        rgba(255,255,255,0.02) 70%,
+        rgba(255,255,255,0.36) 100%
       );
       z-index: 1;
     }
@@ -97,20 +98,25 @@
     .bts-content {
       position: relative;
       z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
       padding: 40px 16px 46px;
       color: #111;
     }
 
     .bts-content h1 {
+      margin: 0 0 8px;
       font-size: clamp(28px, 5vw, 48px);
       font-weight: 800;
-      margin-bottom: 8px;
     }
 
     .bts-content p {
+      margin-bottom: 18px;
       font-size: 1.05rem;
       color: rgba(0,0,0,0.7);
-      margin-bottom: 18px;
     }
 
     .bts-cta {
@@ -123,12 +129,13 @@
     }
 
     /* ==================================================
-       MOBILE COLLAGE BACKGROUND (THIS IS THE FIX)
+       MOBILE COLLAGE + GLASS TRANSPARENCY (ONLY MOBILE)
+       DESKTOP COMPLETELY UNCHANGED
     ================================================== */
     @media (max-width: 700px) {
 
       body.with-bg {
-        background: transparent;
+        background: transparent !important;
       }
 
       body.with-bg::before {
@@ -142,19 +149,18 @@
         z-index: -1;
       }
 
-      /* Glass effect sections */
       header.hero,
       section.home-feature,
       .hero-content {
-        background: rgba(255,255,255,0.55);
-        backdrop-filter: blur(4px);
-        border-radius: 20px;
+        background: rgba(255,255,255,0.35);
+        backdrop-filter: blur(6px);
+        border-radius: 22px;
       }
 
       .hero-socials {
-        background: rgba(255,255,255,0.45);
-        backdrop-filter: blur(4px);
-        border-radius: 16px;
+        background: rgba(255,255,255,0.30);
+        backdrop-filter: blur(6px);
+        border-radius: 18px;
         padding: 12px 16px;
       }
     }
@@ -179,7 +185,7 @@
     </div>
   </nav>
 
-  <!-- HERO -->
+  <!-- HERO COLLAGE -->
   <section class="bts-hero">
     <div class="bts-collage">
       <img src="images/hero/hero-3.jpg" alt="">
