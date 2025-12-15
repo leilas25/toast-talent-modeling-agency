@@ -119,6 +119,36 @@
         padding: 28px 16px;
       }
     }
+
+    /* ===============================
+   MOBILE TRANSPARENCY LAYER FIX
+   (does NOT affect desktop)
+================================ */
+@media (max-width: 700px) {
+
+  /* Allow collage to show through */
+  body.with-bg {
+    background: transparent !important;
+  }
+
+  /* Sections that should be semi-transparent */
+  main,
+  header.hero,
+  .hero-content,
+  section.home-feature {
+    background: rgba(255,255,255,0.55) !important;
+    backdrop-filter: blur(3px);
+  }
+
+  /* Social icons row */
+  .hero-socials {
+    background: rgba(255,255,255,0.45);
+    border-radius: 16px;
+    padding: 12px 16px;
+  }
+
+}
+
   </style>
 </head>
 
