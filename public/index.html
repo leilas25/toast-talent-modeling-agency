@@ -1,3 +1,4 @@
+does this code point to my collage for the mobile display because I see no changes
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,7 +32,7 @@
   <style>
     .admin-link { display: none; }
 
-    /* ================= DESKTOP HERO (UNCHANGED) ================= */
+    /* ===== COLLAGE HERO (DESKTOP + TABLET UNCHANGED) ===== */
     .bts-hero {
       position: relative;
       width: 100%;
@@ -128,29 +129,30 @@
       text-decoration: none;
     }
 
-    /* ================= MOBILE ONLY FIX ================= */
+    /* ==================================================
+       MOBILE-ONLY TRANSPARENCY FIX
+       (NO DESKTOP IMPACT — SAFE)
+    ================================================== */
     @media (max-width: 700px) {
 
       body.with-bg {
-        background: transparent;
+        background: transparent !important;
       }
 
-      /* VERY LIGHT glass – allows collage to show */
       main,
       header.hero,
       .hero-content,
       section.home-feature {
-        background: rgba(255,255,255,0.05);
-        backdrop-filter: blur(1.2px);
+        background: rgba(255,255,255,0.55) !important;
+        backdrop-filter: blur(3px);
       }
 
-      /* Social icons – softer, no white card look */
       .hero-socials {
-        background: rgba(255,255,255,0.08);
-        backdrop-filter: blur(1px);
-        border-radius: 18px;
-        padding: 12px 18px;
+        background: rgba(255,255,255,0.45);
+        border-radius: 16px;
+        padding: 12px 16px;
       }
+
     }
   </style>
 </head>
@@ -161,7 +163,7 @@
   <nav class="navbar">
     <div class="nav-content">
       <a href="/" class="nav-logo">
-        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" class="hero-logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
       </a>
       <ul class="nav-links">
         <li><a href="/" class="active">Home</a></li>
@@ -173,7 +175,7 @@
     </div>
   </nav>
 
-  <!-- DESKTOP HERO -->
+  <!-- HERO COLLAGE -->
   <section class="bts-hero">
     <div class="bts-collage">
       <img src="images/hero/hero-3.jpg" alt="">
