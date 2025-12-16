@@ -31,7 +31,7 @@
   <style>
     .admin-link { display: none; }
 
-    /* ===== COLLAGE HERO (DESKTOP + TABLET UNCHANGED) ===== */
+    /* ================= DESKTOP HERO (UNCHANGED) ================= */
     .bts-hero {
       position: relative;
       width: 100%;
@@ -128,15 +128,8 @@
       text-decoration: none;
     }
 
-    /* ==================================================
-       MOBILE COLLAGE + GLASS TRANSPARENCY (ONLY MOBILE)
-       DESKTOP COMPLETELY UNCHANGED
-    ================================================== */
+    /* ================= MOBILE COLLAGE BACKGROUND ================= */
     @media (max-width: 700px) {
-
-      body.with-bg {
-        background: transparent !important;
-      }
 
       body.with-bg::before {
         content: "";
@@ -149,18 +142,25 @@
         z-index: -1;
       }
 
+      /* Hide BTS collage on mobile ONLY */
+      .bts-hero,
+      .bts-collage,
+      .bts-overlay {
+        display: none !important;
+      }
+
+      /* Glass effect for content */
+      main,
       header.hero,
-      section.home-feature,
-      .hero-content {
-        background: rgba(255,255,255,0.35);
-        backdrop-filter: blur(6px);
-        border-radius: 22px;
+      .hero-content,
+      section.home-feature {
+        background: rgba(255,255,255,0.55);
+        backdrop-filter: blur(3px);
       }
 
       .hero-socials {
-        background: rgba(255,255,255,0.30);
-        backdrop-filter: blur(6px);
-        border-radius: 18px;
+        background: rgba(255,255,255,0.45);
+        border-radius: 16px;
         padding: 12px 16px;
       }
     }
@@ -185,7 +185,7 @@
     </div>
   </nav>
 
-  <!-- HERO COLLAGE -->
+  <!-- DESKTOP HERO -->
   <section class="bts-hero">
     <div class="bts-collage">
       <img src="images/hero/hero-3.jpg" alt="">
