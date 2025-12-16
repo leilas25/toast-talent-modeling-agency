@@ -128,10 +128,9 @@
       text-decoration: none;
     }
 
-    /* ================= MOBILE BACKGROUND + TRANSPARENCY FIX ================= */
+    /* ================= MOBILE COLLAGE BACKGROUND ================= */
     @media (max-width: 700px) {
 
-      /* Mobile collage background */
       body.with-bg::before {
         content: "";
         position: fixed;
@@ -143,26 +142,24 @@
         z-index: -1;
       }
 
-      /* Hide desktop hero on mobile ONLY */
-      .bts-hero {
-        display: none;
+      /* Hide desktop collage on mobile */
+      .bts-hero,
+      .bts-collage,
+      .bts-overlay {
+        display: none !important;
       }
 
-      /* ONE glass layer only */
-      main {
-        background: rgba(255,255,255,0.42);
-        backdrop-filter: blur(3px);
-      }
-
-      /* Inner sections must stay transparent */
+      /* Lighter editorial glass (THIS FIXES YOUR ISSUE) */
+      main,
       header.hero,
       .hero-content,
       section.home-feature {
-        background: transparent !important;
+        background: rgba(255,255,255,0.18);
+        backdrop-filter: blur(2px);
       }
 
       .hero-socials {
-        background: rgba(255,255,255,0.45);
+        background: rgba(255,255,255,0.22);
         border-radius: 16px;
         padding: 12px 16px;
       }
