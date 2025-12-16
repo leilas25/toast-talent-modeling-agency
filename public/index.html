@@ -128,40 +128,28 @@
       text-decoration: none;
     }
 
-    /* ================= MOBILE COLLAGE BACKGROUND ================= */
+    /* ================= MOBILE ONLY FIX ================= */
     @media (max-width: 700px) {
 
-      body.with-bg::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        background-image: url("images/hero/mobile-collage.jpg");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        z-index: -1;
+      body.with-bg {
+        background: transparent;
       }
 
-      /* Hide desktop collage on mobile */
-      .bts-hero,
-      .bts-collage,
-      .bts-overlay {
-        display: none !important;
-      }
-
-      /* Lighter editorial glass (THIS FIXES YOUR ISSUE) */
+      /* VERY LIGHT glass – allows collage to show */
       main,
       header.hero,
       .hero-content,
       section.home-feature {
-        background: rgba(255,255,255,0.18);
-        backdrop-filter: blur(2px);
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(1.2px);
       }
 
+      /* Social icons – softer, no white card look */
       .hero-socials {
-        background: rgba(255,255,255,0.22);
-        border-radius: 16px;
-        padding: 12px 16px;
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(1px);
+        border-radius: 18px;
+        padding: 12px 18px;
       }
     }
   </style>
@@ -173,7 +161,7 @@
   <nav class="navbar">
     <div class="nav-content">
       <a href="/" class="nav-logo">
-        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo">
+        <img src="images/Toast Logo.jpeg" alt="Toast Talent Logo" class="hero-logo">
       </a>
       <ul class="nav-links">
         <li><a href="/" class="active">Home</a></li>
