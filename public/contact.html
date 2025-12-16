@@ -38,6 +38,7 @@
       margin: 0 0 10px;
       font-size: 2.1rem;
       font-weight: 800;
+      letter-spacing: .5px;
       background: linear-gradient(90deg,#ee3045,#f9c846,#7cc65a,#2493e1,#a259c6,#f76e2a);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -62,14 +63,15 @@
       padding: 28px;
       display: grid;
       gap: 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.98));
     }
 
+    /* ✅ ONLY CHANGE: refined transparent info boxes */
     .info-block {
-      background: #fff;
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(255,255,255,0.45);
       border-radius: 12px;
       padding: 16px 18px;
+      backdrop-filter: blur(6px);
     }
 
     .info-block b {
@@ -93,6 +95,11 @@
       .form-grid { grid-template-columns: 1fr; }
     }
 
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
     .field input,
     .field textarea {
       padding: 14px;
@@ -100,6 +107,11 @@
       border: 1.2px solid var(--border);
       background: #f7f7f7;
       font-size: 1rem;
+    }
+
+    .actions {
+      display: flex;
+      margin-top: 10px;
     }
 
     .btn-primary {
@@ -113,7 +125,7 @@
       cursor: pointer;
     }
 
-    /* ===== COLLAGE BACKGROUND ===== */
+    /* Background collage – unchanged */
     .bts-collage {
       position: fixed;
       inset: 0;
@@ -124,24 +136,13 @@
       opacity: 0.28;
       pointer-events: none;
       z-index: 0;
-      align-content: start;
     }
 
-    /* ✅ OPTION A FIX (THIS IS THE IMPORTANT PART) */
     .bts-collage img {
       width: 100%;
-      height: auto;
-      aspect-ratio: 3 / 4;
+      height: 100%;
       object-fit: cover;
-      border-radius: 12px;
-    }
-
-    @media (max-width: 600px) {
-      .bts-collage {
-        grid-template-columns: 1fr;
-        padding: 16px;
-        opacity: 0.34;
-      }
+      border-radius: 14px;
     }
 
     .contact-collage-overlay {
@@ -205,12 +206,12 @@
         <div class="contact-form-wrap">
           <form>
             <div class="form-grid">
-              <input placeholder="Name" required>
-              <input type="email" placeholder="Email" required>
+              <div class="field"><input placeholder="Name" required></div>
+              <div class="field"><input type="email" placeholder="Email" required></div>
             </div>
-            <input placeholder="WhatsApp (optional)">
-            <textarea rows="6" placeholder="Your message" required></textarea>
-            <button class="btn-primary">Send Message</button>
+            <div class="field"><input placeholder="WhatsApp (optional)"></div>
+            <div class="field"><textarea rows="6" placeholder="Your message" required></textarea></div>
+            <div class="actions"><button class="btn-primary">Send Message</button></div>
           </form>
         </div>
       </div>
