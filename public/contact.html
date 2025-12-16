@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Contact | Toast Talent Modeling Agency</title>
+
   <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
 
@@ -37,7 +38,6 @@
       margin: 0 0 10px;
       font-size: 2.1rem;
       font-weight: 800;
-      letter-spacing: .5px;
       background: linear-gradient(90deg,#ee3045,#f9c846,#7cc65a,#2493e1,#a259c6,#f76e2a);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -93,11 +93,6 @@
       .form-grid { grid-template-columns: 1fr; }
     }
 
-    .field {
-      display: grid;
-      gap: 8px;
-    }
-
     .field input,
     .field textarea {
       padding: 14px;
@@ -105,11 +100,6 @@
       border: 1.2px solid var(--border);
       background: #f7f7f7;
       font-size: 1rem;
-    }
-
-    .actions {
-      display: flex;
-      margin-top: 10px;
     }
 
     .btn-primary {
@@ -123,40 +113,7 @@
       cursor: pointer;
     }
 
-    /* MOBILE REFINEMENTS ONLY */
-    @media (max-width: 700px) {
-      .contact-wrap {
-        margin: 48px auto;
-      }
-
-      .contact-card {
-        border-radius: 14px;
-      }
-
-      .contact-head h1 {
-        font-size: 1.8rem;
-      }
-
-      .contact-head p {
-        font-size: 1rem;
-      }
-
-      .contact-info,
-      .contact-form-wrap {
-        padding: 22px;
-      }
-
-      .btn-primary {
-        width: 100%;
-      }
-
-      .nav-links {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 14px;
-      }
-    }
-
+    /* ===== COLLAGE BACKGROUND ===== */
     .bts-collage {
       position: fixed;
       inset: 0;
@@ -167,6 +124,16 @@
       opacity: 0.28;
       pointer-events: none;
       z-index: 0;
+      align-content: start;
+    }
+
+    /* ✅ OPTION A FIX (THIS IS THE IMPORTANT PART) */
+    .bts-collage img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      border-radius: 12px;
     }
 
     @media (max-width: 600px) {
@@ -174,10 +141,6 @@
         grid-template-columns: 1fr;
         padding: 16px;
         opacity: 0.34;
-      }
-
-      .bts-collage img {
-        height: 42vh;
       }
     }
 
@@ -240,14 +203,14 @@
         </div>
 
         <div class="contact-form-wrap">
-          <form id="contactForm">
+          <form>
             <div class="form-grid">
-              <div class="field"><input id="cName" placeholder="Name" required></div>
-              <div class="field"><input id="cemail" type="email" placeholder="Email" required></div>
+              <input placeholder="Name" required>
+              <input type="email" placeholder="Email" required>
             </div>
-            <div class="field"><input id="cwhats" placeholder="WhatsApp (optional)"></div>
-            <div class="field"><textarea id="cmsg" rows="6" placeholder="Your message" required></textarea></div>
-            <div class="actions"><button class="btn-primary">Send Message</button></div>
+            <input placeholder="WhatsApp (optional)">
+            <textarea rows="6" placeholder="Your message" required></textarea>
+            <button class="btn-primary">Send Message</button>
           </form>
         </div>
       </div>
