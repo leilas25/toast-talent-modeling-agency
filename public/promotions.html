@@ -1,132 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Promotions | Toast Talent</title>
-
-  <link rel="stylesheet" href="/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    :root{
-      --bg:#fafafa; --card:#fff; --ink:#141212; --muted:#6b7280;
-      --brand:#111; --border:#e5e7eb;
-    }
-    body{
-      margin:0; background:var(--bg); color:var(--ink);
-      font-family: Montserrat, Arial, Helvetica, sans-serif;
-    }
-
-    .navbar{background:#141212; padding:12px 20px;}
-    .nav-content{max-width:1100px; margin:0 auto; display:flex; justify-content:space-between; align-items:center;}
-    .nav-links{list-style:none; display:flex; gap:14px; margin:0; padding:0}
-    .nav-links a{color:#fff; text-decoration:none; font-weight:600}
-    .nav-logo img{height:38px}
-
-    .wrap{max-width:1100px; margin:40px auto; padding:0 16px;}
-    .card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:28px}
-
-    h1{font-size:32px; margin-bottom:12px}
-    h2{font-size:22px; margin-top:40px}
-    p{color:var(--muted); line-height:1.6}
-
-    .grid{display:grid; gap:20px}
-    @media(min-width:900px){ .grid.cols-2{grid-template-columns:1fr 1fr} }
-
-    .pill{
-      display:inline-block; padding:6px 12px; border-radius:999px;
-      background:#f3f4f6; font-size:13px; margin:4px 6px 0 0;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      color: #333;
     }
 
-    .cta{margin-top:30px; display:flex; gap:14px; flex-wrap:wrap}
-    .btn{
-      background:var(--brand); color:#fff; padding:12px 18px;
-      border-radius:10px; text-decoration:none; font-weight:600;
+    .page-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 20px;
     }
-    .btn.alt{background:#fff; color:#111; border:1px solid var(--border)}
 
-    footer{color:#fff; background:#141212; margin-top:60px; padding:16px; text-align:center; font-size:13px}
+    h1 {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 16px;
+      max-width: 700px;
+      margin: 0 auto 50px;
+      color: #555;
+    }
+
+    /* Section styling */
+    .promo-section {
+      background: #fff5f8;
+      border-left: 5px solid #e91e63;
+      padding: 25px;
+      margin-bottom: 40px;
+      border-radius: 10px;
+    }
+
+    .promo-section.alt {
+      background: #f4f4ff;
+      border-left: 5px solid #6a5acd;
+    }
+
+    .promo-section h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 22px;
+      color: #e91e63;
+    }
+
+    .promo-section.alt h3 {
+      color: #6a5acd;
+    }
+
+    .promo-section p {
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* CTA */
+    .cta {
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    .cta a {
+      display: inline-block;
+      background: #e91e63;
+      color: #fff;
+      padding: 15px 35px;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    .cta a:hover {
+      background: #c2185b;
+    }
   </style>
 </head>
 
 <body>
 
-<!-- NAV -->
-<nav class="navbar">
-  <div class="nav-content">
-    <a class="nav-logo" href="/"><img src="/images/Toast Logo.jpeg" alt="Toast Talent Logo"></a>
-    <ul class="nav-links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/models">Models</a></li>
-      <li><a href="/about">About</a></li>
-      <li><a href="/contact">Contact</a></li>
-      <li><a href="/apply">Apply</a></li>
-      <li><a href="/promotions">Promotions</a></li>
-    </ul>
-  </div>
-</nav>
+  <div class="page-container">
 
-<main class="wrap">
-  <div class="card">
-    <h1>Promotional Models & Brand Ambassadors</h1>
-    <p>
-      Toast Talent Modeling Agency provides professional promotional models and
-      brand ambassadors for events, in-store promotions, brand activations,
-      campaigns, and experiential marketing.
+    <h1>Promotions</h1>
+    <p class="subtitle">
+      Toast Talent Modeling Agency provides professional promotional models and brand ambassadors
+      for activations, campaigns, events, and in-store promotions.
     </p>
 
-    <div class="cta">
-      <a href="/contact" class="btn">Book Promotional Staff</a>
-      <a href="/apply" class="btn alt">Apply as a Model</a>
-    </div>
-
-    <h2>Our Promotional Services</h2>
-    <div class="grid cols-2">
+    <section class="promo-section">
+      <h3>Services Include</h3>
       <p>
-        We supply confident, well-presented promotional talent trained to
-        engage customers, represent brands professionally, and deliver
-        high-quality brand experiences.
+        Brand Activations In-Store Promotions Product Sampling Event Staff
+        Trade Shows Experiential Campaigns
       </p>
+    </section>
+
+    <section class="promo-section alt">
+      <h3>Why Choose Toast Talent</h3>
       <p>
-        Our models are briefed, punctual, and aligned with your brand goals —
-        ensuring smooth execution from start to finish.
+        ✔ Professionally screened promotional talent<br>
+        ✔ Reliable, punctual & brand-focused staff<br>
+        ✔ Flexible booking options<br>
+        ✔ Clear communication & management
       </p>
-    </div>
-
-    <h2>Services Include</h2>
-    <div>
-      <span class="pill">Brand Activations</span>
-      <span class="pill">In-Store Promotions</span>
-      <span class="pill">Product Sampling</span>
-      <span class="pill">Event Staff</span>
-      <span class="pill">Trade Shows</span>
-      <span class="pill">Experiential Campaigns</span>
-    </div>
-
-    <h2>Why Choose Toast Talent</h2>
-    <div class="grid cols-2">
-      <p>✔ Professionally screened promotional talent</p>
-      <p>✔ Reliable, punctual & brand-focused staff</p>
-      <p>✔ Flexible booking options</p>
-      <p>✔ Clear communication & management</p>
-    </div>
-
-    <h2>How It Works</h2>
-    <p>
-      1. Contact us with your event details<br>
-      2. We recommend suitable promotional staff<br>
-      3. Talent is briefed and deployed<br>
-      4. Your brand is represented professionally
-    </p>
+    </section>
 
     <div class="cta">
-      <a href="/contact" class="btn">Request a Quote</a>
+      <a href="apply.html">Apply as a Promotional Model</a>
     </div>
+
   </div>
-</main>
-
-<footer>&copy; 2025 Toast Talent Modeling Agency</footer>
 
 </body>
 </html>
