@@ -12,6 +12,7 @@
     { "src": "^/about$", "dest": "/public/about.html" },
     { "src": "^/contact$", "dest": "/public/contact.html" },
     { "src": "^/apply$", "dest": "/public/apply.html" },
+    { "src": "^/promotions$", "dest": "/public/promotions.html" },
 
     { "src": "^/(.*)$", "dest": "/public/$1" }
   ]
