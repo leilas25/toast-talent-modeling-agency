@@ -80,47 +80,66 @@
       <p class="lead">Fill in the application form below. We’ll review your submission and get back to you via email or WhatsApp.</p>
 
       <!-- APPLY FORM -->
-      <form id="applyForm" enctype="multipart/form-data">
-        <!-- Personal -->
-        <div class="fieldset">
-          <div class="legend">Personal Details</div>
-          <div class="row cols-2">
-            <div>
-              <label for="firstName">First Name *</label>
-              <input id="firstName" name="firstName" type="text" required />
-            </div>
-            <div>
-              <label for="lastName">Last Name *</label>
-              <input id="lastName" name="lastName" type="text" required />
-            </div>
-          </div>
+  <form id="applyForm" enctype="multipart/form-data">
 
-          <div class="row cols-2">
-            <div>
-              <label for="email">Email Address *</label>
-              <input id="email" name="email" type="email" required />
-            </div>
-            <div>
-              <label for="phone">Contact Number *</label>
-              <input id="phone" name="phone" type="tel" placeholder="+27 ..." required />
-            </div>
-          </div>
+    <!-- Application Type -->
+    <div class="fieldset">
+      <div class="legend">Application Type</div>
+      <div>
+        <label for="applicationType">What are you applying for? *</label>
+        <select id="applicationType" name="applicationType" required>
+          <option value="" disabled selected>Select application type</option>
+          <option value="Model Application">Model Application</option>
+          <option value="Promotions / Brand Ambassador Application">
+            Promotions / Brand Ambassador Application
+          </option>
+        </select>
+        <div class="help">
+          Please select the category that best matches the work you are applying for.
+        </div>
+      </div>
+    </div>
 
-          <div class="row cols-2">
-            <div>
-              <label for="dob">Date of Birth *</label>
-              <input id="dob" name="dob" type="date" required />
-            </div>
-            <div>
-              <label>Gender *</label>
-              <div class="radio-line">
-                <label><input type="radio" name="gender" value="Female" required /> Female</label>
-                <label><input type="radio" name="gender" value="Male" /> Male</label>
-                <label><input type="radio" name="gender" value="Nonbinary" /> Nonbinary</label>
-              </div>
-            </div>
+    <!-- Personal -->
+    <div class="fieldset">
+      <div class="legend">Personal Details</div>
+      <div class="row cols-2">
+        <div>
+          <label for="firstName">First Name *</label>
+          <input id="firstName" name="firstName" type="text" required />
+        </div>
+        <div>
+          <label for="lastName">Last Name *</label>
+          <input id="lastName" name="lastName" type="text" required />
+        </div>
+      </div>
+
+      <div class="row cols-2">
+        <div>
+          <label for="email">Email Address *</label>
+          <input id="email" name="email" type="email" required />
+        </div>
+        <div>
+          <label for="phone">Contact Number *</label>
+          <input id="phone" name="phone" type="tel" placeholder="+27 ..." required />
+        </div>
+      </div>
+
+      <div class="row cols-2">
+        <div>
+          <label for="dob">Date of Birth *</label>
+          <input id="dob" name="dob" type="date" required />
+        </div>
+        <div>
+          <label>Gender *</label>
+          <div class="radio-line">
+            <label><input type="radio" name="gender" value="Female" required /> Female</label>
+            <label><input type="radio" name="gender" value="Male" /> Male</label>
+            <label><input type="radio" name="gender" value="Nonbinary" /> Nonbinary</label>
           </div>
         </div>
+      </div>
+    </div>
 
         <!-- Measurements -->
         <div class="fieldset">
