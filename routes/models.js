@@ -42,8 +42,9 @@ router.post('/', async (req, res) => {
       shirt,
       pants,
       bio,
-      profilePicture,     // string URL from Cloudinary
-      galleryImages = []  // array of Cloudinary URLs
+      category,
+      profilePicture,
+      galleryImages = []
     } = req.body || {};
 
     if (!name || !surname) {
@@ -62,6 +63,7 @@ router.post('/', async (req, res) => {
       shirt,
       pants,
       bio,
+      category,
       profilePicture,
       galleryImages
     });
@@ -74,14 +76,14 @@ router.post('/', async (req, res) => {
   }
 });
 
-/* DELETE /api/models?id=<id> */
-router.delete('/', async (req, res) => {
+/* DELETE /api/models/:id */
+router.delete('/:id', async (req, res) => {
   try {
     await ensureDb();
     if (!req.session?.isAdmin) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const { id } = req.query;
+    const { id } = req.params;
     if (!id) return res.status(400).json({ error: 'Missing id' });
 
     await Model.findByIdAndDelete(id);
