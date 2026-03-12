@@ -1,0 +1,248 @@
+[33m6c8cc5d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/backup-latest[m[33m, [m[1;32mbackup-latest[m[33m)[m categories
+[33mf5f0b24[m women men tabs
+[33m44b9d5b[m favicon fix
+[33m35b16c0[m favicon
+[33m4ae1534[m application form
+[33m995305a[m promo collage
+[33m878581a[m promo pic
+[33mfff397c[m promo nav bar
+[33meda986b[m promos
+[33m280ce11[m promo html
+[33m15f59b4[m promo
+[33m7cdb9c5[m color promo
+[33mee0a4bf[m promo page
+[33mcf5e78e[m promos
+[33m9aa543f[m promos
+[33mb0f8de0[m promos
+[33mdbbe722[m toast
+[33m59f85f4[m promos
+[33m90b8df4[m about
+[33mebce7bf[m opacity
+[33m6bda691[m contacts
+[33m887556c[m cont
+[33m6a15bd7[m contact
+[33m278dc04[m contact
+[33me850b3d[m index b
+[33m1605244[m index fix again
+[33mcfa9ef1[m index hope
+[33m6263257[m index
+[33m901c72c[m index fix
+[33m1c384ad[m index fix
+[33md4e787c[m index collage
+[33m228ed32[m index collage
+[33md13133c[m index
+[33m2ef7d75[m index
+[33me3d7121[m image
+[33mf86a863[m index collage
+[33mfe3bbe5[m index
+[33m389e825[m index try
+[33m42c76aa[m index
+[33mf835665[m index
+[33m6cd9889[m index phone
+[33mf849d40[m index fix
+[33mf5b9fa7[m index bts
+[33mb05c5a5[m index mobile
+[33m7b2d4df[m index fix
+[33m627f549[m collage
+[33mec28bd5[m index
+[33m367e418[m index
+[33m42af4b2[m contact
+[33m4f8c2ef[m about page
+[33m4786dcf[m index fix
+[33m4c4c343[m domain fix
+[33m7dd9399[m vercel
+[33md688556[m domain fix
+[33m8dfa489[m index fix
+[33m9157778[m pics
+[33m13b1b8f[m contact form
+[33md10f8f7[m contact
+[33m1a9cfc2[m index
+[33ma64a3e4[m contact form
+[33m1f65e82[m contact page
+[33meda5673[m contact collage
+[33m11d4000[m fix index
+[33me79177f[m index collage
+[33me930e25[m index collage
+[33m749f358[m index
+[33mccc2fd6[m collages
+[33m100440d[m about collage
+[33mdbf711b[m index collage
+[33ma443ca2[m index collage
+[33m1a3d31c[m index bts
+[33mc9099c4[m about
+[33m3aa3094[m index
+[33m75b2f24[m about collage
+[33m7f451b7[m collage about
+[33mef08dbc[m index collage
+[33m1c11a27[m index collage
+[33m42a00b6[m contact collage
+[33m6fb8019[m collage
+[33m2ae2c63[m collage
+[33m839c836[m collage
+[33mc55d183[m collage
+[33mc46d634[m collage
+[33mc79fa05[m collage
+[33mdacac48[m collage
+[33mf4ee5d8[m collage
+[33m8b2e008[m new province
+[33m862e18d[m new video fix
+[33m9f8d6c3[m new new
+[33m2fafddc[m videos working
+[33m2b9cf2e[m new video sorted
+[33m541d780[m new video
+[33md2c5abc[m video back
+[33m13cc07e[m contact
+[33mfc8e2d8[m contact
+[33mc0a5534[m new contact
+[33mfae5406[m new
+[33m2688ba7[m influencers
+[33m27559ca[m js
+[33m07e7894[m modelshtml
+[33m22cd736[m  style
+[33mad5e0ae[m css
+[33m289d3d6[m css
+[33mf996aa8[m new model card
+[33m49745dc[m new model card
+[33m7a2b68f[m new model
+[33m05e573e[m model card update
+[33m302e8fc[m server.js
+[33m50d4d9e[m new nav bar color
+[33mcb4b071[m server.js
+[33m5af5335[m book model
+[33m297172d[m Add multer and SendGrid; enable ESM
+[33m96cb6c9[m apply added
+[33mf41eeb5[m models.js
+[33mfdcf8ab[m new files
+[33m45f9f0e[m Fix mongoose import, remove BOM, set ESM type
+[33mfd51e47[m fixes
+[33m34813f1[m fix admin
+[33m8f7a275[m new logo
+[33m9526310[m public/style.css
+[33m9d2a4ce[m style
+[33md8c79c0[m build.js
+[33m4fb322f[m vercel.json: explicit root and proxy; serve from /public
+[33m30ca24a[m Fix Vercel config: version 2 + routes for public/ and API proxy
+[33m44e0c51[m new files
+[33m9147650[m Move site files into public/ and track them
+[33m6b6bf37[m Update admin panel with dynamic API base and improved form handling
+[33me99d330[m Fix CORS configuration
+[33mee9d9cb[m Fix: safe SPA fallback middleware to avoid path-to-regexp crash; keep static
+[33mec6051f[m Diag: dump router stack to locate offending static path (temporary)
+[33m9504011[m TEMP: make static/fallback mounting non-fatal to avoid path-to-regexp crash
+[33m70beed1[m TEMP: trigger redeploy with static disabled
+[33m0714d83[m TEMP: revert server.js and remove public static files to avoid path-to-regexp crash
+[33m01a3cbc[m Restore static serving and SPA fallback
+[33m00c44e3[m TEMP: re-enable public to inspect contents with debug logging
+[33m4c1bd93[m Debug: log public directory contents at startup (temporary)
+[33m7f6590e[m TEMP: disable static public files (rename public -> public.disabled) to avoid path-to-regexp crash
+[33m6388e7b[m TEMP: disable static file serving and SPA fallback to avoid path-to-regexp crash
+[33m0a99646[m Debug: log middleware/route registrations and add sanity endpoint
+[33m58a2f8b[m Add /api/models-sanity and log registered routes for debugging
+[33md6945c1[m Trigger Render redeploy
+[33mf6eb777[m Add Mongoose model schema (lib/model.js) and add cookie-parser dependency
+[33ma9ac2bc[m Add cookie-parser dependency
+[33m12c12f8[m please work
+[33m9d2ecb5[m new filess
+[33m1f6e9c6[m Fix: avoid wildcard route patterns that trigger path-to-regexp; use safe runtime handlers
+[33m82527d9[m Instrument route registration to log and skip bad mounts (debug)
+[33m9586392[m new FILES
+[33m0155618[m new models
+[33mc536e3e[m new new server
+[33m3028f0a[m new server js
+[33m26eaec5[m new server js
+[33m79768f2[m new server.js
+[33m3cd00d7[m new files
+[33m3b4cc4c[m new public
+[33mfbd87cd[m admin new
+[33mbce6d9a[m new admin
+[33mb940d11[m new admin
+[33m97ecb7f[m Trigger redeploy
+[33ma0cf448[m new files please work
+[33mdd929b4[m new files fixed
+[33me35c392[m new files again
+[33m262b035[m Fix Vercel: remove v3 vercel.json, move build.js to repo root, stop tracking node_modules etc.
+[33m1d56980[m Stop tracking node_modules, .env, .vercel, .DS_Store
+[33ma80b167[m new file
+[33m72c5dbd[m new file
+[33mcb2d285[m old file gone
+[33m6ce5210[m Trigger redeploy
+[33md9cd1a3[m Use vercel.json v3 (serve filesystem then fallback to index.html)
+[33m6e3f644[m new vercel
+[33m52c2399[m Force Vercel redeploy
+[33m2030611[m Add about.html at repo root so /about.html is served
+[33m5e6378c[m new file
+[33m081deab[m new file
+[33m5366dea[m add new file
+[33m62688b7[m new package
+[33meaaeaba[m new files
+[33m9ff778a[m new package
+[33m8a726fb[m new
+[33md29c5b6[m all new changes
+[33mae0c638[m new files now
+[33m7502877[m new files
+[33md2a776e[m sitemap
+[33m0093ef1[m admin file
+[33m4fa4c2b[m server.js
+[33m68c7c66[m new file again
+[33m0f5b531[m new file
+[33mc3d19fc[m new file
+[33m3d5158e[m update the file
+[33madab2fe[m add new file
+[33mc79ea7d[m update admin
+[33m4708c49[m new files
+[33meff7b1b[m add files
+[33me268db8[m update files
+[33m24b1187[m update server.js
+[33m65c1ef3[m update files
+[33md1abee1[m update server.js
+[33m10a9078[m add new sitemap
+[33mb012b3e[m update favicon
+[33ma3ceca7[m update favicon.ico
+[33m6cdee45[m add sitemap
+[33m2a891a0[m update html files and add new files
+[33m3908d25[m update server.js
+[33mfc5a815[m update files
+[33m297ca23[m update files
+[33m06e027f[m update files
+[33m31964e7[m update files
+[33m8d6af23[m update files
+[33m27c07fa[m update contact file
+[33m7664234[m update files
+[33mc31344f[m update files
+[33mb0aff90[m update package-lock.json
+[33mba009cd[m Add connect-mongo for session storage
+[33me02d80a[m update files
+[33mf90d1cf[m update files & add .env file
+[33mc16ebc6[m update files
+[33m55b79e4[m update files
+[33mbfaa374[m update files
+[33m61bc09e[m update files
+[33m01ede41[m update models html file
+[33m1581a5a[m update style.css
+[33m031ddaa[m Fix model profile images cropping and add lightbox functionality
+[33m148b5f6[m Added image lightbox to profile gallery and gallery note on models and profile pages
+[33m5eb3064[m Fix profile gallery: center images and prevent cropping
+[33me0280e3[m Fix profile gallery: center images and prevent cropping
+[33meed7233[m Fix: Corrected image cropping on model profile page
+[33mb5a106a[m Fix image cropping on model profile and modal pages
+[33m909179f[m fix: Correct modal image cropping and fix CSS syntax
+[33m290ff53[m fix: Correct modal image cropping and fix CSS syntax
+[33meb0258a[m fix: Correct modal image cropping and fix CSS syntax
+[33m442221c[m fix: Correct modal image cropping and fix CSS syntax
+[33meda87bd[m feat: Adjust image object-fit for full display
+[33m9df860c[m feat: Increase gallery image upload limit to 20
+[33m4e545d3[m feat: Implement robust session check for admin portal
+[33m6d49bda[m feat: Add dedicated profile picture and update models API
+[33mfed8bb0[m Update models.html
+[33mb66bf47[m Update models.html
+[33m0bbbc0e[m Update models.html and server.js to show model details modal
+[33m18d41a3[m Update server.js and static file serving for image uploads
+[33m3f627fe[m Update server.js with improved session handling and error logging
+[33ma68c714[m Remove deprecated useUnifiedTopology from mongoose.connect
+[33m3044121[m Update server.js with session and environment variable fixes
+[33mac0ce1b[m Fix session cookies for Render by trusting proxy
+[33m3ba890c[m Update admin frontend to support secure session with credentials
+[33m8f67acb[m Fix session auth for admin page with CORS and secure cookies
+[33me973da5[m Switch backend to MongoDB Atlas for persistent model storage
+[33mc821c38[m change models name color
+[33m6976558[m Initial commit
