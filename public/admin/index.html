@@ -22,6 +22,14 @@
     .list-item img { width:48px; height:48px; object-fit:cover; border-radius:6px; }
     .badge { display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; background:#f1f1f1; color:#333; margin-left:8px; }
     .hint { font-size:12px; color:#777; margin-top:6px; }
+    .btn-edit { background:#2563eb; margin-left:6px; padding:8px 14px; font-size:13px; margin-top:0; }
+    .btn-delete { background:#c0392b; padding:8px 14px; font-size:13px; margin-top:0; }
+    .btn-cancel { background:#777; }
+    .edit-banner { background:#fffbe6; border:1px solid #f0c040; border-radius:8px; padding:10px 14px; margin-bottom:14px; font-weight:600; color:#7a5c00; }
+    .gallery-edit-thumbs { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .gallery-edit-thumbs .thumb-wrap { position:relative; display:inline-block; }
+    .gallery-edit-thumbs img { width:90px; height:90px; object-fit:cover; border:1px solid #ddd; border-radius:6px; display:block; }
+    .gallery-edit-thumbs .remove-img { position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.65); color:#fff; border:none; border-radius:999px; width:22px; height:22px; cursor:pointer; font-size:13px; line-height:22px; text-align:center; padding:0; margin:0; }
   </style>
   <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 </head>
@@ -42,7 +50,11 @@
 
     <!-- PANEL -->
     <section id="panel" style="display:none;">
-      <h2>Add Model</h2>
+      <h2 id="formTitle">Add Model</h2>
+      <div id="editBanner" class="edit-banner" style="display:none;">
+        Editing existing model — fill in only what you want to change, then click Save.
+      </div>
+
       <form id="modelForm">
         <div class="row">
           <div>
@@ -99,17 +111,29 @@
 
         <div>
           <label>Profile picture</label>
-          <input id="profileFile" type="file" accept="image/*" required />
+          <div id="currentProfileWrap" style="display:none; margin-top:8px;">
+            <p class="hint">Current profile picture (leave file empty to keep it):</p>
+            <img id="currentProfileImg" style="width:90px;height:90px;object-fit:cover;border:1px solid #ddd;border-radius:6px;" />
+          </div>
+          <input id="profileFile" type="file" accept="image/*" />
           <div id="profilePreview" class="thumbs"></div>
         </div>
 
         <div>
-          <label>Gallery images (you may select multiple)</label>
+          <label>Gallery images</label>
+          <div id="currentGalleryWrap" style="display:none; margin-top:8px;">
+            <p class="hint">Current gallery (click ✕ to remove an image):</p>
+            <div id="currentGalleryThumbs" class="gallery-edit-thumbs"></div>
+          </div>
+          <p class="hint" style="margin-top:8px;">Upload new images to add to gallery:</p>
           <input id="galleryFiles" type="file" accept="image/*" multiple />
           <div id="galleryPreview" class="thumbs"></div>
         </div>
 
-        <button type="submit" id="submitBtn">Create Model</button>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="submit" id="submitBtn">Create Model</button>
+          <button type="button" id="cancelEditBtn" class="btn-cancel" style="display:none;">Cancel Edit</button>
+        </div>
         <div id="submitError" class="error"></div>
         <div id="submitSuccess" class="success"></div>
       </form>
@@ -132,6 +156,10 @@
 
   const cloudName = "dk1df1qmi";
   const uploadPreset = "models_upload";
+
+  /* --------- EDIT STATE --------- */
+  let editingId = null;
+  let keptGalleryImages = []; // existing gallery URLs to keep during edit
 
   /* --------- HELPERS --------- */
   function fileThumbs(input, previewEl) {
@@ -230,7 +258,108 @@
   profileFile.addEventListener('change', () => fileThumbs(profileFile, profilePreview));
   galleryFiles.addEventListener('change', () => fileThumbs(galleryFiles, galleryPreview));
 
-  /* --------- SUBMIT MODEL --------- */
+  /* --------- EDIT MODEL --------- */
+  window.editModel = function(id) {
+    // Find the model data from the already-loaded list
+    fetch(`${API_BASE}/api/models`, { credentials: 'include' })
+      .then(r => r.json())
+      .then(models => {
+        const m = models.find(x => x._id === id);
+        if (!m) return alert('Model not found');
+
+        editingId = id;
+        keptGalleryImages = [...(m.galleryImages || [])];
+
+        // Populate form fields
+        document.getElementById('name').value = m.name || '';
+        document.getElementById('surname').value = m.surname || '';
+        document.getElementById('age').value = m.age || '';
+        document.getElementById('height').value = m.height || '';
+        document.getElementById('shoe').value = m.shoe || '';
+        document.getElementById('shirt').value = m.shirt || '';
+        document.getElementById('pants').value = m.pants || '';
+        document.getElementById('bio').value = m.bio || '';
+        document.getElementById('category').value = m.category || 'Women';
+
+        // Show current profile picture
+        const currentProfileWrap = document.getElementById('currentProfileWrap');
+        const currentProfileImg = document.getElementById('currentProfileImg');
+        if (m.profilePicture) {
+          currentProfileImg.src = m.profilePicture;
+          currentProfileWrap.style.display = 'block';
+        } else {
+          currentProfileWrap.style.display = 'none';
+        }
+
+        // Show current gallery with remove buttons
+        renderCurrentGallery();
+
+        // Update UI to show edit mode
+        document.getElementById('formTitle').textContent = 'Edit Model';
+        document.getElementById('editBanner').style.display = 'block';
+        document.getElementById('submitBtn').textContent = 'Save Changes';
+        document.getElementById('cancelEditBtn').style.display = 'inline-block';
+        profileFile.removeAttribute('required');
+
+        // Scroll to form
+        document.getElementById('modelForm').scrollIntoView({ behavior: 'smooth' });
+
+        // Clear any file inputs and previews
+        profileFile.value = '';
+        galleryFiles.value = '';
+        profilePreview.innerHTML = '';
+        galleryPreview.innerHTML = '';
+        document.getElementById('submitError').textContent = '';
+        document.getElementById('submitSuccess').textContent = '';
+      })
+      .catch(() => alert('Failed to load model data'));
+  };
+
+  function renderCurrentGallery() {
+    const wrap = document.getElementById('currentGalleryWrap');
+    const container = document.getElementById('currentGalleryThumbs');
+    if (!keptGalleryImages.length) {
+      wrap.style.display = 'none';
+      return;
+    }
+    wrap.style.display = 'block';
+    container.innerHTML = keptGalleryImages.map((src, i) => `
+      <div class="thumb-wrap">
+        <img src="${src}" alt="gallery image ${i}" />
+        <button class="remove-img" onclick="removeGalleryImage(${i})" title="Remove image">✕</button>
+      </div>
+    `).join('');
+  }
+
+  window.removeGalleryImage = function(index) {
+    keptGalleryImages.splice(index, 1);
+    renderCurrentGallery();
+  };
+
+  /* --------- CANCEL EDIT --------- */
+  document.getElementById('cancelEditBtn').addEventListener('click', () => {
+    resetForm();
+  });
+
+  function resetForm() {
+    editingId = null;
+    keptGalleryImages = [];
+    document.getElementById('modelForm').reset();
+    document.getElementById('formTitle').textContent = 'Add Model';
+    document.getElementById('editBanner').style.display = 'none';
+    document.getElementById('submitBtn').textContent = 'Create Model';
+    document.getElementById('cancelEditBtn').style.display = 'none';
+    document.getElementById('currentProfileWrap').style.display = 'none';
+    document.getElementById('currentGalleryWrap').style.display = 'none';
+    document.getElementById('currentGalleryThumbs').innerHTML = '';
+    profilePreview.innerHTML = '';
+    galleryPreview.innerHTML = '';
+    document.getElementById('submitError').textContent = '';
+    document.getElementById('submitSuccess').textContent = '';
+    profileFile.setAttribute('required', 'required');
+  }
+
+  /* --------- SUBMIT MODEL (CREATE or UPDATE) --------- */
   const modelForm = document.getElementById('modelForm');
   const submitBtn = document.getElementById('submitBtn');
   const submitError = document.getElementById('submitError');
@@ -241,18 +370,25 @@
     submitError.textContent = '';
     submitSuccess.textContent = '';
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Uploading...';
+    submitBtn.textContent = editingId ? 'Saving...' : 'Uploading...';
 
     try {
+      // Upload new profile picture if one was chosen
+      let profileUrl = null;
       const pf = profileFile.files?.[0];
-      if (!pf) throw new Error('Please choose a profile picture');
-      const profileRes = await uploadToCloudinary(pf);
-      const profileUrl = profileRes.secure_url;
+      if (pf) {
+        const profileRes = await uploadToCloudinary(pf);
+        profileUrl = profileRes.secure_url;
+      } else if (!editingId) {
+        throw new Error('Please choose a profile picture');
+      }
 
-      const gallery = galleryFiles.files ? [...galleryFiles.files] : [];
-      const galleryUploads = await Promise.all(gallery.map(file => uploadToCloudinary(file)));
-      const galleryUrls = galleryUploads.map(u => u.secure_url);
+      // Upload any new gallery images
+      const newGalleryFiles = galleryFiles.files ? [...galleryFiles.files] : [];
+      const newGalleryUploads = await Promise.all(newGalleryFiles.map(file => uploadToCloudinary(file)));
+      const newGalleryUrls = newGalleryUploads.map(u => u.secure_url);
 
+      // Build payload
       const payload = {
         name: document.getElementById('name').value.trim(),
         surname: document.getElementById('surname').value.trim(),
@@ -263,12 +399,19 @@
         pants: document.getElementById('pants').value.trim(),
         bio: document.getElementById('bio').value.trim(),
         category: document.getElementById('category').value,
-        profilePicture: profileUrl,
-        galleryImages: galleryUrls
+        galleryImages: editingId ? [...keptGalleryImages, ...newGalleryUrls] : newGalleryUrls
       };
 
-      const res = await fetch(`${API_BASE}/api/models`, {
-        method: 'POST',
+      if (profileUrl) payload.profilePicture = profileUrl;
+
+      // POST (create) or PUT (update)
+      const url = editingId
+        ? `${API_BASE}/api/models/${editingId}`
+        : `${API_BASE}/api/models`;
+      const method = editingId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(payload)
@@ -276,20 +419,21 @@
 
       if (!res.ok) {
         const txt = await res.text().catch(() => '');
-        throw new Error(`Create failed: ${res.status} ${res.statusText} ${txt}`);
+        throw new Error(`${editingId ? 'Update' : 'Create'} failed: ${res.status} ${res.statusText} ${txt}`);
       }
 
-      const created = await res.json();
-      submitSuccess.textContent = `✅ Model created: ${created.name} ${created.surname}`;
-      modelForm.reset();
-      profilePreview.innerHTML = '';
-      galleryPreview.innerHTML = '';
+      const saved = await res.json();
+      submitSuccess.textContent = editingId
+        ? `✅ Model updated: ${saved.name} ${saved.surname}`
+        : `✅ Model created: ${saved.name} ${saved.surname}`;
+
+      resetForm();
       loadModels();
     } catch (err) {
       submitError.textContent = err.message || 'Upload failed.';
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Create Model';
+      submitBtn.textContent = editingId ? 'Save Changes' : 'Create Model';
     }
   });
 
@@ -313,7 +457,8 @@
             </div>
             <div style="font-size:13px;color:#777;">Age: ${m.age || '-'} • Height: ${m.height || '-'}</div>
           </div>
-          <button onclick="deleteModel('${m._id}')">Delete</button>
+          <button class="btn-edit" onclick="editModel('${m._id}')">Edit</button>
+          <button class="btn-delete" onclick="deleteModel('${m._id}')">Delete</button>
         </div>
       `).join('') || '<div>No models yet.</div>';
     } catch (e) {

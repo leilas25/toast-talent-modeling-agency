@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-/* POST /api/models  (expects JSON with Cloudinary URLs) */
+/* POST /api/models */
 router.post('/', async (req, res) => {
   try {
     await ensureDb();
@@ -73,6 +73,62 @@ router.post('/', async (req, res) => {
   } catch (err) {
     console.error('Error creating model', err);
     return res.status(500).json({ error: 'Failed to create model' });
+  }
+});
+
+/* PUT /api/models/:id */
+router.put('/:id', async (req, res) => {
+  try {
+    await ensureDb();
+    if (!req.session?.isAdmin) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { id } = req.params;
+
+    const {
+      name,
+      surname,
+      age,
+      height,
+      shoe,
+      shirt,
+      pants,
+      bio,
+      category,
+      profilePicture,
+      galleryImages
+    } = req.body || {};
+
+    if (!name || !surname) {
+      return res.status(400).json({ error: 'Name and surname are required' });
+    }
+
+    const updates = {
+      name,
+      surname,
+      age,
+      height,
+      shoe,
+      shirt,
+      pants,
+      bio,
+      category,
+    };
+
+    if (profilePicture) updates.profilePicture = profilePicture;
+    if (galleryImages !== undefined) updates.galleryImages = galleryImages;
+
+    const doc = await Model.findByIdAndUpdate(id, updates, { new: true });
+
+    if (!doc) {
+      return res.status(404).json({ error: 'Model not found' });
+    }
+
+    return res.json(doc);
+  } catch (err) {
+    console.error('Error updating model', err);
+    return res.status(500).json({ error: 'Failed to update model' });
   }
 });
 
