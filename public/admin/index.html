@@ -130,7 +130,6 @@
     return 'http://localhost:10000';
   })();
 
-  // Cloudinary details (unsigned preset)
   const cloudName = "dk1df1qmi";
   const uploadPreset = "models_upload";
 
@@ -153,19 +152,18 @@
     const data = new FormData();
     data.append('file', file);
     data.append('upload_preset', uploadPreset);
-
     const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
       method: 'POST',
       body: data
     });
     if (!res.ok) throw new Error('Cloudinary upload failed');
-    return res.json(); // contains secure_url
+    return res.json();
   }
 
   async function checkAuth() {
     try {
       const res = await fetch(`${API_BASE}/api/check-auth`, { credentials: 'include' });
-      const j = await res.json().catch(()=>({}));
+      const j = await res.json().catch(() => ({}));
       if (res.ok && j.authenticated) {
         document.getElementById('loginSection').style.display = 'none';
         document.getElementById('panel').style.display = 'block';
@@ -175,8 +173,7 @@
         document.getElementById('panel').style.display = 'none';
       }
     } catch {
-      // fall back to old method if /api/check-auth not available
-      const res2 = await fetch(`${API_BASE}/api/models`, { credentials: 'include' }).catch(()=>({ok:false}));
+      const res2 = await fetch(`${API_BASE}/api/models`, { credentials: 'include' }).catch(() => ({ ok: false }));
       if (res2.ok) {
         document.getElementById('loginSection').style.display = 'none';
         document.getElementById('panel').style.display = 'block';
@@ -247,20 +244,15 @@
     submitBtn.textContent = 'Uploading...';
 
     try {
-      // 1) Upload profile picture
       const pf = profileFile.files?.[0];
       if (!pf) throw new Error('Please choose a profile picture');
       const profileRes = await uploadToCloudinary(pf);
       const profileUrl = profileRes.secure_url;
 
-      // 2) Upload gallery images (if any)
       const gallery = galleryFiles.files ? [...galleryFiles.files] : [];
-      const galleryUploads = await Promise.all(
-        gallery.map(file => uploadToCloudinary(file))
-      );
+      const galleryUploads = await Promise.all(gallery.map(file => uploadToCloudinary(file)));
       const galleryUrls = galleryUploads.map(u => u.secure_url);
 
-      // 3) Build payload and POST to API
       const payload = {
         name: document.getElementById('name').value.trim(),
         surname: document.getElementById('surname').value.trim(),
@@ -283,7 +275,7 @@
       });
 
       if (!res.ok) {
-        const txt = await res.text().catch(()=> '');
+        const txt = await res.text().catch(() => '');
         throw new Error(`Create failed: ${res.status} ${res.statusText} ${txt}`);
       }
 
@@ -314,10 +306,10 @@
       const rows = await res.json();
       listEl.innerHTML = rows.map(m => `
         <div class="list-item">
-          <img src="${m.profilePicture || ''}" alt="${(m.name||'')}" />
+          <img src="${m.profilePicture || ''}" alt="${m.name || ''}" />
           <div style="flex:1;">
             <div><strong>${m.name || ''} ${m.surname || ''}</strong>
-              ${m.category ? `<span class="badge">${m.category}</span>` : ``}
+              ${m.category ? `<span class="badge">${m.category}</span>` : ''}
             </div>
             <div style="font-size:13px;color:#777;">Age: ${m.age || '-'} • Height: ${m.height || '-'}</div>
           </div>
@@ -332,9 +324,10 @@
   window.deleteModel = async function(id) {
     if (!confirm('Delete this model?')) return;
     try {
-      const u = new URL(`${API_BASE}/api/models`);
-      u.searchParams.set('id', id);
-      const res = await fetch(u, { method: 'DELETE', credentials: 'include' });
+      const res = await fetch(`${API_BASE}/api/models/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
       if (res.ok) loadModels();
       else alert('Failed to delete model');
     } catch (e) {
@@ -352,7 +345,6 @@
     document.getElementById('adminPass').value = '';
   });
 
-  // init
   checkAuth();
 </script>
 </body>
