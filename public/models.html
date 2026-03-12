@@ -97,6 +97,12 @@
     </div>
   </div>
 
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="spinner"></div>
+    <p>Loading models...</p>
+  </div>
+
   <div class="wrap">
     <div id="grid" class="grid"></div>
   </div>
@@ -344,6 +350,9 @@
       tabs.forEach(x => x.classList.remove('active'));
       tab.classList.add('active');
       renderGrid(tab.dataset.cat);
+
+      // hide loading screen after models load
+      document.getElementById("loadingScreen").style.display = "none";
 
       const pre = params.get('model');
       if (pre) {
