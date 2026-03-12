@@ -202,30 +202,32 @@
     }
 
     function renderGrid(category) {
-      const items = allModels.filter(m => (m.category || 'Women') === category);
-      if (!items.length) {
-        grid.innerHTML = `<p style="color:#666;text-align:center;width:100%">No ${category} yet.</p>`;
-        return;
-      }
-      grid.innerHTML = items.map(m => `
-        <div class="card" data-id="${m._id}">
-          <img src="${m.profilePicture || ''}" alt="${(m.name||'')}" loading="lazy">
-          <div class="meta">
-            <h3>${m.name || ''} ${m.surname || ''}</h3>
-            <span class="chip">${m.height ? (m.height + ' cm') : ''}</span>
-            <span class="chip">${m.age ? ('Age ' + m.age) : ''}</span>
-          </div>
-        </div>
-      `).join('');
-
-      grid.querySelectorAll('.card').forEach(el => {
-        el.addEventListener('click', () => {
-          const id = el.getAttribute('data-id');
-          const model = allModels.find(x => x._id === id);
-          openModal(model);
-        });
-      });
+      const items = allModels.filter(m => 
+      ((m.category || 'Women').toLowerCase() === category.toLowerCase())
+    );
+    if (!items.length) {
+      grid.innerHTML = `<p style="color:#666;text-align:center;width:100%">No ${category} yet.</p>`;
+      return;
     }
+    grid.innerHTML = items.map(m => `
+      <div class="card" data-id="${m._id}">
+        <img src="${m.profilePicture || ''}" alt="${(m.name||'')}" loading="lazy">
+        <div class="meta">
+          <h3>${m.name || ''} ${m.surname || ''}</h3>
+          <span class="chip">${m.height ? (m.height + ' cm') : ''}</span>
+          <span class="chip">${m.age ? ('Age ' + m.age) : ''}</span>
+        </div>
+      </div>
+    `).join('');
+    
+    grid.querySelectorAll('.card').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.getAttribute('data-id');
+        const model = allModels.find(x => x._id === id);
+        openModal(model);
+      });
+    });
+  }
 
     function openModal(model) {
       current = { model, currentImgIdx: 0 };
